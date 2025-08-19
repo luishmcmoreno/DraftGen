@@ -1,0 +1,75 @@
+{
+  "common": {
+    "appName": "DraftGen",
+    "tagline": "AI-powered document template generator",
+    "getStarted": "Get Started",
+    "viewTemplates": "View Templates",
+    "nav": {
+      "generator": "Generator",
+      "templates": "Templates",
+      "logout": "Logout"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to DraftGen",
+      "subtitle": "Create and manage document templates with AI",
+      "googleCta": "Continue with Google"
+    },
+    "logout": "Logout"
+  },
+  "templates": {
+    "list": {
+      "title": "My Templates",
+      "createCta": "Create Template"
+    },
+    "card": {
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "edit": "Edit",
+      "generate": "Generate"
+    },
+    "empty": {
+      "title": "No templates yet",
+      "subtitle": "Create your first template to get started",
+      "cta": "Create in Generator"
+    },
+    "generate": {
+      "modal": {
+        "title": "Generate Document"
+      },
+      "submit": "Generate PDF",
+      "cancel": "Cancel",
+      "success": "Document generated successfully",
+      "failure": "Failed to generate document"
+    }
+  },
+  "generator": {
+    "title": "Template Generator",
+    "save": {
+      "cta": "Save Template",
+      "name": "Template Name",
+      "description": "Description",
+      "success": "Template saved successfully",
+      "failure": "Failed to save template"
+    },
+    "load": {
+      "success": "Template loaded successfully",
+      "failure": "Failed to load template"
+    },
+    "chat": {
+      "placeholder": "Describe your template...",
+      "send": "Send",
+      "emptyState": "Start a conversation to generate your template",
+      "error": {
+        "invalidJson": "Invalid JSON response"
+      }
+    }
+  },
+  "viewer": {
+    "preview": "Preview",
+    "variable": "Variable",
+    "noContent": "No content to display",
+    "emptyState": "Your document preview will appear here"
+  }
+}

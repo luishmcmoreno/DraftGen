@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  * {
+    @apply border-gray-200;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-xl;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+}
+
+@layer components {
+  .page {
+    @apply w-a4 min-h-a4 mx-auto my-4 bg-white shadow-soft p-8;
+  }
+
+  .page-break {
+    break-before: page;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 2cm;
+}
+
+@media print {
+  body {
+    @apply bg-transparent;
+  }
+  
+  .page {
+    @apply shadow-none mx-auto my-0;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}

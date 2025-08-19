@@ -1,0 +1,75 @@
+{
+  "common": {
+    "appName": "DraftGen",
+    "tagline": "Gerador de modelos de documentos com IA",
+    "getStarted": "Começar",
+    "viewTemplates": "Ver Modelos",
+    "nav": {
+      "generator": "Gerador",
+      "templates": "Modelos",
+      "logout": "Sair"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Entrar no DraftGen",
+      "subtitle": "Crie e gerencie modelos de documentos com IA",
+      "googleCta": "Continuar com Google"
+    },
+    "logout": "Sair"
+  },
+  "templates": {
+    "list": {
+      "title": "Meus Modelos",
+      "createCta": "Criar Modelo"
+    },
+    "card": {
+      "createdAt": "Criado",
+      "updatedAt": "Atualizado",
+      "edit": "Editar",
+      "generate": "Gerar"
+    },
+    "empty": {
+      "title": "Nenhum modelo ainda",
+      "subtitle": "Crie seu primeiro modelo para começar",
+      "cta": "Criar no Gerador"
+    },
+    "generate": {
+      "modal": {
+        "title": "Gerar Documento"
+      },
+      "submit": "Gerar PDF",
+      "cancel": "Cancelar",
+      "success": "Documento gerado com sucesso",
+      "failure": "Falha ao gerar documento"
+    }
+  },
+  "generator": {
+    "title": "Gerador de Modelos",
+    "save": {
+      "cta": "Salvar Modelo",
+      "name": "Nome do Modelo",
+      "description": "Descrição",
+      "success": "Modelo salvo com sucesso",
+      "failure": "Falha ao salvar modelo"
+    },
+    "load": {
+      "success": "Modelo carregado com sucesso",
+      "failure": "Falha ao carregar modelo"
+    },
+    "chat": {
+      "placeholder": "Descreva seu modelo...",
+      "send": "Enviar",
+      "emptyState": "Inicie uma conversa para gerar seu modelo",
+      "error": {
+        "invalidJson": "Resposta JSON inválida"
+      }
+    }
+  },
+  "viewer": {
+    "preview": "Visualização",
+    "variable": "Variável",
+    "noContent": "Nenhum conteúdo para exibir",
+    "emptyState": "A visualização do seu documento aparecerá aqui"
+  }
+}
