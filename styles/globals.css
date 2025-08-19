@@ -68,7 +68,15 @@
 
 @layer components {
   .page {
-    @apply w-a4 min-h-a4 mx-auto my-4 bg-white shadow-soft p-8 dark:bg-gray-900 dark:shadow-soft-dark;
+    @apply w-a4 min-h-a4 mx-auto my-4 bg-white shadow-soft p-8;
+    /* Always white background for document, regardless of theme */
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  
+  .page * {
+    /* Ensure all text inside document is black */
+    color: #000000;
   }
 
   .page-break {

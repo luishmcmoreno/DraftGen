@@ -1,4 +1,5 @@
 import React from 'react';
+import { documentStyles } from '@/utils/documentStyles';
 
 interface PdfPreviewProps {
   content: any; // DSL content
@@ -12,17 +13,23 @@ const PdfPreview = React.forwardRef<HTMLDivElement, PdfPreviewProps>(
         if (!node.content || node.content.trim() === '') {
           return <br key={index} />;
         }
+        
+        // Process variables in the content
+        const processedContent = node.content.replace(
+          /\$\{([A-Z0-9_]+)\}/g,
+          (match: string, varName: string) => {
+            // For PDF, we just show the variable name without special styling
+            // since the values should already be substituted
+            return varName;
+          }
+        );
+        
         return (
           <p 
             key={index}
-            style={{
-              margin: '0.5rem 0',
-              lineHeight: 1.6,
-              color: '#000000',
-              fontSize: '14px',
-            }}
+            style={documentStyles.paragraph}
           >
-            {node.content}
+            {processedContent}
           </p>
         );
       } else if (node.type === 'document' && Array.isArray(node.children)) {
@@ -41,15 +48,10 @@ const PdfPreview = React.forwardRef<HTMLDivElement, PdfPreviewProps>(
       <div
         ref={ref}
         style={{
-          width: '794px', // A4 width at 96 DPI
-          minHeight: '1123px', // A4 height at 96 DPI
-          padding: '80px 60px',
-          backgroundColor: '#ffffff',
-          color: '#000000',
-          fontFamily: 'Arial, Helvetica, sans-serif',
-          fontSize: '14px',
-          lineHeight: '1.5',
-          boxSizing: 'border-box',
+          ...documentStyles.page,
+          // Remove shadow for PDF generation
+          boxShadow: 'none',
+          margin: 0,
         }}
       >
         {renderNode(content)}

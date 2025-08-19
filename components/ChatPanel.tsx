@@ -84,14 +84,14 @@ export function ChatPanel({ messages, onSubmit, isLoading }: ChatPanelProps) {
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-4 border-t border-border">
-        <div className="flex gap-2">
+        <div className="relative">
           <Textarea
             ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={t('placeholder')}
-            className="resize-none"
+            className="resize-none pr-12"
             rows={3}
             disabled={isLoading}
           />
@@ -99,7 +99,8 @@ export function ChatPanel({ messages, onSubmit, isLoading }: ChatPanelProps) {
             type="submit"
             size="icon"
             disabled={!input.trim() || isLoading}
-            className="self-end"
+            className="absolute bottom-2 right-2 h-8 w-8 z-10"
+            variant="ghost"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />

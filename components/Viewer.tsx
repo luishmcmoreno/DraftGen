@@ -2,6 +2,7 @@
 
 import { DocumentSchema } from '@/lib/dslValidator';
 import { cn } from '@/lib/utils';
+import { documentStyles } from '@/utils/documentStyles';
 
 interface ViewerProps {
   dsl: DocumentSchema | null;
@@ -22,18 +23,23 @@ export function Viewer({ dsl, className }: ViewerProps) {
 
   const renderNode = (node: any, index: number) => {
     if (node.type === 'text') {
+      // Handle empty content as line breaks
+      if (!node.content || node.content.trim() === '') {
+        return <br key={index} />;
+      }
+      
       // Highlight variables with subtle tokens
       const content = node.content.replace(
         /\$\{([A-Z0-9_]+)\}/g,
         (match: string, varName: string) => {
-          return `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 mx-1">${varName}</span>`;
+          return `<span style="display: inline-flex; align-items: center; padding: 0.125rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 500; background-color: #dbeafe; color: #1e40af; margin: 0 0.25rem;">${varName}</span>`;
         }
       );
       
       return (
         <p 
           key={index} 
-          className="mb-4 leading-relaxed"
+          style={documentStyles.paragraph}
           dangerouslySetInnerHTML={{ __html: content }}
         />
       );
@@ -43,7 +49,7 @@ export function Viewer({ dsl, className }: ViewerProps) {
 
   return (
     <div className={cn('py-8 px-4', className)}>
-      <div className="page">
+      <div style={documentStyles.page}>
         {dsl.children?.map((node, index) => renderNode(node, index))}
       </div>
     </div>
