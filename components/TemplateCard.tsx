@@ -22,55 +22,57 @@ export default function TemplateCard({ template, onGenerate }: TemplateCardProps
   const hasOverflow = remainingTags.length > 0;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
-          {template.name}
-        </h3>
-        {template.description && (
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            {template.description}
-          </p>
-        )}
-      </div>
-
-      {template.tags.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2 items-center">
-          {visibleTags.map((tag, index) => (
-            <span
-              key={index}
-              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-            >
-              {tag}
-            </span>
-          ))}
-          {hasOverflow && (
-            <div className="relative">
-              <button
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
-              >
-                {t('moreVariables', { count: remainingTags.length })}
-              </button>
-              {showTooltip && (
-                <div className="absolute z-10 bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md shadow-lg whitespace-nowrap">
-                  <div className="flex flex-col gap-1">
-                    {remainingTags.map((tag, index) => (
-                      <span key={index}>{tag}</span>
-                    ))}
-                  </div>
-                  <div className="absolute bottom-0 left-4 transform translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900 dark:bg-gray-700"></div>
-                </div>
-              )}
-            </div>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow flex flex-col h-full gap-4">
+      <div className="flex-grow flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {template.name}
+          </h3>
+          {template.description && (
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
+              {template.description}
+            </p>
           )}
         </div>
-      )}
 
-      <div className="text-xs text-gray-500 dark:text-gray-400 mb-4 space-y-1">
-        <div>{t('createdAt')}: {formatDate(template.created_at)}</div>
-        <div>{t('updatedAt')}: {formatDate(template.updated_at)}</div>
+        {template.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 items-center">
+            {visibleTags.map((tag, index) => (
+              <span
+                key={index}
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+              >
+                {tag}
+              </span>
+            ))}
+            {hasOverflow && (
+              <div className="relative">
+                <button
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+                >
+                  {t('moreVariables', { count: remainingTags.length })}
+                </button>
+                {showTooltip && (
+                  <div className="absolute z-10 bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md shadow-lg whitespace-nowrap">
+                    <div className="flex flex-col gap-1">
+                      {remainingTags.map((tag, index) => (
+                        <span key={index}>{tag}</span>
+                      ))}
+                    </div>
+                    <div className="absolute bottom-0 left-4 transform translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900 dark:bg-gray-700"></div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="text-xs text-gray-500 dark:text-gray-400 mt-auto flex flex-col gap-1">
+          <div>{t('createdAt')}: {formatDate(template.created_at)}</div>
+          <div>{t('updatedAt')}: {formatDate(template.updated_at)}</div>
+        </div>
       </div>
 
       <div className="flex gap-2">
