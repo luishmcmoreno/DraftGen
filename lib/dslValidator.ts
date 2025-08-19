@@ -11,3 +11,18 @@ export const DocumentNode = z.object({
 })
 
 export type DocumentSchema = z.infer<typeof DocumentNode>
+
+export function validateDsl(json: unknown): { success: boolean; data?: DocumentSchema; error?: string } {
+  try {
+    const result = DocumentNode.parse(json);
+    return { success: true, data: result };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { 
+        success: false, 
+        error: error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
+      };
+    }
+    return { success: false, error: 'Invalid JSON structure' };
+  }
+}

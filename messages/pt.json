@@ -50,21 +50,33 @@
     "title": "Gerador de Modelos",
     "save": {
       "cta": "Salvar Modelo",
+      "modalTitle": "Salvar Modelo",
+      "modalDescription": "Dê um nome e descrição ao seu modelo",
       "name": "Nome do Modelo",
+      "namePlaceholder": "ex: Contrato de Trabalho",
       "description": "Descrição",
+      "descriptionPlaceholder": "Breve descrição deste modelo",
+      "save": "Salvar",
+      "saving": "Salvando...",
+      "cancel": "Cancelar",
       "success": "Modelo salvo com sucesso",
-      "failure": "Falha ao salvar modelo"
+      "successDescription": "O modelo '{name}' foi salvo",
+      "failure": "Falha ao salvar modelo",
+      "notAuthenticated": "Faça login para salvar modelos"
     },
     "load": {
       "success": "Modelo carregado com sucesso",
+      "successDescription": "O modelo '{name}' foi carregado",
       "failure": "Falha ao carregar modelo"
     },
     "chat": {
-      "placeholder": "Descreva seu modelo...",
+      "placeholder": "Descreva o modelo ou as mudanças que deseja fazer...",
       "send": "Enviar",
-      "emptyState": "Inicie uma conversa para gerar seu modelo",
+      "empty": "Comece descrevendo o modelo de documento que deseja criar",
+      "success": "Modelo atualizado com sucesso",
       "error": {
-        "invalidJson": "Resposta JSON inválida"
+        "title": "Erro na Geração",
+        "invalidJson": "Falha ao gerar estrutura de modelo válida"
       }
     }
   },

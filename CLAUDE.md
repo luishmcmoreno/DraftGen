@@ -317,7 +317,7 @@ export const formatDate = (d: string | number | Date) =>
 **Description:** Lovable-style. Prompts change the draft JSON; no manual editing in MVP.
 
 **AC:**
-- Two panes: left Chat (≈35%), right Viewer (≈65%).
+- Two panes: left Chat (≈22.5%), right Viewer (≈77.5%).
 - If `templateId` is provided, preload DSL JSON into viewer and chat context.
 - Sending prompt calls API; API returns **full** valid JSON DSL.
 - Valid JSON replaces current draft; invalid shows error toast (no state change).
@@ -487,7 +487,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### GNR-01 — Generator Layout
-- Split page: Chat left (35%), Viewer right (65%)
+- Split page: Chat left (22.5%), Viewer right (77.5%)
 - If `templateId` present, preload DSL
 
 **AC:** Layout matches spec; preloading works.

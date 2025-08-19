@@ -50,21 +50,33 @@
     "title": "Template Generator",
     "save": {
       "cta": "Save Template",
+      "modalTitle": "Save Template",
+      "modalDescription": "Give your template a name and description",
       "name": "Template Name",
+      "namePlaceholder": "e.g., Employment Contract",
       "description": "Description",
+      "descriptionPlaceholder": "Brief description of this template",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
       "success": "Template saved successfully",
-      "failure": "Failed to save template"
+      "successDescription": "Template '{name}' has been saved",
+      "failure": "Failed to save template",
+      "notAuthenticated": "Please sign in to save templates"
     },
     "load": {
       "success": "Template loaded successfully",
+      "successDescription": "Template '{name}' has been loaded",
       "failure": "Failed to load template"
     },
     "chat": {
-      "placeholder": "Describe your template...",
+      "placeholder": "Describe your template or changes you want to make...",
       "send": "Send",
-      "emptyState": "Start a conversation to generate your template",
+      "empty": "Start by describing the document template you want to create",
+      "success": "Template updated successfully",
       "error": {
-        "invalidJson": "Invalid JSON response"
+        "title": "Generation Error",
+        "invalidJson": "Failed to generate valid template structure"
       }
     }
   },

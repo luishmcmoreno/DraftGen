@@ -52,7 +52,7 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
 
   return (
     <header className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-      <div className="container mx-auto px-4">
+      <div className="px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
             <Link href="/" className="text-xl font-bold text-gray-900 dark:text-gray-50">
