@@ -6,7 +6,7 @@ import { extractVariables } from '@/utils/extractVariables';
 import { substituteVariables } from '@/utils/substituteVariables';
 import { Database } from '@/lib/supabase/database.types';
 import { usePDF } from 'react-to-pdf';
-import PdfPreview from './PdfPreview';
+import BasicPdfPreview from './BasicPdfPreview';
 
 type Template = Database['public']['Tables']['templates']['Row'];
 
@@ -31,7 +31,7 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
       qualityRatio: 1
     },
     page: {
-      margin: 10,
+      margin: 0, // No margin - padding is already in the document
       format: 'a4',
       orientation: 'portrait'
     }
@@ -86,27 +86,34 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Fill the template with values first
+    const filledDsl = substituteVariables(template.json, values);
+    console.log('Filled DSL:', filledDsl);
+    setFilledContent(filledDsl);
+    
+    // Show the PDF preview
     setIsGenerating(true);
 
     try {
-      // Fill the template with values
-      const filledDsl = substituteVariables(template.json, values);
-      setFilledContent(filledDsl);
+      // Wait for React to update and render the content
+      await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Wait for content to render
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Wait for content to be fully rendered
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       // Generate PDF using react-to-pdf
-      await toPDF();
+      toPDF();
       
       // Wait a bit before closing
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       // Close modal after successful generation
       onClose();
     } catch (error) {
       console.error('Failed to generate PDF:', error);
-      alert(t('failure'));
+      // More detailed error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`${t('failure')}: ${errorMessage}`);
     } finally {
       setIsGenerating(false);
     }
@@ -115,22 +122,38 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
   return (
     <>
       {/* Hidden PDF Preview for generation */}
-      <div 
-        style={{ 
-          position: 'absolute', 
-          left: '-9999px', 
-          top: '-9999px', 
-          width: '1px',
-          height: '1px',
-          overflow: 'hidden',
-          opacity: 0,
-          pointerEvents: 'none'
-        }}
-      >
-        <div ref={targetRef} style={{ display: 'inline-block' }}>
-          <PdfPreview content={filledContent || template.json} />
+      {isGenerating && (
+        <div 
+          style={{ 
+            position: 'fixed', 
+            left: 0, 
+            top: 0, 
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <div 
+            ref={targetRef}
+            style={{ 
+              padding: '72px',
+              width: '794px',
+              backgroundColor: 'white',
+              boxShadow: '0 0 20px rgba(0,0,0,0.3)'
+            }}
+          >
+            {filledContent ? (
+              <BasicPdfPreview content={filledContent} />
+            ) : (
+              <div>Loading content...</div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Modal */}
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

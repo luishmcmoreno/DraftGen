@@ -7,6 +7,9 @@ export const extractVariables = (dsl: unknown): string[] => {
       let m
       while ((m = re.exec(node.content))) result.add(m[1])
     }
+    // Skip page-break nodes as they don't contain variables
+    if (node.type === 'page-break') return
+    
     if (Array.isArray(node.children)) node.children.forEach(visit)
   }
   visit(dsl)

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { renderNode } from '@/utils/documentRenderer';
 import { documentStyles } from '@/utils/documentStyles';
 
 interface PdfPreviewProps {
@@ -7,54 +8,91 @@ interface PdfPreviewProps {
 
 const PdfPreview = React.forwardRef<HTMLDivElement, PdfPreviewProps>(
   ({ content }, ref) => {
-    const renderNode = (node: any, index: number = 0): JSX.Element | null => {
-      if (node.type === 'text') {
-        // Handle empty content as line breaks
-        if (!node.content || node.content.trim() === '') {
-          return <br key={index} />;
-        }
-        
-        // Process variables in the content
-        const processedContent = node.content.replace(
-          /\$\{([A-Z0-9_]+)\}/g,
-          (match: string, varName: string) => {
-            // For PDF, we just show the variable name without special styling
-            // since the values should already be substituted
-            return varName;
-          }
-        );
-        
-        return (
-          <p 
-            key={index}
-            style={documentStyles.paragraph}
-          >
-            {processedContent}
-          </p>
-        );
-      } else if (node.type === 'document' && Array.isArray(node.children)) {
-        return (
-          <div key={index}>
-            {node.children.map((child: any, childIndex: number) => 
-              renderNode(child, childIndex)
-            )}
-          </div>
-        );
+    // Pre-paginate content for PDF generation (same logic as AutoPaginatedDocument)
+    const pages = useMemo(() => {
+      if (!content || content.type !== 'document' || !Array.isArray(content.children)) {
+        return [];
       }
-      return null;
-    };
 
+      const result: any[][] = [];
+      let currentPage: any[] = [];
+      let currentPageHeight = 0;
+      const AVAILABLE_HEIGHT = 979 - 30; // Same as AutoPaginatedDocument
+
+      // Simple height estimation
+      const estimateHeight = (node: any) => {
+        if (node.type === 'text') {
+          const lines = Math.ceil((node.content?.length || 0) / 90) || 1;
+          return lines * 25;
+        }
+        return 0;
+      };
+
+      for (const node of content.children) {
+        if (node.type === 'page-break') {
+          if (currentPage.length > 0) {
+            result.push(currentPage);
+            currentPage = [];
+            currentPageHeight = 0;
+          }
+        } else {
+          const nodeHeight = estimateHeight(node);
+          
+          if (currentPageHeight > 0 && currentPageHeight + nodeHeight > AVAILABLE_HEIGHT) {
+            result.push(currentPage);
+            currentPage = [node];
+            currentPageHeight = nodeHeight;
+          } else {
+            currentPage.push(node);
+            currentPageHeight += nodeHeight;
+          }
+        }
+      }
+
+      if (currentPage.length > 0) {
+        result.push(currentPage);
+      }
+
+      return result.length > 0 ? result : [[]];
+    }, [content]);
+
+    if (!content || content.type !== 'document') {
+      return <div ref={ref}></div>;
+    }
+
+    // Render with exact same styles as AutoPaginatedDocument
     return (
-      <div
-        ref={ref}
-        style={{
-          ...documentStyles.page,
-          // Remove shadow for PDF generation
-          boxShadow: 'none',
-          margin: 0,
-        }}
-      >
-        {renderNode(content)}
+      <div ref={ref} style={{ backgroundColor: '#ffffff' }}>
+        {pages.map((pageContent, pageIndex) => (
+          <div
+            key={pageIndex}
+            className="pdf-page"
+            style={{
+              width: '794px',
+              height: '1123px',
+              padding: '72px',
+              backgroundColor: '#ffffff',
+              color: '#000000',
+              fontFamily: 'Arial, Helvetica, sans-serif',
+              fontSize: '12pt',
+              lineHeight: '1.5',
+              boxSizing: 'border-box',
+              position: 'relative',
+              pageBreakAfter: pageIndex < pages.length - 1 ? 'always' : 'auto',
+              pageBreakInside: 'avoid',
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{
+              maxHeight: '979px',
+              overflow: 'hidden'
+            }}>
+              {pageContent.map((node: any, nodeIndex: number) => 
+                renderNode(node, nodeIndex, { showVariables: false, forPdf: true })
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

@@ -1,0 +1,103 @@
+/* Print styles for document preview */
+
+/* Ensure document pages are styled consistently */
+.document-page {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+@media print {
+  body {
+    background: white !important;
+  }
+  
+  /* Hide everything except the document content */
+  .print-hidden {
+    display: none !important;
+  }
+  
+  /* Remove shadows and borders for print */
+  .document-page {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    page-break-after: always;
+  }
+  
+  .document-page:last-child {
+    page-break-after: auto;
+  }
+  
+  /* Page setup - no margins as they're included in the page padding */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  
+  /* Document page specific print styles */
+  .document-page {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    width: 794px !important;
+    height: 1123px !important;
+    padding: 72px !important;
+    box-sizing: border-box !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+    overflow: hidden !important;
+  }
+  
+  .document-page:last-child {
+    page-break-after: auto;
+  }
+  
+  /* Ensure content stays within bounds */
+  .page-content {
+    max-height: 979px !important; /* 1123px - 144px padding */
+    overflow: hidden !important;
+  }
+  
+  /* Ensure proper page breaks */
+  .page-break {
+    page-break-before: always;
+  }
+  
+  /* Hide UI elements */
+  .page-indicator,
+  .page-number-indicator,
+  .page-break-indicator,
+  .overflow-warning {
+    display: none !important;
+  }
+}
+
+/* Print preview mode styles */
+.print-preview-mode {
+  background: #e5e7eb !important;
+}
+
+.print-preview-mode .document-page {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Visual page break lines in editor */
+.page-break-line {
+  border-top: 2px dashed #cbd5e1;
+  margin: 2rem 0;
+  position: relative;
+}
+
+.page-break-line::before {
+  content: 'Page Break';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+}

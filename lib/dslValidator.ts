@@ -5,11 +5,19 @@ export const TextNode = z.object({
   content: z.string(),
 })
 
-export const DocumentNode = z.object({
-  type: z.literal('document'),
-  children: z.array(TextNode),
+export const PageBreakNode = z.object({
+  type: z.literal('page-break'),
 })
 
+export const NodeType = z.union([TextNode, PageBreakNode])
+
+export const DocumentNode = z.object({
+  type: z.literal('document'),
+  children: z.array(NodeType),
+})
+
+export type TextNodeType = z.infer<typeof TextNode>
+export type PageBreakNodeType = z.infer<typeof PageBreakNode>
 export type DocumentSchema = z.infer<typeof DocumentNode>
 
 export function validateDsl(json: unknown): { success: boolean; data?: DocumentSchema; error?: string } {
