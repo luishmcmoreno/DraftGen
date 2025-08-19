@@ -28,7 +28,8 @@
       "createdAt": "Criado",
       "updatedAt": "Atualizado",
       "edit": "Editar",
-      "generate": "Gerar"
+      "generate": "Gerar",
+      "moreVariables": "+{count} mais"
     },
     "empty": {
       "title": "Nenhum modelo ainda",

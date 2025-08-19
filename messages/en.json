@@ -28,7 +28,8 @@
       "createdAt": "Created",
       "updatedAt": "Updated",
       "edit": "Edit",
-      "generate": "Generate"
+      "generate": "Generate",
+      "moreVariables": "+{count} more"
     },
     "empty": {
       "title": "No templates yet",
