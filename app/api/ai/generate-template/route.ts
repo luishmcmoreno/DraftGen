@@ -1,34 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateDsl } from '@/lib/dslValidator';
 import { createClient } from '@/lib/supabase/server';
-
-const SYSTEM_PROMPT = `You are a document template generator. Your task is to generate valid JSON that matches the following DSL schema:
-
-{
-  "type": "document",
-  "children": [
-    { "type": "text", "content": "Some text content here" }
-  ]
-}
-
-Rules:
-1. Always output ONLY valid JSON, nothing else
-2. The root must have type "document" with a "children" array
-3. Each child must have type "text" with a "content" string
-4. Variables should be in the format \${VARIABLE_NAME} using UPPERCASE_SNAKE_CASE
-5. Based on the user's prompt, create appropriate document content
-6. If updating an existing template, maintain its structure while incorporating the requested changes
-
-Example output:
-{
-  "type": "document",
-  "children": [
-    { "type": "text", "content": "Employment Contract for \${EMPLOYEE_NAME}" },
-    { "type": "text", "content": "Start Date: \${START_DATE}" },
-    { "type": "text", "content": "Position: \${POSITION}" },
-    { "type": "text", "content": "Salary: \${SALARY}" }
-  ]
-}`;
+import { getAIProvider, AIError } from '@/lib/ai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,29 +24,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prepare the user prompt
-    let userPrompt = prompt;
-    if (existingJson) {
-      userPrompt = `Current template:\n${JSON.stringify(existingJson, null, 2)}\n\nUser request: ${prompt}`;
-    }
+    // Get AI provider and generate template
+    const provider = getAIProvider();
+    const result = await provider.generateTemplate({
+      prompt,
+      existingJson
+    });
 
-    // For MVP, we'll use a mock response
-    // In production, replace this with actual AI API call
-    const mockResponse = generateMockTemplate(prompt, existingJson);
-
-    // Validate the response
-    const validation = validateDsl(mockResponse);
+    return NextResponse.json(result);
     
-    if (!validation.success) {
+  } catch (error) {
+    console.error('Error generating template:', error);
+    
+    // Handle specific AI errors
+    if (error instanceof AIError) {
+      if (error.code === 'RATE_LIMIT') {
+        return NextResponse.json(
+          { error: 'Rate limit exceeded. Please try again later.' },
+          { status: 429 }
+        );
+      }
+      if (error.code === 'INVALID_RESPONSE') {
+        return NextResponse.json(
+          { error: 'Failed to generate valid template. Please try again.' },
+          { status: 422 }
+        );
+      }
       return NextResponse.json(
-        { error: validation.error },
+        { error: error.message },
         { status: 400 }
       );
     }
-
-    return NextResponse.json({ json: validation.data });
-  } catch (error) {
-    console.error('Error generating template:', error);
+    
     return NextResponse.json(
       { error: 'Failed to generate template' },
       { status: 500 }
@@ -82,7 +63,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Mock template generator for MVP
+// Keep mock function for reference (not used anymore)
 function generateMockTemplate(prompt: string, existingJson?: any): any {
   const promptLower = prompt.toLowerCase();
 
