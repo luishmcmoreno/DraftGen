@@ -105,14 +105,15 @@ RULES:
 1. Output ONLY valid JSON, nothing else - no markdown, no explanations
 2. The root must have type "document" with a "children" array
 3. Variables must use format \${VARIABLE_NAME} in UPPERCASE_SNAKE_CASE
-4. Use appropriate node types based on content structure:
+4. DO NOT add empty text nodes { "type": "text", "content": "" } between elements - spacing is handled automatically
+5. Use appropriate node types based on content structure:
    - Use lists for enumerations, bullet points, or numbered items
    - Use tables for tabular data, comparisons, or structured information
    - Use grids for side-by-side content or multi-column layouts
    - Use page-break to separate logical sections
-5. List items and table columns can contain any valid node types as children
-6. Maintain professional document structure and formatting
-7. When updating existing templates, preserve structure while incorporating changes
+6. List items and table columns can contain any valid node types as children
+7. Maintain professional document structure and formatting
+8. When updating existing templates, preserve structure while incorporating changes
 
 COMPLEX EXAMPLE:
 {
@@ -124,7 +125,6 @@ COMPLEX EXAMPLE:
       "content": "SERVICE AGREEMENT",
       "styles": { "alignment": "center" }
     },
-    { "type": "text", "content": "" },
     {
       "type": "grid",
       "columns": 2,

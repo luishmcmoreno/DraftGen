@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { documentStyles } from '@/utils/documentStyles';
 import { renderNode } from '@/utils/documentRenderer';
+import { splitNodeAtHeight } from '@/utils/nodeSplitter';
 
 interface AutoPaginatedDocumentProps {
   content: any; // DSL content
@@ -36,7 +37,6 @@ export function AutoPaginatedDocument({
 
     const processContent = async () => {
       setIsProcessing(true);
-      console.log('AutoPaginatedDocument: Processing content with', content.children.length, 'nodes');
       const newPages: any[][] = [];
       let currentPage: any[] = [];
       let currentPageHeight = 0;
@@ -57,8 +57,12 @@ export function AutoPaginatedDocument({
       measuringContainer.className = 'document-page';
       document.body.appendChild(measuringContainer);
 
-      for (let i = 0; i < content.children.length; i++) {
-        const node = content.children[i];
+      // Process nodes with the ability to split them
+      let remainingNodes = [...content.children];
+      const MAX_CONTENT_HEIGHT = AVAILABLE_HEIGHT; // Use full available height
+      
+      while (remainingNodes.length > 0) {
+        const node = remainingNodes.shift()!;
         
         // Handle explicit page breaks
         if (node.type === 'page-break') {
@@ -69,57 +73,109 @@ export function AutoPaginatedDocument({
           }
           continue;
         }
-
-        // Measure the height of this node using React rendering
+        
         const isFirstNode = currentPage.length === 0;
+        const remainingHeight = MAX_CONTENT_HEIGHT - currentPageHeight;
         
-        // Create a container for this specific node
-        const nodeContainer = document.createElement('div');
-        measuringContainer.appendChild(nodeContainer);
-        
-        // Create a React root and render the actual node
-        const root = createRoot(nodeContainer);
-        root.render(
-          renderNode(node, 0, { 
-            showVariables, 
-            forPdf: false,
-            isFirstOnPage: isFirstNode
-          })
+        // Try to split the node if needed
+        const splitResult = await splitNodeAtHeight(
+          node,
+          remainingHeight,
+          measuringContainer,
+          isFirstNode
         );
         
-        // Wait for React to finish rendering
-        await new Promise(resolve => setTimeout(resolve, 10));
         
-        // Measure the actual rendered height
-        const nodeHeight = nodeContainer.getBoundingClientRect().height;
-        
-        // Clean up
-        root.unmount();
-        measuringContainer.removeChild(nodeContainer);
-
-        // Check if adding this node would exceed page height
-        // Use a small buffer (30px) to prevent edge overflow
-        const MAX_CONTENT_HEIGHT = AVAILABLE_HEIGHT - 30;
-        
-        console.log(`Node ${i}: type=${node.type}, height=${nodeHeight}px, currentPageHeight=${currentPageHeight}px, wouldExceed=${currentPageHeight + nodeHeight > MAX_CONTENT_HEIGHT}`);
-        
-        // Skip nodes with 0 height (might be measurement errors)
-        if (nodeHeight === 0) {
-          console.warn(`Node ${i} has 0 height, skipping measurement but including in page`, node);
-          currentPage.push(node);
-          continue;
+        // Add the part that fits to current page
+        if (splitResult.fitsOnPage) {
+          currentPage.push(splitResult.fitsOnPage);
+          
+          // Measure the actual cumulative height to account for margin collapse
+          const testDocument = {
+            type: 'document' as const,
+            children: [...currentPage]
+          };
+          
+          // Create a temporary container to measure
+          const tempContainer = document.createElement('div');
+          tempContainer.style.cssText = measuringContainer.style.cssText;
+          tempContainer.className = measuringContainer.className;
+          tempContainer.style.visibility = 'hidden';
+          tempContainer.style.position = 'absolute';
+          tempContainer.style.left = '-9999px';
+          document.body.appendChild(tempContainer);
+          
+          // Render directly without wrapper divs
+          const tempRoot = createRoot(tempContainer);
+          tempRoot.render(
+            <>
+              {testDocument.children.map((child, index) => 
+                renderNode(child, index, { showVariables: true, forPdf: false })
+              )}
+            </>
+          );
+          
+          // Wait for render
+          await new Promise(resolve => setTimeout(resolve, 20));
+          
+          // Measure using the last element's offsetTop + height
+          const allChildren = tempContainer.children;
+          let actualCumulativeHeight = 0;
+          
+          if (allChildren.length > 0) {
+            const firstChild = allChildren[0] as HTMLElement;
+            const lastChild = allChildren[allChildren.length - 1] as HTMLElement;
+            
+            if (firstChild && lastChild) {
+              // Get the baseline offset (first element's top position)
+              const baselineOffset = firstChild.offsetTop;
+              
+              // Calculate height from baseline to bottom of last element
+              actualCumulativeHeight = (lastChild.offsetTop - baselineOffset) + lastChild.offsetHeight;
+              
+              // Also account for any bottom margin on the last element
+              const computedStyle = window.getComputedStyle(lastChild);
+              const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
+              actualCumulativeHeight += marginBottom;
+            }
+          }
+          
+          // Clean up
+          tempRoot.unmount();
+          document.body.removeChild(tempContainer);
+          
+          currentPageHeight = actualCumulativeHeight;
+          
         }
         
-        if (currentPageHeight > 0 && currentPageHeight + nodeHeight > MAX_CONTENT_HEIGHT) {
-          // Start a new page
-          console.log('Starting new page, pushing current page with', currentPage.length, 'nodes');
+        // Handle overflow
+        if (splitResult.overflow) {
+          // If nothing fit on this page, and page isn't empty, start a new page
+          if (!splitResult.fitsOnPage && currentPage.length > 0) {
+            newPages.push(currentPage);
+            currentPage = [];
+            currentPageHeight = 0;
+            // Add the overflow back to process on the new page
+            remainingNodes.unshift(splitResult.overflow);
+          } else if (splitResult.fitsOnPage) {
+            // Part of the node fit, start new page for overflow
+            newPages.push(currentPage);
+            currentPage = [];
+            currentPageHeight = 0;
+            remainingNodes.unshift(splitResult.overflow);
+          } else {
+            // Nothing fit and page is empty - this node is too big for a page
+            // Force it onto this page anyway (will overflow)
+            currentPage.push(node);
+            currentPageHeight = MAX_CONTENT_HEIGHT; // Force new page next
+          }
+        }
+        
+        // Check if we should start a new page
+        if (currentPageHeight >= MAX_CONTENT_HEIGHT && remainingNodes.length > 0) {
           newPages.push(currentPage);
-          currentPage = [node];
-          currentPageHeight = nodeHeight;
-        } else {
-          // Add to current page
-          currentPage.push(node);
-          currentPageHeight += nodeHeight;
+          currentPage = [];
+          currentPageHeight = 0;
         }
       }
 
@@ -138,10 +194,6 @@ export function AutoPaginatedDocument({
 
       setPages(newPages);
       setIsProcessing(false);
-      console.log('AutoPaginatedDocument: Generated', newPages.length, 'pages');
-      console.log('Total nodes processed:', content.children.length);
-      console.log('Nodes per page:', newPages.map(p => p.length));
-      console.log('Page heights accumulated:', newPages.map((_, i) => `Page ${i+1}: check console for details`));
     };
 
     // Small delay to ensure DOM is ready
@@ -210,8 +262,9 @@ export function AutoPaginatedDocument({
           {/* Page content - constrained within padding */}
           <div className="page-content" style={{
             maxHeight: `${AVAILABLE_HEIGHT}px`,
-            overflow: 'hidden',
-            position: 'relative'
+            overflow: 'visible', // Temporarily visible for debugging
+            position: 'relative',
+            outline: '1px dashed blue' // Debug outline to see boundaries
           }}>
             {pageContent.map((node, nodeIndex) => (
               <React.Fragment key={nodeIndex}>

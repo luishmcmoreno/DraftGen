@@ -46,18 +46,33 @@ function processTextContent(
 ): string {
   let processed = text;
   
-  // First, process variables
+  // Process variables first to protect them from markdown parsing
   if (showVariables && !forPdf) {
+    // Replace variables with a placeholder that won't be affected by markdown
+    const varPlaceholders: { [key: string]: string } = {};
+    let placeholderIndex = 0;
+    
     processed = processed.replace(
       /\$\{([A-Z0-9_]+)\}/g,
-      (_match: string, varName: string) => {
-        return `<span class="variable-token">${varName}</span>`;
+      (match: string) => {
+        const placeholder = `%%VARPLACEHOLDER${placeholderIndex}%%`;
+        varPlaceholders[placeholder] = `<span class="variable-token">${match}</span>`;
+        placeholderIndex++;
+        return placeholder;
       }
     );
+    
+    // Parse markdown (won't affect placeholders)
+    processed = parseMarkdown(processed);
+    
+    // Replace placeholders back with styled variables
+    Object.keys(varPlaceholders).forEach(placeholder => {
+      processed = processed.replace(placeholder, varPlaceholders[placeholder]);
+    });
+  } else {
+    // If not showing variables, just parse markdown
+    processed = parseMarkdown(processed);
   }
-  
-  // Then, parse markdown
-  processed = parseMarkdown(processed);
   
   return processed;
 }
@@ -87,9 +102,9 @@ export function renderNode(
   switch (node.type) {
     case 'text': {
       const textNode = node as TextNodeType;
-      // Handle empty content as line breaks
+      // Skip empty text nodes - spacing is handled by CSS margins
       if (!textNode.content || textNode.content.trim() === '') {
-        return <br key={index} />;
+        return null;
       }
       
       // Get text styles from node
@@ -189,11 +204,16 @@ export function renderNode(
     case 'list': {
       const listNode = node as ListNodeType;
       const ListTag = listNode.ordered ? 'ol' : 'ul';
+      
+      // Support continuing numbering for split ordered lists
+      const startFrom = (listNode as any).startFrom;
+      
       return (
         <ListTag 
           key={index}
+          start={startFrom} // HTML ol supports start attribute
           style={{
-            marginTop: '0.5rem',
+            marginTop: isFirstOnPage && index === 0 ? 0 : '0.5rem',
             marginBottom: '0.5rem',
             paddingLeft: '2rem',
             listStyleType: listNode.ordered ? 'decimal' : 'disc',
