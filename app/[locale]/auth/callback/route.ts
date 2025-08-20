@@ -19,7 +19,6 @@ export async function GET(
     const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
     
     if (sessionError) {
-      console.error('Session exchange error:', sessionError);
       return NextResponse.redirect(`${origin}${localePrefix}/login?error=invalid_code`);
     }
 

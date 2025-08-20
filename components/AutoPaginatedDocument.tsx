@@ -58,7 +58,7 @@ export function AutoPaginatedDocument({
       document.body.appendChild(measuringContainer);
 
       // Process nodes with the ability to split them
-      let remainingNodes = [...content.children];
+      const remainingNodes = [...content.children];
       const MAX_CONTENT_HEIGHT = AVAILABLE_HEIGHT; // Use full available height
       
       while (remainingNodes.length > 0) {
@@ -262,9 +262,7 @@ export function AutoPaginatedDocument({
           {/* Page content - constrained within padding */}
           <div className="page-content" style={{
             maxHeight: `${AVAILABLE_HEIGHT}px`,
-            overflow: 'visible', // Temporarily visible for debugging
             position: 'relative',
-            outline: '1px dashed blue' // Debug outline to see boundaries
           }}>
             {pageContent.map((node, nodeIndex) => (
               <React.Fragment key={nodeIndex}>

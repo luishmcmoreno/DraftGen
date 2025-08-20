@@ -42,8 +42,7 @@ const NODE_CONFIGS: Record<string, NodeSplitConfig> = {
     canSplit: true
   },
   'text': { 
-    canSplit: true,
-    minLines: 2 // Don't leave less than 2 lines on either page
+    canSplit: true
   },
   'heading': { 
     canSplit: false, 

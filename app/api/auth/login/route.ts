@@ -35,7 +35,6 @@ export async function GET(request: NextRequest) {
   });
 
   if (error) {
-    console.error('OAuth error:', error);
     return NextResponse.redirect(`${origin}/login?error=oauth_error`);
   }
 

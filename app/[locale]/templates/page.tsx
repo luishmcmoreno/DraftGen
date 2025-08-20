@@ -27,7 +27,7 @@ export default async function TemplatesPage({
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching templates:', error);
+    // Error fetching templates - templates will be empty
   }
 
   return (

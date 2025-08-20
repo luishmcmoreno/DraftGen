@@ -9,7 +9,6 @@ export async function POST() {
   const { error } = await supabase.auth.signOut();
   
   if (error) {
-    console.error('Logout error:', error);
     // Still redirect to login even if there's an error
   }
   

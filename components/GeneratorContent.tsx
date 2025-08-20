@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ChatPanel } from '@/components/ChatPanel';
@@ -24,13 +24,7 @@ export function GeneratorContent() {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
 
-  useEffect(() => {
-    if (templateId) {
-      loadTemplate(templateId);
-    }
-  }, [templateId]);
-
-  const loadTemplate = async (id: string) => {
+  const loadTemplate = useCallback(async (id: string) => {
     const supabase = createClient();
     const { data, error } = await supabase
       .from('templates')
@@ -55,7 +49,13 @@ export function GeneratorContent() {
         description: t('load.successDescription', { name: data.name }),
       });
     }
-  };
+  }, [t, toast]);
+
+  useEffect(() => {
+    if (templateId) {
+      loadTemplate(templateId);
+    }
+  }, [templateId, loadTemplate]);
 
   const handlePromptSubmit = async (prompt: string) => {
     setIsLoading(true);
