@@ -24,6 +24,11 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
 
   return (
     <>
+      <VariableFormModal
+        template={selectedTemplate}
+        onClose={handleCloseModal}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {templates.map((template) => (
           <TemplateCard
@@ -33,11 +38,6 @@ export default function TemplatesClient({ templates }: TemplatesClientProps) {
           />
         ))}
       </div>
-
-      <VariableFormModal
-        template={selectedTemplate}
-        onClose={handleCloseModal}
-      />
     </>
   );
 }

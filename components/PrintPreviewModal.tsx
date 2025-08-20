@@ -17,7 +17,7 @@ export default function PrintPreviewModal({ content, templateName, onClose }: Pr
   };
 
   return (
-    <div className="fixed inset-0 bg-white dark:bg-gray-900 z-[9999] overflow-auto">
+    <div className="print-preview-container fixed inset-0 bg-white dark:bg-gray-900 z-[9999] overflow-auto print:bg-white">
       {/* Header - hidden during print */}
       <div className="print-hide sticky top-0 bg-white dark:bg-gray-900 border-b p-4">
         <div className="flex items-center justify-between">
@@ -37,10 +37,6 @@ export default function PrintPreviewModal({ content, templateName, onClose }: Pr
             </button>
           </div>
         </div>
-        {/* Print tip */}
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-          💡 Tip: In the print dialog, uncheck "Headers and Footers" for a cleaner document
-        </p>
       </div>
       
       {/* Document content */}

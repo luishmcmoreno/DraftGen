@@ -106,6 +106,28 @@
 }
 
 @media print {
+  /* Hide all elements by default */
+  body * {
+    visibility: hidden !important;
+  }
+  
+  /* Show only the print preview container and its descendants */
+  .print-preview-container,
+  .print-preview-container * {
+    visibility: visible !important;
+  }
+  
+  /* Ensure the print preview container is properly positioned */
+  .print-preview-container {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    overflow: visible !important;
+    min-height: auto !important;
+    height: auto !important;
+    background: white !important;
+  }
+  
   /* Only hide elements explicitly marked for hiding during print */
   .print-hide {
     display: none !important;
@@ -135,17 +157,17 @@
     box-shadow: none !important;
     border: none !important;
     margin: 0 !important;
-    /* Override the fixed height to allow content to flow */
-    height: auto !important;
-    min-height: 100vh !important; /* Ensure each page takes at least full viewport */
-    overflow: visible !important;
-    /* Force new page for each document-page */
-    break-after: page !important;
+    /* Keep A4 dimensions for proper layout */
+    width: 794px !important;
+    height: 1123px !important;
+    overflow: hidden !important;
+    /* Don't force page break by default */
+    break-after: auto !important;
   }
   
-  /* Don't add extra page after last document page */
-  .document-page:last-child {
-    break-after: auto !important;
+  /* Only force page break between multiple pages, not after the last one */
+  .document-page:not(:last-child) {
+    break-after: page !important;
   }
   
   /* Ensure proper color printing */
