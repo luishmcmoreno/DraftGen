@@ -102,19 +102,55 @@
 
 @page {
   size: A4;
-  margin: 2cm;
+  margin: 0; /* Remove page margins - padding is already in the document */
 }
 
 @media print {
-  body {
-    @apply bg-transparent;
-  }
-  
-  .page {
-    @apply shadow-none mx-auto my-0;
-  }
-  
-  .no-print {
+  /* Only hide elements explicitly marked for hiding during print */
+  .print-hide {
     display: none !important;
+  }
+  
+  /* Remove overflow from containers */
+  body, html, 
+  .overflow-auto,
+  div[class*="overflow"] {
+    overflow: visible !important;
+  }
+  
+  /* Hide the outer container backgrounds */
+  .py-8.px-4.bg-gray-100 {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+  
+  /* Hide page decorations */
+  .document-page > div[class*="absolute"],
+  .document-page .text-xs.text-gray-400 {
+    display: none !important;
+  }
+  
+  /* Fix document pages for printing */
+  .document-page {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    /* Override the fixed height to allow content to flow */
+    height: auto !important;
+    min-height: 100vh !important; /* Ensure each page takes at least full viewport */
+    overflow: visible !important;
+    /* Force new page for each document-page */
+    break-after: page !important;
+  }
+  
+  /* Don't add extra page after last document page */
+  .document-page:last-child {
+    break-after: auto !important;
+  }
+  
+  /* Ensure proper color printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }

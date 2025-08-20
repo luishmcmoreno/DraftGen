@@ -24,7 +24,7 @@ export default function RootLayout({
       <head>
         <ThemeScript />
       </head>
-      <body className="font-sans min-h-screen">
+      <body className="font-sans screen:min-h-screen">
         {children}
       </body>
     </html>

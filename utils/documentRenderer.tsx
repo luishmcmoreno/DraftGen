@@ -32,7 +32,6 @@ export function renderNode(
       
       return (
         <p 
-          key={index} 
           style={{
             ...documentStyles.paragraph,
             fontFamily: 'inherit' // Ensure it inherits from parent
@@ -44,7 +43,6 @@ export function renderNode(
       // For PDF or when variables are substituted: render plain text
       return (
         <p 
-          key={index}
           style={{
             ...documentStyles.paragraph,
             fontFamily: 'inherit' // Ensure it inherits from parent

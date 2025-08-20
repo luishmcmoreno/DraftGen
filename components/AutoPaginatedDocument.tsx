@@ -195,9 +195,11 @@ export function AutoPaginatedDocument({
             overflow: 'hidden',
             position: 'relative'
           }}>
-            {pageContent.map((node, nodeIndex) => 
-              renderNode(node, nodeIndex, { showVariables, forPdf })
-            )}
+            {pageContent.map((node, nodeIndex) => (
+              <React.Fragment key={nodeIndex}>
+                {renderNode(node, nodeIndex, { showVariables, forPdf })}
+              </React.Fragment>
+            ))}
           </div>
           
           {/* Page number footer and page break indicator */}
