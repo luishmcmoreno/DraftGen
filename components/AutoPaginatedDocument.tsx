@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { createRoot } from 'react-dom/client';
 import { documentStyles } from '@/utils/documentStyles';
 import { renderNode } from '@/utils/documentRenderer';
-import { measureNodeHeight } from '@/utils/measureNode';
 
 interface AutoPaginatedDocumentProps {
   content: any; // DSL content
@@ -37,7 +37,6 @@ export function AutoPaginatedDocument({
     const processContent = async () => {
       setIsProcessing(true);
       console.log('AutoPaginatedDocument: Processing content with', content.children.length, 'nodes');
-      console.log('Content:', JSON.stringify(content, null, 2));
       const newPages: any[][] = [];
       let currentPage: any[] = [];
       let currentPageHeight = 0;
@@ -45,13 +44,15 @@ export function AutoPaginatedDocument({
       // Create a hidden measuring container with exact page styles
       const measuringContainer = document.createElement('div');
       measuringContainer.style.cssText = `
-        position: absolute;
-        visibility: hidden;
+        position: fixed;
+        top: -9999px;
+        left: -9999px;
         width: ${794 - 144}px; /* A4 width minus padding (72px * 2) */
         font-family: ${documentStyles.page.fontFamily};
         font-size: ${documentStyles.page.fontSize};
         line-height: ${documentStyles.page.lineHeight};
         color: #000000;
+        background: white;
       `;
       measuringContainer.className = 'document-page';
       document.body.appendChild(measuringContainer);
@@ -69,9 +70,32 @@ export function AutoPaginatedDocument({
           continue;
         }
 
-        // Measure the height of this node
+        // Measure the height of this node using React rendering
         const isFirstNode = currentPage.length === 0;
-        const nodeHeight = measureNodeHeight(node, measuringContainer, showVariables, isFirstNode);
+        
+        // Create a container for this specific node
+        const nodeContainer = document.createElement('div');
+        measuringContainer.appendChild(nodeContainer);
+        
+        // Create a React root and render the actual node
+        const root = createRoot(nodeContainer);
+        root.render(
+          renderNode(node, 0, { 
+            showVariables, 
+            forPdf: false,
+            isFirstOnPage: isFirstNode
+          })
+        );
+        
+        // Wait for React to finish rendering
+        await new Promise(resolve => setTimeout(resolve, 10));
+        
+        // Measure the actual rendered height
+        const nodeHeight = nodeContainer.getBoundingClientRect().height;
+        
+        // Clean up
+        root.unmount();
+        measuringContainer.removeChild(nodeContainer);
 
         // Check if adding this node would exceed page height
         // Use a small buffer (30px) to prevent edge overflow
@@ -115,6 +139,9 @@ export function AutoPaginatedDocument({
       setPages(newPages);
       setIsProcessing(false);
       console.log('AutoPaginatedDocument: Generated', newPages.length, 'pages');
+      console.log('Total nodes processed:', content.children.length);
+      console.log('Nodes per page:', newPages.map(p => p.length));
+      console.log('Page heights accumulated:', newPages.map((_, i) => `Page ${i+1}: check console for details`));
     };
 
     // Small delay to ensure DOM is ready
