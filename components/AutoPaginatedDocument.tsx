@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { documentStyles } from '@/utils/documentStyles';
 import { renderNode } from '@/utils/documentRenderer';
+import { measureNodeHeight } from '@/utils/measureNode';
 
 interface AutoPaginatedDocumentProps {
   content: any; // DSL content
@@ -18,7 +19,6 @@ export function AutoPaginatedDocument({
   className = ''
 }: AutoPaginatedDocumentProps) {
   const [pages, setPages] = useState<any[][]>([[]]);
-  const measureRef = useRef<HTMLDivElement>(null);
   const [isProcessing, setIsProcessing] = useState(true);
 
   // Calculate available height for content (A4 height minus padding)
@@ -36,6 +36,8 @@ export function AutoPaginatedDocument({
 
     const processContent = async () => {
       setIsProcessing(true);
+      console.log('AutoPaginatedDocument: Processing content with', content.children.length, 'nodes');
+      console.log('Content:', JSON.stringify(content, null, 2));
       const newPages: any[][] = [];
       let currentPage: any[] = [];
       let currentPageHeight = 0;
@@ -49,7 +51,9 @@ export function AutoPaginatedDocument({
         font-family: ${documentStyles.page.fontFamily};
         font-size: ${documentStyles.page.fontSize};
         line-height: ${documentStyles.page.lineHeight};
+        color: #000000;
       `;
+      measuringContainer.className = 'document-page';
       document.body.appendChild(measuringContainer);
 
       for (let i = 0; i < content.children.length; i++) {
@@ -66,39 +70,25 @@ export function AutoPaginatedDocument({
         }
 
         // Measure the height of this node
-        const tempDiv = document.createElement('div');
-        if (node.type === 'text') {
-          const p = document.createElement('p');
-          p.style.cssText = `
-            margin: 0 0 1em 0;
-            line-height: 1.5;
-            font-size: 12pt;
-            font-family: inherit;
-          `;
-          // Handle empty content as line break
-          if (!node.content || node.content.trim() === '') {
-            p.innerHTML = '<br>';
-          } else {
-            // Account for variables in the text
-            const textWithVariables = node.content.replace(
-              /\$\{([A-Z0-9_]+)\}/g,
-              '<span style="display: inline-block; padding: 0.125rem 0.5rem; margin: 0 0.25rem;">$1</span>'
-            );
-            p.innerHTML = textWithVariables;
-          }
-          tempDiv.appendChild(p);
-        }
-        
-        measuringContainer.appendChild(tempDiv);
-        const nodeHeight = tempDiv.offsetHeight;
-        measuringContainer.removeChild(tempDiv);
+        const isFirstNode = currentPage.length === 0;
+        const nodeHeight = measureNodeHeight(node, measuringContainer, showVariables, isFirstNode);
 
         // Check if adding this node would exceed page height
         // Use a small buffer (30px) to prevent edge overflow
         const MAX_CONTENT_HEIGHT = AVAILABLE_HEIGHT - 30;
         
+        console.log(`Node ${i}: type=${node.type}, height=${nodeHeight}px, currentPageHeight=${currentPageHeight}px, wouldExceed=${currentPageHeight + nodeHeight > MAX_CONTENT_HEIGHT}`);
+        
+        // Skip nodes with 0 height (might be measurement errors)
+        if (nodeHeight === 0) {
+          console.warn(`Node ${i} has 0 height, skipping measurement but including in page`, node);
+          currentPage.push(node);
+          continue;
+        }
+        
         if (currentPageHeight > 0 && currentPageHeight + nodeHeight > MAX_CONTENT_HEIGHT) {
           // Start a new page
+          console.log('Starting new page, pushing current page with', currentPage.length, 'nodes');
           newPages.push(currentPage);
           currentPage = [node];
           currentPageHeight = nodeHeight;
@@ -124,6 +114,7 @@ export function AutoPaginatedDocument({
 
       setPages(newPages);
       setIsProcessing(false);
+      console.log('AutoPaginatedDocument: Generated', newPages.length, 'pages');
     };
 
     // Small delay to ensure DOM is ready
@@ -168,7 +159,7 @@ export function AutoPaginatedDocument({
           {!forPdf && (
             <>
               <div 
-                className="absolute -top-6 left-0 text-xs text-gray-500 font-medium"
+                className="absolute -top-6 left-0 text-xs text-gray-500 dark:text-gray-400 font-medium z-10"
                 style={{ top: '-24px' }}
               >
                 Page {pageIndex + 1} of {pages.length}
@@ -197,7 +188,11 @@ export function AutoPaginatedDocument({
           }}>
             {pageContent.map((node, nodeIndex) => (
               <React.Fragment key={nodeIndex}>
-                {renderNode(node, nodeIndex, { showVariables, forPdf })}
+                {renderNode(node, nodeIndex, { 
+                  showVariables, 
+                  forPdf,
+                  isFirstOnPage: nodeIndex === 0 
+                })}
               </React.Fragment>
             ))}
           </div>

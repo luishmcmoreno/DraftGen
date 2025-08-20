@@ -20,6 +20,7 @@ import type {
 export interface RenderOptions {
   showVariables?: boolean; // Show variable tokens in preview
   forPdf?: boolean; // Rendering for PDF generation
+  isFirstOnPage?: boolean; // Is this the first element on the page
 }
 
 function parseMarkdown(text: string): string {
@@ -81,7 +82,7 @@ export function renderNode(
   index: number, 
   options: RenderOptions = {}
 ): React.JSX.Element | null {
-  const { showVariables = true, forPdf = false } = options;
+  const { showVariables = true, forPdf = false, isFirstOnPage = false } = options;
   
   switch (node.type) {
     case 'text': {
@@ -151,10 +152,14 @@ export function renderNode(
       // Check if we have HTML content
       const hasHtml = processedContent !== headingNode.content;
       
+      // Don't let fontSize from text styles override heading sizes
+      const { fontSize: _ignoredFontSize, ...customStylesWithoutFontSize } = customStyles;
+      
       const combinedStyles: React.CSSProperties = {
-        ...baseStyles,
-        ...customStyles,
+        ...customStylesWithoutFontSize, // Apply custom styles (without fontSize)
+        ...baseStyles, // Base heading styles (includes proper fontSize)
         fontFamily: 'inherit',
+        ...(isFirstOnPage && index === 0 ? { marginTop: 0 } : {})
       };
       
       // Render heading based on level
@@ -324,7 +329,7 @@ export function renderNode(
             display: 'grid',
             gridTemplateColumns: `repeat(${columns}, 1fr)`,
             gap: '1rem',
-            marginTop: '1rem',
+            marginTop: isFirstOnPage && index === 0 ? 0 : '1rem',
             marginBottom: '1rem',
           }}
         >

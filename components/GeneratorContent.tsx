@@ -165,8 +165,8 @@ export function GeneratorContent() {
         </div>
 
         {/* Right Panel - Viewer (77.5%) */}
-        <div className="w-[77.5%] bg-muted/30 overflow-auto">
-          <Viewer dsl={currentDsl} />
+        <div className="w-[77.5%] bg-muted/30 flex flex-col">
+          <Viewer dsl={currentDsl} className="flex-1" />
         </div>
       </div>
 

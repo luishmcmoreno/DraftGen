@@ -22,7 +22,7 @@ export function Viewer({ dsl, className }: ViewerProps) {
   }
 
   return (
-    <div className={cn('py-8 px-4 bg-gray-100 dark:bg-gray-900 overflow-auto', className)}>
+    <div className={cn('py-8 px-4 bg-gray-100 dark:bg-gray-900 h-full overflow-auto', className)}>
       <div className="max-w-[850px] mx-auto">
         <AutoPaginatedDocument 
           content={dsl} 
