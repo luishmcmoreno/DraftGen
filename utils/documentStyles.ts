@@ -1,6 +1,69 @@
 // Shared styles for document rendering
 // Used by both Viewer (preview) and PdfPreview (PDF generation)
 
+// Font size mappings for text nodes
+export const fontSizeMap = {
+  small: '10pt',
+  normal: '12pt',
+  large: '14pt',
+  xl: '18pt',
+  xxl: '24pt',
+} as const;
+
+// Heading size and style mappings
+export const headingStyleMap = {
+  1: {
+    fontSize: '28pt',
+    fontWeight: 'bold',
+    marginTop: '1.5em',
+    marginBottom: '0.75em',
+    lineHeight: '1.2',
+  },
+  2: {
+    fontSize: '24pt',
+    fontWeight: 'bold',
+    marginTop: '1.25em',
+    marginBottom: '0.5em',
+    lineHeight: '1.25',
+  },
+  3: {
+    fontSize: '20pt',
+    fontWeight: 'bold',
+    marginTop: '1em',
+    marginBottom: '0.5em',
+    lineHeight: '1.3',
+  },
+  4: {
+    fontSize: '16pt',
+    fontWeight: 'bold',
+    marginTop: '0.75em',
+    marginBottom: '0.5em',
+    lineHeight: '1.35',
+  },
+  5: {
+    fontSize: '14pt',
+    fontWeight: 'bold',
+    marginTop: '0.5em',
+    marginBottom: '0.25em',
+    lineHeight: '1.4',
+  },
+  6: {
+    fontSize: '12pt',
+    fontWeight: 'bold',
+    marginTop: '0.5em',
+    marginBottom: '0.25em',
+    lineHeight: '1.4',
+  },
+} as const;
+
+// Text alignment mappings
+export const textAlignMap = {
+  left: 'left',
+  center: 'center',
+  right: 'right',
+  justify: 'justify',
+} as const;
+
 export const documentStyles = {
   page: {
     width: '794px', // A4 width at 96 DPI (210mm)

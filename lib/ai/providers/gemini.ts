@@ -5,7 +5,7 @@ import { GenerateTemplateRequest, GenerateTemplateResponse, AIError } from '../t
 export class GeminiProvider extends BaseAIProvider {
   private genAI: GoogleGenerativeAI;
   private model: any;
-
+  
   constructor(apiKey: string) {
     super();
     
@@ -20,7 +20,7 @@ export class GeminiProvider extends BaseAIProvider {
       model: 'gemini-2.5-flash',
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 8192, // Increased for complex documents
         responseMimeType: 'application/json', // Force JSON output
       },
     });
@@ -44,8 +44,20 @@ export class GeminiProvider extends BaseAIProvider {
         jsonResponse = JSON.parse(text);
       } catch (parseError) {
         console.error('Failed to parse Gemini response:', text);
-        throw new AIError('Invalid JSON response from Gemini', 'INVALID_RESPONSE');
+        
+        // Check if the response was truncated
+        if (text && text.length > 1000 && !text.trim().endsWith('}')) {
+          throw new AIError(
+            'Response was truncated. Please try a simpler prompt or break it into smaller parts.',
+            'INVALID_RESPONSE'
+          );
+        }
+        
+        throw new AIError('Invalid JSON response from Gemini. Please try again.', 'INVALID_RESPONSE');
       }
+      
+      // Log the response for debugging
+      console.log('Gemini generated JSON:', JSON.stringify(jsonResponse, null, 2));
       
       // Validate and return
       return this.validateResponse(jsonResponse);
@@ -54,6 +66,11 @@ export class GeminiProvider extends BaseAIProvider {
       // Handle rate limiting
       if (error.message?.includes('429') || error.message?.includes('quota')) {
         throw new AIError('Rate limit exceeded. Please try again later.', 'RATE_LIMIT');
+      }
+      
+      // Handle service overload
+      if (error.message?.includes('503') || error.message?.includes('overloaded')) {
+        throw new AIError('The AI service is currently overloaded. Please try again in a few seconds.', 'RATE_LIMIT');
       }
       
       // Re-throw AIErrors

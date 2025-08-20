@@ -67,6 +67,34 @@
   p {
     @apply leading-relaxed;
   }
+
+  /* Restore list styles (Tailwind resets them by default) */
+  ul {
+    list-style-type: disc;
+    padding-left: 2rem;
+  }
+
+  ol {
+    list-style-type: decimal;
+    padding-left: 2rem;
+  }
+
+  li {
+    display: list-item;
+  }
+
+  /* Nested lists */
+  ul ul {
+    list-style-type: circle;
+  }
+
+  ul ul ul {
+    list-style-type: square;
+  }
+
+  ol ol {
+    list-style-type: lower-alpha;
+  }
 }
 
 @layer components {
@@ -76,11 +104,12 @@
     align-items: center;
     padding: 0.125rem 0.5rem;
     border-radius: 0.25rem;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 500;
-    background-color: #dbeafe;
-    color: #1e40af;
+    background-color: #dbeafe !important;
+    color: #1e40af !important;
     margin: 0 0.25rem;
+    vertical-align: baseline;
   }
   
   .page {
@@ -93,6 +122,37 @@
   .page * {
     /* Ensure all text inside document is black */
     color: #000000;
+  }
+  
+  /* Document page styles - override dark mode */
+  .document-page {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  
+  .document-page * {
+    color: inherit;
+  }
+  
+  .document-page h1,
+  .document-page h2,
+  .document-page h3,
+  .document-page h4,
+  .document-page h5,
+  .document-page h6,
+  .document-page p,
+  .document-page span:not(.variable-token),
+  .document-page div,
+  .document-page li,
+  .document-page td,
+  .document-page th {
+    color: #000000 !important;
+  }
+  
+  /* Keep variable tokens styled */
+  .document-page .variable-token {
+    background-color: #dbeafe !important;
+    color: #1e40af !important;
   }
 
   .page-break {
