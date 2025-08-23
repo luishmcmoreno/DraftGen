@@ -20,7 +20,6 @@ export class GeminiProvider extends BaseAIProvider {
       model: 'gemini-2.5-flash',
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 8192, // Increased for complex documents
         responseMimeType: 'application/json', // Force JSON output
       },
     });
