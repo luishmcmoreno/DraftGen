@@ -7,9 +7,10 @@ import { AutoPaginatedDocument } from './AutoPaginatedDocument';
 interface ViewerProps {
   dsl: DocumentSchema | null;
   className?: string;
+  onDslUpdate?: (updater: (dsl: any) => any) => void;
 }
 
-export function Viewer({ dsl, className }: ViewerProps) {
+export function Viewer({ dsl, className, onDslUpdate }: ViewerProps) {
   if (!dsl) {
     return (
       <div className={cn('flex items-center justify-center h-full', className)}>
@@ -28,6 +29,7 @@ export function Viewer({ dsl, className }: ViewerProps) {
           content={dsl} 
           showVariables={true} 
           forPdf={false}
+          onDslUpdate={onDslUpdate}
         />
       </div>
     </div>

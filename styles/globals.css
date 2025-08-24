@@ -228,6 +228,30 @@
       transform: translateY(0);
     }
   }
+
+  /* Interactive node editing mode */
+  .interactive-node-editing {
+    position: relative;
+  }
+
+  .interactive-node-editing [contenteditable] {
+    cursor: text;
+    caret-color: #3b82f6;
+  }
+
+  .interactive-node-editing [contenteditable]:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+    background-color: rgba(59, 130, 246, 0.05);
+    padding: 0.125rem 0.25rem;
+  }
+
+  /* Cursor pointer for hoverable interactive nodes */
+  .interactive-node:hover,
+  .interactive-node-inline:hover {
+    cursor: pointer;
+  }
 }
 
 @page {

@@ -1,27 +1,31 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import { documentStyles } from '@/utils/documentStyles';
 import { renderNode } from '@/utils/documentRenderer';
 import { splitNodeAtHeight } from '@/utils/nodeSplitter';
 import { DocumentSchema, NodeType } from '@/lib/dslValidator';
+import { EditProvider } from '@/contexts/EditContext';
 
 interface AutoPaginatedDocumentProps {
   content: DocumentSchema; // DSL content
   showVariables?: boolean;
   forPdf?: boolean;
   className?: string;
+  onDslUpdate?: (updater: (dsl: any) => any) => void;
 }
 
-export function AutoPaginatedDocument({ 
+function AutoPaginatedDocumentBase({ 
   content, 
   showVariables = true, 
   forPdf = false,
-  className = ''
+  className = '',
+  onDslUpdate
 }: AutoPaginatedDocumentProps) {
   const [pages, setPages] = useState<NodeType[][]>([[]]);
   const [isProcessing, setIsProcessing] = useState(true);
+  const [initialPagination, setInitialPagination] = useState(true);
 
   // Calculate available height for content (A4 height minus padding)
   const PAGE_HEIGHT = 1123; // A4 height in pixels at 96 DPI
@@ -30,9 +34,54 @@ export function AutoPaginatedDocument({
   // Available height is page height minus top and bottom padding
   const AVAILABLE_HEIGHT = PAGE_HEIGHT - PADDING_TOP - PADDING_BOTTOM; // 979px for content
   
+  // Update pages when content changes (for inline edits)
+  useEffect(() => {
+    if (initialPagination || !content || !Array.isArray(content.children)) {
+      return;
+    }
+    
+    // Skip if content hasn't been initialized yet
+    if (!content.children || content.children.length === 0) {
+      return;
+    }
+    
+    // For content updates after initial pagination, update pages directly
+    // This avoids full re-pagination for simple text edits
+    if (pages.length > 0) {
+      setPages(currentPages => {
+        // Count total nodes in current pages
+        const totalNodesInPages = currentPages.reduce((sum, page) => sum + page.length, 0);
+        
+        // If the number of nodes hasn't changed, just update the content
+        if (totalNodesInPages === content.children.length) {
+          let nodeIndex = 0;
+          const updatedPages = currentPages.map(pageNodes => {
+            return pageNodes.map(() => {
+              if (nodeIndex < content.children.length) {
+                return content.children[nodeIndex++];
+              }
+              // This shouldn't happen, but return a text node as fallback
+              return { type: 'text', content: '' };
+            });
+          });
+          return updatedPages;
+        }
+        
+        // If structure changed, keep current pagination
+        return currentPages;
+      });
+    }
+  }, [content, initialPagination]); // Depend on content and initialPagination
+
+  // Initial pagination effect
   useEffect(() => {
     if (!content || content.type !== 'document' || !Array.isArray(content.children)) {
       setIsProcessing(false);
+      return;
+    }
+
+    // Only do full pagination on first render
+    if (!initialPagination) {
       return;
     }
 
@@ -195,12 +244,13 @@ export function AutoPaginatedDocument({
 
       setPages(newPages);
       setIsProcessing(false);
+      setInitialPagination(false); // Mark initial pagination as complete
     };
 
     // Small delay to ensure DOM is ready
     const timer = setTimeout(processContent, 50);
     return () => clearTimeout(timer);
-  }, [content, AVAILABLE_HEIGHT]);
+  }, [initialPagination, AVAILABLE_HEIGHT]);
 
   if (isProcessing && !forPdf) {
     return (
@@ -210,7 +260,7 @@ export function AutoPaginatedDocument({
     );
   }
 
-  return (
+  const renderContent = () => (
     <div className={className}>
       {pages.map((pageContent, pageIndex) => (
         <div
@@ -270,7 +320,7 @@ export function AutoPaginatedDocument({
                 {renderNode(node, nodeIndex, { 
                   showVariables, 
                   forPdf,
-                  isFirstOnPage: nodeIndex === 0 
+                  isFirstOnPage: nodeIndex === 0
                 })}
               </React.Fragment>
             ))}
@@ -300,4 +350,18 @@ export function AutoPaginatedDocument({
       ))}
     </div>
   );
+
+  // Wrap with EditProvider only if we have onDslUpdate
+  if (onDslUpdate && !forPdf) {
+    return (
+      <EditProvider onDslUpdate={onDslUpdate}>
+        {renderContent()}
+      </EditProvider>
+    );
+  }
+
+  return renderContent();
 }
+
+// Export as-is since we handle optimization internally
+export const AutoPaginatedDocument = AutoPaginatedDocumentBase;

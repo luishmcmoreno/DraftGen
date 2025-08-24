@@ -23,6 +23,7 @@ export interface RenderOptions {
   forPdf?: boolean; // Rendering for PDF generation
   isFirstOnPage?: boolean; // Is this the first element on the page
   skipWrapper?: boolean; // Skip InteractiveNode wrapper (for nested content)
+  nodePath?: number[]; // Path to the current node in the DSL tree
 }
 
 function parseMarkdown(text: string): string {
@@ -108,7 +109,8 @@ export function renderNode(
   index: number, 
   options: RenderOptions = {}
 ): React.JSX.Element | null {
-  const { showVariables = true, forPdf = false, isFirstOnPage = false, skipWrapper = false } = options;
+  const { showVariables = true, forPdf = false, isFirstOnPage = false, skipWrapper = false, nodePath = [] } = options;
+  const currentPath = [...nodePath, index];
   
   switch (node.type) {
     case 'text': {
@@ -158,7 +160,18 @@ export function renderNode(
       }
       
       return (
-        <InteractiveNode key={index} nodeType="text">
+        <InteractiveNode 
+          key={index} 
+          nodeType="text"
+          nodePath={currentPath}
+          nodeContent={textNode.content}
+          elementType="p"
+          elementStyles={{
+            ...documentStyles.paragraph,
+            ...textStyles,
+            fontFamily: 'inherit'
+          }}
+        >
           {textElement}
         </InteractiveNode>
       );
@@ -220,7 +233,14 @@ export function renderNode(
       }
       
       return (
-        <InteractiveNode key={index} nodeType="heading">
+        <InteractiveNode 
+          key={index} 
+          nodeType="heading"
+          nodePath={currentPath}
+          nodeContent={headingNode.content}
+          elementType={HeadingTag}
+          elementStyles={combinedStyles}
+        >
           {headingElement}
         </InteractiveNode>
       );
@@ -246,7 +266,7 @@ export function renderNode(
           }}
         >
           {listNode.children.map((item: ListItemNodeType, i: number) => (
-            renderNode(item, i, options)
+            renderNode(item, i, { ...options, nodePath: currentPath })
           ))}
         </ListTag>
       );
@@ -266,9 +286,14 @@ export function renderNode(
           data-node-type="list-item"
         >
           {!forPdf ? (
-            <InteractiveNode nodeType="list-item" inline={true}>
+            <InteractiveNode 
+              nodeType="list-item" 
+              inline={true}
+              nodePath={currentPath}
+              nodeContent={'content' in listItemNode.children[0] ? listItemNode.children[0].content : ''}
+            >
               {listItemNode.children.map((child: NodeType, i: number) => {
-                const rendered = renderNode(child, i, { ...options, skipWrapper: true });
+                const rendered = renderNode(child, i, { ...options, skipWrapper: true, nodePath: currentPath });
                 // Remove paragraph wrapper for text in list items but preserve styles
                 if (React.isValidElement(rendered) && rendered.type === 'p') {
                   const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
@@ -283,7 +308,7 @@ export function renderNode(
             </InteractiveNode>
           ) : (
             listItemNode.children.map((child: NodeType, i: number) => {
-              const rendered = renderNode(child, i, { ...options, skipWrapper: true });
+              const rendered = renderNode(child, i, { ...options, skipWrapper: true, nodePath: currentPath });
               // Remove paragraph wrapper for text in list items but preserve styles
               if (React.isValidElement(rendered) && rendered.type === 'p') {
                 const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
@@ -314,12 +339,12 @@ export function renderNode(
         >
           {tableNode.head && (
             <thead>
-              {renderNode(tableNode.head, 0, options)}
+              {renderNode(tableNode.head, 0, { ...options, nodePath: currentPath })}
             </thead>
           )}
           <tbody>
             {tableNode.children.map((row: TableRowNodeType, i: number) => (
-              renderNode(row, i, options)
+              renderNode(row, i, { ...options, nodePath: currentPath })
             ))}
           </tbody>
         </table>
@@ -344,9 +369,14 @@ export function renderNode(
               data-node-type="table-header"
             >
               {!forPdf ? (
-                <InteractiveNode nodeType="table-header" inline={true}>
+                <InteractiveNode 
+                  nodeType="table-header" 
+                  inline={true}
+                  nodePath={[...currentPath, i]}
+                  nodeContent={col.children[0] && 'content' in col.children[0] ? col.children[0].content : ''}
+                >
                   {col.children.map((child: NodeType, j: number) => {
-                    const rendered = renderNode(child, j, { ...options, skipWrapper: true });
+                    const rendered = renderNode(child, j, { ...options, skipWrapper: true, nodePath: [...currentPath, i] });
                     // Remove paragraph wrapper for text in table headers but preserve styles
                     if (React.isValidElement(rendered) && rendered.type === 'p') {
                       const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
@@ -361,7 +391,7 @@ export function renderNode(
                 </InteractiveNode>
               ) : (
                 col.children.map((child: NodeType, j: number) => {
-                  const rendered = renderNode(child, j, { ...options, skipWrapper: true });
+                  const rendered = renderNode(child, j, { ...options, skipWrapper: true, nodePath: [...currentPath, i] });
                   // Remove paragraph wrapper for text in table headers but preserve styles
                   if (React.isValidElement(rendered) && rendered.type === 'p') {
                     const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
@@ -385,7 +415,7 @@ export function renderNode(
       return (
         <tr key={index}>
           {tableRowNode.children.map((col: TableColumnNodeType, i: number) => (
-            renderNode(col, i, options)
+            renderNode(col, i, { ...options, nodePath: currentPath })
           ))}
         </tr>
       );
@@ -406,9 +436,14 @@ export function renderNode(
           data-node-type="table-column"
         >
           {!forPdf ? (
-            <InteractiveNode nodeType="table-column" inline={true}>
+            <InteractiveNode 
+              nodeType="table-column" 
+              inline={true}
+              nodePath={currentPath}
+              nodeContent={tableColumnNode.children[0] && 'content' in tableColumnNode.children[0] ? tableColumnNode.children[0].content : ''}
+            >
               {tableColumnNode.children.map((child: NodeType, i: number) => {
-                const rendered = renderNode(child, i, { ...options, skipWrapper: true });
+                const rendered = renderNode(child, i, { ...options, skipWrapper: true, nodePath: currentPath });
                 // Remove paragraph wrapper for text in table cells but preserve styles
                 if (React.isValidElement(rendered) && rendered.type === 'p') {
                   const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
@@ -423,7 +458,7 @@ export function renderNode(
             </InteractiveNode>
           ) : (
             tableColumnNode.children.map((child: NodeType, i: number) => {
-              const rendered = renderNode(child, i, { ...options, skipWrapper: true });
+              const rendered = renderNode(child, i, { ...options, skipWrapper: true, nodePath: currentPath });
               // Remove paragraph wrapper for text in table cells but preserve styles
               if (React.isValidElement(rendered) && rendered.type === 'p') {
                 const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
@@ -455,7 +490,7 @@ export function renderNode(
           }}
         >
           {gridNode.children.map((col: ColumnNodeType, i: number) => (
-            renderNode(col, i, options)
+            renderNode(col, i, { ...options, nodePath: currentPath })
           ))}
         </div>
       );
@@ -473,7 +508,7 @@ export function renderNode(
           }}
         >
           {columnNode.children.map((child: NodeType, i: number) => (
-            renderNode(child, i, options)
+            renderNode(child, i, { ...options, nodePath: currentPath })
           ))}
         </div>
       );
