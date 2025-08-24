@@ -25,6 +25,7 @@ export function GeneratorContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
+  const [templateDescription, setTemplateDescription] = useState('');
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const loadTemplate = useCallback(async (id: string) => {
@@ -47,6 +48,7 @@ export function GeneratorContent() {
     if (data) {
       setCurrentDsl(data.json as DocumentSchema);
       setTemplateName(data.name);
+      setTemplateDescription(data.description || '');
       
       // Load conversation history
       try {
@@ -155,6 +157,38 @@ export function GeneratorContent() {
     saveConversationHistory();
   }, [messages, templateId, isInitialLoad]);
 
+  // Direct save for existing templates (no modal)
+  const handleDirectSave = async () => {
+    if (!currentDsl || !templateId) return;
+
+    const supabase = createClient();
+    const variables = extractVariables(currentDsl);
+    
+    const { error } = await supabase
+      .from('templates')
+      .update({
+        name: templateName,
+        description: templateDescription,
+        json: currentDsl,
+        tags: variables.slice(0, 10),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', templateId);
+
+    if (error) {
+      toast({
+        title: t('save.failure'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: t('save.success'),
+        description: t('save.successDescription', { name: templateName }),
+      });
+    }
+  };
+
   const handleSaveTemplate = async (name: string, description: string) => {
     if (!currentDsl) return;
 
@@ -197,6 +231,7 @@ export function GeneratorContent() {
           description: t('save.successDescription', { name }),
         });
         setTemplateName(name);
+        setTemplateDescription(description);
         setIsSaveModalOpen(false);
       }
     } else {
@@ -267,7 +302,15 @@ export function GeneratorContent() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => setIsSaveModalOpen(true)}
+                onClick={() => {
+                  if (templateId) {
+                    // For existing templates, save directly
+                    handleDirectSave();
+                  } else {
+                    // For new templates, show modal
+                    setIsSaveModalOpen(true);
+                  }
+                }}
               >
                 <Save className="h-4 w-4 mr-2" />
                 {t('save.cta')}
