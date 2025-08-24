@@ -258,7 +258,7 @@ export function GeneratorContent() {
 
   return (
     <>
-      <div className="h-[calc(100vh-64px)] flex">
+      <div className="h-[calc(100vh-65px)] flex">
         {/* Left Panel - Chat (22.5%) */}
         <div className="w-[22.5%] border-r border-border flex flex-col">
           <div className="p-4 border-b border-border flex items-center justify-between">
