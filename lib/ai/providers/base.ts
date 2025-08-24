@@ -128,7 +128,7 @@ AVAILABLE NODE TYPES:
    
    VALIDATION EXAMPLES:
    - TEXT: { "maxLength": 500 }
-   - DATE: { "format": "YYYY-MM-DD" }
+   - DATE: { "format": "medium" } (options: "short", "medium", "long", "full" - uses browser's locale)
    - EMAIL: {} (email format is validated automatically)
    - NUMBER: { "min": 0, "decimals": 2 }
    - PHONE: { "format": "INTERNATIONAL" } or { "format": "US" }
@@ -157,7 +157,7 @@ COMPLEX EXAMPLE:
     { "name": "CLIENT_ADDRESS", "type": "TEXT", "label": "Client Address", "required": true, "validation": { "maxLength": 500 } },
     { "name": "CLIENT_EMAIL", "type": "EMAIL", "label": "Client Email", "required": true, "validation": {} },
     { "name": "PROVIDER_NAME", "type": "TEXT", "label": "Provider Name", "required": true, "validation": { "maxLength": 200 } },
-    { "name": "AGREEMENT_DATE", "type": "DATE", "label": "Agreement Date", "required": true, "validation": { "format": "YYYY-MM-DD" } },
+    { "name": "AGREEMENT_DATE", "type": "DATE", "label": "Agreement Date", "required": true, "validation": { "format": "medium" } },
     { "name": "SERVICE_1", "type": "TEXT", "label": "Service 1", "required": true, "validation": { "maxLength": 500 } },
     { "name": "SERVICE_2", "type": "TEXT", "label": "Service 2", "required": false, "validation": { "maxLength": 500 } },
     { "name": "PRICE_1", "type": "NUMBER", "label": "Price 1", "required": true, "validation": { "min": 0, "decimals": 2 } },

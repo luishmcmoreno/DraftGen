@@ -52,11 +52,17 @@ function processTextContent(
     const varPlaceholders: { [key: string]: string } = {};
     let placeholderIndex = 0;
     
+    // Match both simple ${NAME} and extended ${NAME:TYPE:...} syntax
     processed = processed.replace(
-      /\$\{([A-Z0-9_]+)\}/g,
+      /\$\{([A-Z0-9_]+)(?::[^}]*)?\}/g,
       (match: string) => {
+        // Extract just the variable name from the match
+        const nameMatch = match.match(/\$\{([A-Z0-9_]+)/);
+        const variableName = nameMatch ? nameMatch[1] : match;
+        const displayText = `\${${variableName}}`;
+        
         const placeholder = `%%VARPLACEHOLDER${placeholderIndex}%%`;
-        varPlaceholders[placeholder] = `<span class="variable-token">${match}</span>`;
+        varPlaceholders[placeholder] = `<span class="variable-token">${displayText}</span>`;
         placeholderIndex++;
         return placeholder;
       }

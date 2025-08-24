@@ -5,6 +5,9 @@
 /* Import print styles */
 @import './print.css';
 
+/* Import phone input styles - flags and components */
+@import 'react-phone-number-input/style.css';
+
 @layer base {
   :root {
     --background: 250 250 250;

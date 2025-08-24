@@ -13,7 +13,7 @@ export const TextValidation = z.object({
 export const DateValidation = z.object({
   minDate: z.string().optional(), // ISO date string
   maxDate: z.string().optional(), // ISO date string
-  format: z.string().optional(), // Date format string
+  format: z.enum(['short', 'medium', 'long', 'full']).optional(), // Date display style using browser's locale
 })
 
 export const NumberValidation = z.object({

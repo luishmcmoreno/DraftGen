@@ -61,7 +61,7 @@ function generateDefaultValidation(type: VariableDefinitionType['type']): any {
       return {}
     case 'DATE':
       return {
-        format: 'YYYY-MM-DD'
+        format: 'medium'
       }
     case 'NUMBER':
       return {

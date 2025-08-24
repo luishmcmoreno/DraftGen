@@ -1,4 +1,5 @@
 import { ExtractedVariable } from './extractVariablesTyped'
+import { isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js'
 
 export interface ValidationError {
   field: string
@@ -15,24 +16,25 @@ function isValidEmail(email: string): boolean {
 }
 
 /**
- * Validates a US phone number
+ * Validates a phone number using libphonenumber-js
  */
-function isValidUSPhone(phone: string): boolean {
-  // Remove all non-digits
-  const digits = phone.replace(/\D/g, '')
-  // US phone numbers should have 10 digits (or 11 with country code)
-  return digits.length === 10 || (digits.length === 11 && digits[0] === '1')
-}
-
-/**
- * Validates an international phone number (basic validation)
- */
-function isValidInternationalPhone(phone: string): boolean {
-  // Remove spaces and dashes
-  const cleaned = phone.replace(/[\s-]/g, '')
-  // Should start with + and have 7-15 digits
-  const phoneRegex = /^\+[1-9]\d{6,14}$/
-  return phoneRegex.test(cleaned)
+function isValidPhone(phone: string, defaultCountry?: string): boolean {
+  try {
+    // If it starts with +, validate as international number
+    if (phone.startsWith('+')) {
+      return isValidPhoneNumber(phone)
+    }
+    
+    // If defaultCountry is provided, validate with that country
+    if (defaultCountry) {
+      return isValidPhoneNumber(phone, defaultCountry as any)
+    }
+    
+    // Otherwise, try to validate as international
+    return isValidPhoneNumber(phone)
+  } catch (error) {
+    return false
+  }
 }
 
 /**
@@ -189,22 +191,12 @@ export function validateVariableValue(
       break
       
     case 'PHONE':
-      const phoneFormat = validation.format || 'INTERNATIONAL'
-      if (phoneFormat === 'US') {
-        if (!isValidUSPhone(trimmedValue)) {
-          return {
-            field: variable.name,
-            message: `${variable.label || variable.name} must be a valid US phone number`,
-            code: 'INVALID_PHONE'
-          }
-        }
-      } else {
-        if (!isValidInternationalPhone(trimmedValue)) {
-          return {
-            field: variable.name,
-            message: `${variable.label || variable.name} must be a valid international phone number (e.g., +1234567890)`,
-            code: 'INVALID_PHONE'
-          }
+      const defaultCountry = validation.defaultCountry || undefined
+      if (!isValidPhone(trimmedValue, defaultCountry)) {
+        return {
+          field: variable.name,
+          message: `${variable.label || variable.name} must be a valid phone number`,
+          code: 'INVALID_PHONE'
         }
       }
       break
@@ -243,34 +235,49 @@ export function formatVariableValue(
   
   switch (variable.type) {
     case 'PHONE':
-      const phoneFormat = variable.validation?.format || 'INTERNATIONAL'
-      if (phoneFormat === 'US') {
-        // Format US phone number as (XXX) XXX-XXXX
-        const digits = value.replace(/\D/g, '')
-        if (digits.length === 10) {
-          return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
-        } else if (digits.length === 11 && digits[0] === '1') {
-          return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`
+      try {
+        const phoneNumber = parsePhoneNumberWithError(value)
+        if (phoneNumber) {
+          // Use international format by default, or national if specified
+          const format = variable.validation?.displayFormat || 'INTERNATIONAL'
+          if (format === 'NATIONAL' && phoneNumber.country) {
+            return phoneNumber.formatNational()
+          }
+          return phoneNumber.formatInternational()
         }
+      } catch (error) {
+        // If parsing fails, return the original value
       }
       break
       
     case 'DATE':
       const date = new Date(value)
       if (!isNaN(date.getTime())) {
-        const format = variable.validation?.format || 'YYYY-MM-DD'
-        // Simple date formatting
-        const year = date.getFullYear()
-        const month = String(date.getMonth() + 1).padStart(2, '0')
-        const day = String(date.getDate()).padStart(2, '0')
+        // Use browser's locale for date formatting
+        // The format property can specify the style: 'short', 'medium', 'long', 'full'
+        const format = variable.validation?.format || 'medium'
         
-        if (format === 'MM/DD/YYYY') {
-          return `${month}/${day}/${year}`
-        } else if (format === 'DD/MM/YYYY') {
-          return `${day}/${month}/${year}`
-        } else {
-          return `${year}-${month}-${day}`
+        // Map format values to Intl.DateTimeFormat options
+        let options: Intl.DateTimeFormatOptions = {}
+        
+        switch (format) {
+          case 'short':
+            options = { dateStyle: 'short' }
+            break
+          case 'long':
+            options = { dateStyle: 'long' }
+            break
+          case 'full':
+            options = { dateStyle: 'full' }
+            break
+          case 'medium':
+          default:
+            options = { dateStyle: 'medium' }
+            break
         }
+        
+        // Use browser's locale (undefined) to format the date
+        return new Intl.DateTimeFormat(undefined, options).format(date)
       }
       break
       
