@@ -59,6 +59,7 @@
   },
   "generator": {
     "title": "Gerador de Modelos",
+    "unsavedChanges": "Alterações não salvas",
     "save": {
       "cta": "Salvar Modelo",
       "modalTitle": "Salvar Modelo",

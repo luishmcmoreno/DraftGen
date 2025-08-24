@@ -59,6 +59,7 @@
   },
   "generator": {
     "title": "Template Generator",
+    "unsavedChanges": "Unsaved changes",
     "save": {
       "cta": "Save Template",
       "modalTitle": "Save Template",

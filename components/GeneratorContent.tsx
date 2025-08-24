@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ChatPanel } from '@/components/ChatPanel';
@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ConversationMessage } from '@/lib/supabase/database.types';
 
 export function GeneratorContent() {
+  console.log('Rendering GeneratorContent'); // Debug log
   const t = useTranslations('generator');
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -27,62 +28,80 @@ export function GeneratorContent() {
   const [templateName, setTemplateName] = useState('');
   const [templateDescription, setTemplateDescription] = useState('');
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const loadedTemplateIdRef = useRef<string | null>(null);
 
-  const loadTemplate = useCallback(async (id: string) => {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('templates')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error) {
-      toast({
-        title: t('load.failure'),
-        description: error.message,
-        variant: 'destructive',
-      });
+  useEffect(() => {
+    if (!templateId) {
+      // If no template, we're not in initial load mode
+      setIsInitialLoad(false);
+      loadedTemplateIdRef.current = null;
       return;
     }
 
-    if (data) {
-      setCurrentDsl(data.json as DocumentSchema);
-      setTemplateName(data.name);
-      setTemplateDescription(data.description || '');
-      
-      // Load conversation history
-      try {
-        const response = await fetch(`/api/conversation-history?templateId=${id}`);
-        const historyData = await response.json();
-        
-        if (historyData.history?.messages) {
-          // Set the messages from history
-          setMessages(historyData.history.messages.map((msg: { role: string; content: string }) => ({
-            role: msg.role,
-            content: msg.content
-          })));
-        }
-        setIsInitialLoad(false); // Mark initial load as complete
-      } catch {
-        // Silently fail loading history
-        setIsInitialLoad(false);
-      }
-      
-      toast({
-        title: t('load.success'),
-        description: t('load.successDescription', { name: data.name }),
-      });
+    // Only load if we haven't loaded this specific template yet
+    if (loadedTemplateIdRef.current === templateId) {
+      console.log('Template already loaded, skipping:', templateId);
+      return;
     }
-  }, [t, toast]);
 
-  useEffect(() => {
-    if (templateId) {
-      loadTemplate(templateId);
-    } else {
-      // If no template, we're not in initial load mode
-      setIsInitialLoad(false);
-    }
-  }, [templateId, loadTemplate]);
+    const loadTemplate = async (id: string) => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('templates')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        toast({
+          title: t('load.failure'),
+          description: error.message,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (data) {
+        const loadedDsl = data.json as DocumentSchema;
+        setCurrentDsl(loadedDsl);
+        setTemplateName(data.name);
+        setTemplateDescription(data.description || '');
+        setHasUnsavedChanges(false);
+        
+        // Load conversation history
+        try {
+          const response = await fetch(`/api/conversation-history?templateId=${id}`);
+          const historyData = await response.json();
+          
+          if (historyData.history?.messages) {
+            // Set the messages from history
+            setMessages(historyData.history.messages.map((msg: { role: string; content: string }) => ({
+              role: msg.role,
+              content: msg.content
+            })));
+          }
+          setIsInitialLoad(false); // Mark initial load as complete
+        } catch {
+          // Silently fail loading history
+          setIsInitialLoad(false);
+        }
+        
+        // Mark this template as loaded to prevent duplicate toasts
+        loadedTemplateIdRef.current = id;
+        
+        console.log('Loaded template:', data.name, id); // Debug log
+
+        toast({
+          title: t('load.success'),
+          description: t('load.successDescription', { name: data.name }),
+        });
+      }
+    };
+
+    loadTemplate(templateId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateId]);
 
   const handlePromptSubmit = async (prompt: string) => {
     setIsLoading(true);
@@ -105,6 +124,7 @@ export function GeneratorContent() {
       }
 
       setCurrentDsl(data.json);
+      setHasUnsavedChanges(true);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: t('chat.success') 
@@ -129,7 +149,8 @@ export function GeneratorContent() {
     // Skip saving on initial load or when no template/messages
     if (!templateId || messages.length === 0 || isInitialLoad) return;
 
-    const saveConversationHistory = async () => {
+    // Debounce the save to avoid too many API calls
+    const timeoutId = setTimeout(async () => {
       const messagesWithTimestamp: ConversationMessage[] = messages.map(msg => ({
         ...msg,
         timestamp: new Date().toISOString()
@@ -152,9 +173,9 @@ export function GeneratorContent() {
       } catch {
         // Silently fail - conversation history is not critical
       }
-    };
+    }, 1000); // Wait 1 second before saving
 
-    saveConversationHistory();
+    return () => clearTimeout(timeoutId);
   }, [messages, templateId, isInitialLoad]);
 
   // Direct save for existing templates (no modal)
@@ -186,6 +207,7 @@ export function GeneratorContent() {
         title: t('save.success'),
         description: t('save.successDescription', { name: templateName }),
       });
+      setHasUnsavedChanges(false);
     }
   };
 
@@ -232,6 +254,7 @@ export function GeneratorContent() {
         });
         setTemplateName(name);
         setTemplateDescription(description);
+        setHasUnsavedChanges(false);
         setIsSaveModalOpen(false);
       }
     } else {
@@ -281,6 +304,7 @@ export function GeneratorContent() {
           description: t('save.successDescription', { name }),
         });
         setTemplateName(name);
+        setHasUnsavedChanges(false);
         setIsSaveModalOpen(false);
         
         // Update URL to include the new template ID for continued editing
@@ -296,25 +320,36 @@ export function GeneratorContent() {
       <div className="h-[calc(100vh-65px)] flex">
         {/* Left Panel - Chat (22.5%) */}
         <div className="w-[22.5%] border-r border-border flex flex-col">
-          <div className="p-4 border-b border-border flex items-center justify-between">
-            <h2 className="text-lg font-medium">{t('title')}</h2>
-            {currentDsl && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  if (templateId) {
-                    // For existing templates, save directly
-                    handleDirectSave();
-                  } else {
-                    // For new templates, show modal
-                    setIsSaveModalOpen(true);
-                  }
-                }}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {t('save.cta')}
-              </Button>
+          <div className="p-4 border-b border-border flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-medium">{t('title')}</h2>
+              {currentDsl && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (templateId) {
+                      // For existing templates, save directly
+                      handleDirectSave();
+                    } else {
+                      // For new templates, show modal
+                      setIsSaveModalOpen(true);
+                    }
+                  }}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {t('save.cta')}
+                </Button>
+              )}
+            </div>
+            {hasUnsavedChanges && (
+              <div className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                </span>
+                <span>{t('unsavedChanges')}</span>
+              </div>
             )}
           </div>
           <ChatPanel
@@ -332,7 +367,12 @@ export function GeneratorContent() {
             onDslUpdate={(updater) => {
               setCurrentDsl((prevDsl) => {
                 if (!prevDsl) return prevDsl;
-                return updater(prevDsl);
+                const updated = updater(prevDsl);
+                // Only set unsaved changes if the DSL actually changed
+                if (JSON.stringify(updated) !== JSON.stringify(prevDsl)) {
+                  setHasUnsavedChanges(true);
+                }
+                return updated;
               });
             }}
           />

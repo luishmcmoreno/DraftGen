@@ -1,13 +1,6 @@
-import { useState, useCallback } from 'react';
+import { toast as showToast } from '@/components/ui/toaster';
 
 type ToastVariant = 'default' | 'destructive';
-
-interface Toast {
-  id: string;
-  title: string;
-  description?: string;
-  variant?: ToastVariant;
-}
 
 interface ToastOptions {
   title: string;
@@ -16,28 +9,9 @@ interface ToastOptions {
 }
 
 export function useToast() {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const toast = (options: ToastOptions) => {
+    showToast(options);
+  };
 
-  const toast = useCallback((options: ToastOptions) => {
-    const id = Date.now().toString();
-    const newToast: Toast = {
-      id,
-      ...options,
-      variant: options.variant || 'default',
-    };
-
-    setToasts((prev) => [...prev, newToast]);
-
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 5000);
-
-    // For now, just console log the toast
-    if (typeof window !== 'undefined') {
-      console.log(`[Toast ${options.variant || 'default'}]:`, options.title, options.description);
-    }
-  }, []);
-
-  return { toast, toasts };
+  return { toast };
 }
