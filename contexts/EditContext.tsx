@@ -50,6 +50,7 @@ export function EditProvider({
   }, []);
 
   const saveEdit = useCallback((newContent: string, forPath?: number[]) => {
+    // Capture the path immediately to avoid any state changes affecting it
     const pathToUse = forPath || editState.editingPath;
     
     if (!pathToUse || !onDslUpdate) {
@@ -146,7 +147,7 @@ export function EditProvider({
     });
 
     if (!forPath) cancelEditing();
-  }, [onDslUpdate, cancelEditing]);
+  }, [editState.editingPath, onDslUpdate, cancelEditing]);
 
   return (
     <EditContext.Provider value={{

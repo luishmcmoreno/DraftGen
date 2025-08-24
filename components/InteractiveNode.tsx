@@ -115,8 +115,13 @@ export function InteractiveNode({
     
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      // Get content directly from the contentEditable element
       const content = getEditableContent();
-      editContext.saveEdit(content);
+      if (content.trim() !== '') {
+        editContext.saveEdit(content);
+      } else {
+        editContext.cancelEditing();
+      }
     } else if (e.key === 'Escape') {
       e.preventDefault();
       editContext.cancelEditing();
