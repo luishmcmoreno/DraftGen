@@ -6,6 +6,7 @@ import { extractVariablesTyped, ExtractedVariable } from '@/utils/extractVariabl
 import { substituteVariables } from '@/utils/substituteVariables';
 import { validateAllVariables, formatVariableValue } from '@/utils/validateVariableValue';
 import { Database } from '@/lib/supabase/database.types';
+import { DocumentSchema } from '@/lib/dslValidator';
 import PrintPreviewModal from './PrintPreviewModal';
 import TextVariableInput from './variables/TextVariableInput';
 import DateVariableInput from './variables/DateVariableInput';
@@ -25,7 +26,7 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
   const [values, setValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [showPrintPreview, setShowPrintPreview] = useState(false);
-  const [filledContent, setFilledContent] = useState<any>(null);
+  const [filledContent, setFilledContent] = useState<DocumentSchema | null>(null);
   const [typedVariables, setTypedVariables] = useState<ExtractedVariable[]>([]);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -46,7 +47,7 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
       setErrors(initialErrors);
       
       // Initialize with empty values to show preview
-      setFilledContent(template.json);
+      setFilledContent(template.json as DocumentSchema);
     }
   }, [template]);
 
@@ -122,7 +123,7 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
     
     // Fill the template with formatted values
     const filledDsl = substituteVariables(template.json, formattedValues);
-    console.log('Filled DSL:', filledDsl);
+    // console.log('Filled DSL:', filledDsl);
     setFilledContent(filledDsl);
     
     // Show the print preview modal

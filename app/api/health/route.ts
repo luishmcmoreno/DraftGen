@@ -8,11 +8,11 @@ export async function GET() {
     
     // Test database connection by attempting to get the current user
     // This will work even if not authenticated (returns null)
-    const { data: userData, error: userError } = await supabase.auth.getUser();
+    const { data: userData } = await supabase.auth.getUser();
     
     // Test database connectivity with a simple query
     // This tests that we can connect to the database
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('profiles')
       .select('count')
       .limit(0); // Don't actually fetch any data, just test connection

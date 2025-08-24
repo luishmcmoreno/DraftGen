@@ -59,8 +59,7 @@ export default function TemplatesClient({ templates: initialTemplates }: Templat
 
       // Refresh the page to ensure consistency
       router.refresh();
-    } catch (error) {
-      console.error('Error deleting template:', error);
+    } catch {
       toast({
         title: t('delete.failure'),
         variant: 'destructive',

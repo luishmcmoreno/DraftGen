@@ -88,6 +88,7 @@ export const PageBreakNode = z.object({
 })
 
 // List nodes
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ListItemNode: z.ZodType<any> = z.lazy(() => z.object({
   type: z.literal('list-item'),
   children: z.array(NodeTypeSchema),
@@ -95,11 +96,12 @@ export const ListItemNode: z.ZodType<any> = z.lazy(() => z.object({
 
 export const ListNode = z.object({
   type: z.literal('list'),
-  ordered: z.boolean().optional().default(false),
+  ordered: z.boolean().default(false),
   children: z.array(ListItemNode),
 })
 
 // Table nodes
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const TableColumnNode: z.ZodType<any> = z.lazy(() => z.object({
   type: z.literal('table-column'),
   children: z.array(NodeTypeSchema),
@@ -122,6 +124,7 @@ export const TableNode = z.object({
 })
 
 // Grid nodes
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ColumnNode: z.ZodType<any> = z.lazy(() => z.object({
   type: z.literal('column'),
   width: z.number().optional(), // Width in percentage (1-100)
@@ -130,11 +133,11 @@ export const ColumnNode: z.ZodType<any> = z.lazy(() => z.object({
 
 export const GridNode = z.object({
   type: z.literal('grid'),
-  columns: z.number().optional().default(2), // Number of columns
+  columns: z.number().default(2), // Number of columns
   children: z.array(ColumnNode),
 })
 
-export const NodeTypeSchema: z.ZodType<any> = z.lazy(() => 
+export const NodeTypeSchema = z.lazy(() => 
   z.union([
     TextNode,
     HeadingNode,

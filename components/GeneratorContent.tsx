@@ -55,13 +55,13 @@ export function GeneratorContent() {
         
         if (historyData.history?.messages) {
           // Set the messages from history
-          setMessages(historyData.history.messages.map((msg: any) => ({
+          setMessages(historyData.history.messages.map((msg: { role: string; content: string }) => ({
             role: msg.role,
             content: msg.content
           })));
         }
         setIsInitialLoad(false); // Mark initial load as complete
-      } catch (error) {
+      } catch {
         // Silently fail loading history
         setIsInitialLoad(false);
       }
@@ -147,7 +147,7 @@ export function GeneratorContent() {
           await response.json();
           // Silently fail - conversation history is not critical
         }
-      } catch (error) {
+      } catch {
         // Silently fail - conversation history is not critical
       }
     };
@@ -236,7 +236,7 @@ export function GeneratorContent() {
                 messages: messagesWithTimestamp
               })
             });
-          } catch (error) {
+          } catch {
             // Silently fail - conversation history is not critical for template creation
           }
         }

@@ -5,9 +5,10 @@ import { createRoot } from 'react-dom/client';
 import { documentStyles } from '@/utils/documentStyles';
 import { renderNode } from '@/utils/documentRenderer';
 import { splitNodeAtHeight } from '@/utils/nodeSplitter';
+import { DocumentSchema, NodeType } from '@/lib/dslValidator';
 
 interface AutoPaginatedDocumentProps {
-  content: any; // DSL content
+  content: DocumentSchema; // DSL content
   showVariables?: boolean;
   forPdf?: boolean;
   className?: string;
@@ -19,7 +20,7 @@ export function AutoPaginatedDocument({
   forPdf = false,
   className = ''
 }: AutoPaginatedDocumentProps) {
-  const [pages, setPages] = useState<any[][]>([[]]);
+  const [pages, setPages] = useState<NodeType[][]>([[]]);
   const [isProcessing, setIsProcessing] = useState(true);
 
   // Calculate available height for content (A4 height minus padding)
@@ -37,8 +38,8 @@ export function AutoPaginatedDocument({
 
     const processContent = async () => {
       setIsProcessing(true);
-      const newPages: any[][] = [];
-      let currentPage: any[] = [];
+      const newPages: NodeType[][] = [];
+      let currentPage: NodeType[] = [];
       let currentPageHeight = 0;
       
       // Create a hidden measuring container with exact page styles

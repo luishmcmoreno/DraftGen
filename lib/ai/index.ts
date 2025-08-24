@@ -18,16 +18,18 @@ export function getAIProvider(): AIProvider {
     case 'gemini':
       const geminiKey = process.env.GEMINI_API_KEY;
       if (!geminiKey) {
+        // eslint-disable-next-line no-console
         console.warn('GEMINI_API_KEY not found, falling back to mock provider');
         providerInstance = new MockProvider();
       } else {
-        console.log('Using Gemini 2.5 Flash provider');
+        // console.log('Using Gemini 2.5 Flash provider');
         providerInstance = new GeminiProvider(geminiKey);
       }
       break;
     
     case 'mock':
     default:
+      // eslint-disable-next-line no-console
       console.log('Using mock provider');
       providerInstance = new MockProvider();
       break;

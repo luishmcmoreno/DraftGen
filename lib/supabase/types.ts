@@ -14,7 +14,7 @@ export interface Template {
   name: string;
   description?: string;
   tags: string[];
-  json: any; // DSL JSON structure
+  json: unknown; // DSL JSON structure
   created_at: string;
   updated_at: string;
 }

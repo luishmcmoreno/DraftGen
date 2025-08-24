@@ -27,7 +27,7 @@ export async function getProfile() {
     .single();
   
   if (error) {
-    console.error('Error fetching profile:', error);
+    // console.error('Error fetching profile:', error);
     return null;
   }
   
@@ -62,7 +62,7 @@ export async function upsertProfile(userId: string, data: {
     .single();
   
   if (error) {
-    console.error('Error upserting profile:', error);
+    // console.error('Error upserting profile:', error);
     return null;
   }
   

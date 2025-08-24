@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import PhoneInput, { getCountryCallingCode, isValidPhoneNumber } from 'react-phone-number-input';
+import PhoneInput, { isValidPhoneNumber, Country } from 'react-phone-number-input';
 import { ExtractedVariable } from '@/utils/extractVariablesTyped';
-import { E164Number } from 'libphonenumber-js/types';
+import type { E164Number } from 'libphonenumber-js';
 import 'react-phone-number-input/style.css';
 
 interface PhoneVariableInputProps {
@@ -36,7 +36,7 @@ export default function PhoneVariableInput({
         if (!isValidPhoneNumber(phoneValue)) {
           errorMsg = 'Invalid phone number format';
         }
-      } catch (e) {
+      } catch {
         errorMsg = 'Invalid phone number';
       }
       
@@ -67,7 +67,7 @@ export default function PhoneVariableInput({
         <PhoneInput
           international
           countryCallingCodeEditable={false}
-          defaultCountry={defaultCountry as any}
+          defaultCountry={defaultCountry as Country}
           value={phoneValue}
           onChange={handlePhoneChange}
           onBlur={() => setTouched(true)}
@@ -215,7 +215,7 @@ export default function PhoneVariableInput({
 }
 
 // Custom input component to match our design system
-const CustomPhoneInput = (props: any) => {
+const CustomPhoneInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => {
   return (
     <input
       {...props}

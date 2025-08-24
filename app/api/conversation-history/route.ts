@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         .eq('id', existing.id);
 
       if (error) {
-        console.error('Error updating conversation history:', error);
+        // console.error('Error updating conversation history:', error);
         return NextResponse.json(
           { error: 'Failed to update conversation history' },
           { status: 500 }
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         });
 
       if (error) {
-        console.error('Error creating conversation history:', error);
+        // console.error('Error creating conversation history:', error);
         return NextResponse.json(
           { error: 'Failed to save conversation history' },
           { status: 500 }
@@ -69,8 +69,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
     
-  } catch (error) {
-    console.error('Error in conversation history API:', error);
+  } catch {
+    // console.error('Error in conversation history API:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows found"
-      console.error('Error fetching conversation history:', error);
+      // console.error('Error fetching conversation history:', error);
       return NextResponse.json(
         { error: 'Failed to fetch conversation history' },
         { status: 500 }
@@ -119,8 +119,8 @@ export async function GET(request: NextRequest) {
       history: data || null 
     });
     
-  } catch (error) {
-    console.error('Error in conversation history API:', error);
+  } catch {
+    // console.error('Error in conversation history API:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

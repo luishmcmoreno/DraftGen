@@ -27,7 +27,7 @@ export async function DELETE(
       .eq('owner_id', user.id); // Extra safety check
 
     if (error) {
-      console.error('Error deleting template:', error);
+      // console.error('Error deleting template:', error);
       
       // Check if template exists and user has permission
       const { data: template } = await supabase
@@ -51,8 +51,8 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
     
-  } catch (error) {
-    console.error('Error in template delete API:', error);
+  } catch {
+    // console.error('Error in template delete API:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

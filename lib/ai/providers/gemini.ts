@@ -4,7 +4,7 @@ import { GenerateTemplateRequest, GenerateTemplateResponse, AIError } from '../t
 
 export class GeminiProvider extends BaseAIProvider {
   private genAI: GoogleGenerativeAI;
-  private model: any;
+  private model: ReturnType<GoogleGenerativeAI['getGenerativeModel']>;
   
   constructor(apiKey: string) {
     super();
@@ -41,8 +41,8 @@ export class GeminiProvider extends BaseAIProvider {
       let jsonResponse;
       try {
         jsonResponse = JSON.parse(text);
-      } catch (parseError) {
-        console.error('Failed to parse Gemini response:', text);
+      } catch {
+        // console.error('Failed to parse Gemini response:', text);
         
         // Check if the response was truncated
         if (text && text.length > 1000 && !text.trim().endsWith('}')) {
@@ -56,31 +56,33 @@ export class GeminiProvider extends BaseAIProvider {
       }
       
       // Log the response for debugging
-      console.log('Gemini generated JSON:', JSON.stringify(jsonResponse, null, 2));
+      // console.log('Gemini generated JSON:', JSON.stringify(jsonResponse, null, 2));
       
       // Validate and return
       return this.validateResponse(jsonResponse);
       
-    } catch (error: any) {
-      // Handle rate limiting
-      if (error.message?.includes('429') || error.message?.includes('quota')) {
-        throw new AIError('Rate limit exceeded. Please try again later.', 'RATE_LIMIT');
-      }
-      
-      // Handle service overload
-      if (error.message?.includes('503') || error.message?.includes('overloaded')) {
-        throw new AIError('The AI service is currently overloaded. Please try again in a few seconds.', 'RATE_LIMIT');
-      }
-      
+    } catch (error) {
       // Re-throw AIErrors
       if (error instanceof AIError) {
         throw error;
       }
       
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Handle rate limiting
+      if (errorMessage.includes('429') || errorMessage.includes('quota')) {
+        throw new AIError('Rate limit exceeded. Please try again later.', 'RATE_LIMIT');
+      }
+      
+      // Handle service overload
+      if (errorMessage.includes('503') || errorMessage.includes('overloaded')) {
+        throw new AIError('The AI service is currently overloaded. Please try again in a few seconds.', 'RATE_LIMIT');
+      }
+      
       // Wrap other errors
-      console.error('Gemini API error:', error);
+      // console.error('Gemini API error:', error);
       throw new AIError(
-        `Gemini API error: ${error.message || 'Unknown error'}`,
+        `Gemini API error: ${errorMessage || 'Unknown error'}`,
         'API_ERROR'
       );
     }
