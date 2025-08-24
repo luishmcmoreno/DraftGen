@@ -1,5 +1,57 @@
 import { z } from 'zod'
 
+// Variable type enum
+export const VariableType = z.enum(['TEXT', 'DATE', 'EMAIL', 'NUMBER', 'PHONE'])
+
+// Validation rules for different variable types
+export const TextValidation = z.object({
+  minLength: z.number().optional(),
+  maxLength: z.number().optional(),
+  pattern: z.string().optional(), // Regex pattern
+})
+
+export const DateValidation = z.object({
+  minDate: z.string().optional(), // ISO date string
+  maxDate: z.string().optional(), // ISO date string
+  format: z.string().optional(), // Date format string
+})
+
+export const NumberValidation = z.object({
+  min: z.number().optional(),
+  max: z.number().optional(),
+  decimals: z.number().optional(),
+  step: z.number().optional(),
+})
+
+export const PhoneValidation = z.object({
+  format: z.enum(['US', 'INTERNATIONAL']).optional(),
+  country: z.string().optional(), // ISO country code
+})
+
+// Email doesn't need specific validation beyond the type itself
+export const EmailValidation = z.object({
+  domains: z.array(z.string()).optional(), // Allowed domains
+})
+
+// Variable definition schema
+export const VariableDefinition = z.object({
+  name: z.string(),
+  type: VariableType,
+  label: z.string().optional(),
+  required: z.boolean().optional().default(true),
+  defaultValue: z.string().optional(),
+  placeholder: z.string().optional(),
+  helpText: z.string().optional(),
+  validation: z.union([
+    TextValidation,
+    DateValidation,
+    NumberValidation,
+    PhoneValidation,
+    EmailValidation,
+    z.object({}), // Allow empty object for no validation
+  ]).optional(),
+})
+
 // Text style properties
 export const TextStyles = z.object({
   bold: z.boolean().optional(),
@@ -101,9 +153,18 @@ export const NodeTypeSchema: z.ZodType<any> = z.lazy(() =>
 export const DocumentNode = z.object({
   type: z.literal('document'),
   children: z.array(NodeTypeSchema),
+  variables: z.array(VariableDefinition).optional(), // Optional for backward compatibility
 })
 
 // Type exports
+export type VariableTypeEnum = z.infer<typeof VariableType>
+export type VariableDefinitionType = z.infer<typeof VariableDefinition>
+export type TextValidationType = z.infer<typeof TextValidation>
+export type DateValidationType = z.infer<typeof DateValidation>
+export type NumberValidationType = z.infer<typeof NumberValidation>
+export type PhoneValidationType = z.infer<typeof PhoneValidation>
+export type EmailValidationType = z.infer<typeof EmailValidation>
+
 export type TextStylesType = z.infer<typeof TextStyles>
 export type TextNodeType = z.infer<typeof TextNode>
 export type HeadingNodeType = z.infer<typeof HeadingNode>

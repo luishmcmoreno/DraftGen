@@ -1,5 +1,6 @@
 import { GenerateTemplateRequest, GenerateTemplateResponse, AIProvider } from '../types';
 import { validateDsl } from '@/lib/dslValidator';
+import { migrateTemplateVariables } from '@/utils/migrateTemplateVariables';
 
 export abstract class BaseAIProvider implements AIProvider {
   protected systemPrompt = `You are a document template generator. Your task is to generate valid JSON that matches the following DSL schema.
@@ -101,23 +102,67 @@ AVAILABLE NODE TYPES:
      ]
    }
 
+7. VARIABLE DEFINITIONS (IMPORTANT - ALWAYS INCLUDE):
+   The document root should include a "variables" array defining all variables used:
+   {
+     "type": "document",
+     "variables": [
+       {
+         "name": "VARIABLE_NAME",
+         "type": "TEXT" | "DATE" | "EMAIL" | "NUMBER" | "PHONE",
+         "label": "Human Readable Label",
+         "required": true,
+         "placeholder": "optional placeholder",
+         "validation": { /* type-specific validation */ }
+       }
+     ],
+     "children": [...]
+   }
+
+   VARIABLE TYPE INFERENCE RULES:
+   - Use "EMAIL" for: email addresses, contact emails
+   - Use "DATE" for: dates, deadlines, expiry dates, start/end dates, birthdates
+   - Use "NUMBER" for: amounts, prices, quantities, percentages, scores, rates
+   - Use "PHONE" for: phone numbers, mobile numbers, fax numbers
+   - Use "TEXT" for: names, addresses, descriptions, and everything else
+   
+   VALIDATION EXAMPLES:
+   - TEXT: { "maxLength": 500 }
+   - DATE: { "format": "YYYY-MM-DD" }
+   - EMAIL: {} (email format is validated automatically)
+   - NUMBER: { "min": 0, "decimals": 2 }
+   - PHONE: { "format": "INTERNATIONAL" } or { "format": "US" }
+
 RULES:
 1. Output ONLY valid JSON, nothing else - no markdown, no explanations
-2. The root must have type "document" with a "children" array
+2. The root must have type "document" with "children" array AND "variables" array
 3. Variables must use format \${VARIABLE_NAME} in UPPERCASE_SNAKE_CASE
-4. DO NOT add empty text nodes { "type": "text", "content": "" } between elements - spacing is handled automatically
-5. Use appropriate node types based on content structure:
+4. ALWAYS define all variables in the "variables" array with appropriate types
+5. DO NOT add empty text nodes { "type": "text", "content": "" } between elements - spacing is handled automatically
+6. Use appropriate node types based on content structure:
    - Use lists for enumerations, bullet points, or numbered items
    - Use tables for tabular data, comparisons, or structured information
    - Use grids for side-by-side content or multi-column layouts
    - Use page-break to separate logical sections
-6. List items and table columns can contain any valid node types as children
-7. Maintain professional document structure and formatting
-8. When updating existing templates, preserve structure while incorporating changes
+7. List items and table columns can contain any valid node types as children
+8. Maintain professional document structure and formatting
+9. When updating existing templates, preserve structure while incorporating changes
+10. Infer variable types based on their names and context
 
 COMPLEX EXAMPLE:
 {
   "type": "document",
+  "variables": [
+    { "name": "CLIENT_NAME", "type": "TEXT", "label": "Client Name", "required": true, "validation": { "maxLength": 200 } },
+    { "name": "CLIENT_ADDRESS", "type": "TEXT", "label": "Client Address", "required": true, "validation": { "maxLength": 500 } },
+    { "name": "CLIENT_EMAIL", "type": "EMAIL", "label": "Client Email", "required": true, "validation": {} },
+    { "name": "PROVIDER_NAME", "type": "TEXT", "label": "Provider Name", "required": true, "validation": { "maxLength": 200 } },
+    { "name": "AGREEMENT_DATE", "type": "DATE", "label": "Agreement Date", "required": true, "validation": { "format": "YYYY-MM-DD" } },
+    { "name": "SERVICE_1", "type": "TEXT", "label": "Service 1", "required": true, "validation": { "maxLength": 500 } },
+    { "name": "SERVICE_2", "type": "TEXT", "label": "Service 2", "required": false, "validation": { "maxLength": 500 } },
+    { "name": "PRICE_1", "type": "NUMBER", "label": "Price 1", "required": true, "validation": { "min": 0, "decimals": 2 } },
+    { "name": "CONTACT_PHONE", "type": "PHONE", "label": "Contact Phone", "required": true, "validation": { "format": "INTERNATIONAL" } }
+  ],
   "children": [
     { 
       "type": "heading",
@@ -215,6 +260,12 @@ COMPLEX EXAMPLE:
   }
 
   protected validateResponse(response: any): GenerateTemplateResponse {
+    // If the AI didn't include variables, add them automatically
+    if (!response.variables || response.variables.length === 0) {
+      console.log('AI response missing variables, adding them automatically');
+      response = migrateTemplateVariables(response);
+    }
+    
     const validation = validateDsl(response);
     
     if (!validation.success) {
