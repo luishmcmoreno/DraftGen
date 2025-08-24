@@ -6,6 +6,12 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+export interface ConversationMessage {
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: string
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -66,6 +72,32 @@ export interface Database {
           description?: string | null
           tags?: string[]
           json?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      conversation_history: {
+        Row: {
+          id: string
+          template_id: string | null
+          user_id: string | null
+          messages: ConversationMessage[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          template_id?: string | null
+          user_id?: string | null
+          messages?: ConversationMessage[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          template_id?: string | null
+          user_id?: string | null
+          messages?: ConversationMessage[]
           created_at?: string
           updated_at?: string
         }

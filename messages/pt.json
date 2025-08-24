@@ -78,6 +78,16 @@
         "title": "Erro na Geração",
         "invalidJson": "Falha ao gerar estrutura de modelo válida"
       }
+    },
+    "history": {
+      "title": "Histórico de Conversa",
+      "messages": "mensagens",
+      "disclaimer": "Este histórico é apenas para sua referência e não é enviado para a IA",
+      "user": "Você",
+      "assistant": "Assistente",
+      "clear": "Limpar Histórico",
+      "confirmClear": "Tem certeza que deseja limpar o histórico de conversa?",
+      "noHistory": "Ainda não há histórico de conversa"
     }
   },
   "viewer": {

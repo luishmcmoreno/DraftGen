@@ -78,6 +78,16 @@
         "title": "Generation Error",
         "invalidJson": "Failed to generate valid template structure"
       }
+    },
+    "history": {
+      "title": "Conversation History",
+      "messages": "messages",
+      "disclaimer": "This history is for your reference only and is not sent to the AI",
+      "user": "You",
+      "assistant": "Assistant",
+      "clear": "Clear History",
+      "confirmClear": "Are you sure you want to clear the conversation history?",
+      "noHistory": "No conversation history yet"
     }
   },
   "viewer": {
