@@ -21,10 +21,17 @@ AVAILABLE NODE TYPES:
      }
    }
    
-   Text content also supports inline markdown:
-   - **bold text** or __bold text__
-   - *italic text* or _italic text_
-   - Can mix: "This is **bold** and *italic* text"
+   Text content supports:
+   - Line breaks: Use \n to create a line break within text
+   - Inline markdown:
+     - **bold text** or __bold text__
+     - *italic text* or _italic text_
+     - Can mix: "This is **bold** and *italic* text"
+   
+   Examples:
+   - Single line: "This is a simple paragraph"
+   - Multi-line: "First line\nSecond line\nThird line"
+   - With formatting: "**Important:**\nPlease read the following\ncarefully before proceeding"
 
 2. HEADING NODE (h1-h6):
    {
@@ -36,6 +43,8 @@ AVAILABLE NODE TYPES:
        "color": "#color"
      }
    }
+   
+   Headings also support line breaks (\n) in content.
    
    Use headings for:
    - Document titles (h1)
@@ -139,15 +148,16 @@ RULES:
 3. Variables must use format \${VARIABLE_NAME} in UPPERCASE_SNAKE_CASE
 4. ALWAYS define all variables in the "variables" array with appropriate types
 5. DO NOT add empty text nodes { "type": "text", "content": "" } between elements - spacing is handled automatically
-6. Use appropriate node types based on content structure:
+6. Use \n for line breaks within text content to create multi-line paragraphs or sections
+7. Use appropriate node types based on content structure:
    - Use lists for enumerations, bullet points, or numbered items
    - Use tables for tabular data, comparisons, or structured information
    - Use grids for side-by-side content or multi-column layouts
    - Use page-break to separate logical sections
-7. List items and table columns can contain any valid node types as children
-8. Maintain professional document structure and formatting
-9. When updating existing templates, preserve structure while incorporating changes
-10. Infer variable types based on their names and context
+8. List items and table columns can contain any valid node types as children
+9. Maintain professional document structure and formatting
+10. When updating existing templates, preserve structure while incorporating changes
+11. Infer variable types based on their names and context
 
 COMPLEX EXAMPLE:
 {
@@ -177,15 +187,13 @@ COMPLEX EXAMPLE:
         {
           "type": "column",
           "children": [
-            { "type": "text", "content": "Client: \${CLIENT_NAME}" },
-            { "type": "text", "content": "Address: \${CLIENT_ADDRESS}" }
+            { "type": "text", "content": "**Client Information:**\n\${CLIENT_NAME}\n\${CLIENT_ADDRESS}\nEmail: \${CLIENT_EMAIL}" }
           ]
         },
         {
           "type": "column",
           "children": [
-            { "type": "text", "content": "Provider: \${PROVIDER_NAME}" },
-            { "type": "text", "content": "Date: \${AGREEMENT_DATE}" }
+            { "type": "text", "content": "**Provider Information:**\n\${PROVIDER_NAME}\nDate: \${AGREEMENT_DATE}\nPhone: \${CONTACT_PHONE}" }
           ]
         }
       ]

@@ -80,6 +80,9 @@ function processTextContent(
     processed = parseMarkdown(processed);
   }
   
+  // Convert line breaks to <br> tags (after markdown parsing to avoid conflicts)
+  processed = processed.replace(/\n/g, '<br>');
+  
   return processed;
 }
 

@@ -76,17 +76,13 @@ export class MockProvider extends BaseAIProvider {
               {
                 type: 'column',
                 children: [
-                  { type: 'text', content: 'From:' },
-                  { type: 'text', content: '${VENDOR_NAME}' },
-                  { type: 'text', content: '${VENDOR_ADDRESS}' }
+                  { type: 'text', content: '**From:**\n${VENDOR_NAME}\n${VENDOR_ADDRESS}' }
                 ]
               },
               {
                 type: 'column',
                 children: [
-                  { type: 'text', content: 'To:' },
-                  { type: 'text', content: '${CLIENT_NAME}' },
-                  { type: 'text', content: '${CLIENT_ADDRESS}' }
+                  { type: 'text', content: '**To:**\n${CLIENT_NAME}\n${CLIENT_ADDRESS}' }
                 ]
               }
             ]
@@ -223,13 +219,10 @@ export class MockProvider extends BaseAIProvider {
       template = {
         type: 'document',
         children: [
-          { type: 'text', content: '${SENDER_NAME}' },
-          { type: 'text', content: '${SENDER_ADDRESS}' },
-          { type: 'text', content: '${DATE}' },
+          { type: 'text', content: '${SENDER_NAME}\n${SENDER_ADDRESS}\n${DATE}' },
           { type: 'text', content: 'Dear ${RECIPIENT_NAME},' },
           { type: 'text', content: '${LETTER_BODY}' },
-          { type: 'text', content: 'Sincerely,' },
-          { type: 'text', content: '${SENDER_NAME}' }
+          { type: 'text', content: 'Sincerely,\n\n${SENDER_NAME}' }
         ]
       };
     } else {
