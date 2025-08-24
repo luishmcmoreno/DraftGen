@@ -167,6 +167,67 @@
   .page-break {
     break-before: page;
   }
+
+  /* Interactive node hover effects */
+  .interactive-node {
+    position: relative;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+    transition: outline-color 0.2s ease;
+  }
+
+  .interactive-node-hover {
+    outline-color: rgba(59, 130, 246, 0.5);
+  }
+
+  /* Inline interactive nodes (for table cells and list items) */
+  .interactive-node-inline {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    outline: 2px solid transparent;
+    outline-offset: -2px; /* Negative offset to keep outline inside the cell */
+    border-radius: 0.25rem;
+    transition: outline-color 0.2s ease;
+  }
+
+  .interactive-node-hover-inline {
+    outline-color: rgba(59, 130, 246, 0.5);
+  }
+
+  /* Node type label */
+  .interactive-node-label {
+    position: absolute;
+    top: -1.5rem;
+    left: 0;
+    background-color: rgba(59, 130, 246, 0.9);
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    animation: fadeIn 0.2s ease;
+  }
+
+  /* Label for inline elements */
+  span.interactive-node-label {
+    display: inline-block;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(0.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 @page {
