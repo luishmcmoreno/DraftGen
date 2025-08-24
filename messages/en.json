@@ -29,7 +29,18 @@
       "updatedAt": "Updated",
       "edit": "Edit",
       "generate": "Generate",
+      "delete": "Delete",
       "moreVariables": "+{count} more"
+    },
+    "delete": {
+      "modal": {
+        "title": "Delete Template",
+        "description": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
+      },
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "success": "Template deleted successfully",
+      "failure": "Failed to delete template"
     },
     "empty": {
       "title": "No templates yet",

@@ -29,7 +29,18 @@
       "updatedAt": "Atualizado",
       "edit": "Editar",
       "generate": "Gerar",
+      "delete": "Excluir",
       "moreVariables": "+{count} mais"
+    },
+    "delete": {
+      "modal": {
+        "title": "Excluir Modelo",
+        "description": "Tem certeza que deseja excluir \"{name}\"? Esta ação não pode ser desfeita."
+      },
+      "confirm": "Excluir",
+      "cancel": "Cancelar",
+      "success": "Modelo excluído com sucesso",
+      "failure": "Falha ao excluir modelo"
     },
     "empty": {
       "title": "Nenhum modelo ainda",

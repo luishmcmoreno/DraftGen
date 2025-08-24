@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { Trash2 } from 'lucide-react';
 import { formatDate } from '@/utils/formatDate';
 import { Database } from '@/lib/supabase/database.types';
 
@@ -11,9 +12,10 @@ type Template = Database['public']['Tables']['templates']['Row'];
 interface TemplateCardProps {
   template: Template;
   onGenerate: (template: Template) => void;
+  onDelete: (template: Template) => void;
 }
 
-export default function TemplateCard({ template, onGenerate }: TemplateCardProps) {
+export default function TemplateCard({ template, onGenerate, onDelete }: TemplateCardProps) {
   const t = useTranslations('templates.card');
   const [showTooltip, setShowTooltip] = useState(false);
   
@@ -22,9 +24,17 @@ export default function TemplateCard({ template, onGenerate }: TemplateCardProps
   const hasOverflow = remainingTags.length > 0;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow flex flex-col h-full gap-4">
+    <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow flex flex-col h-full gap-4">
+      <button
+        onClick={() => onDelete(template)}
+        className="absolute top-4 right-4 p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+        aria-label={t('delete')}
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+      
       <div className="flex-grow flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 pr-8">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {template.name}
           </h3>
