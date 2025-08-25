@@ -284,6 +284,7 @@ COMPLEX EXAMPLE:
       console.error('Validation error details:', validation.error);
       // eslint-disable-next-line no-console
       const responseWithChildren = response as { children?: unknown[] };
+      // eslint-disable-next-line no-console
       console.error('Invalid node at position:', JSON.stringify(responseWithChildren?.children?.[19], null, 2));
       throw new Error(`Invalid AI response: ${validation.error}`);
     }

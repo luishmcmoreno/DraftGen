@@ -7,8 +7,8 @@ interface ToastWithTimer extends ToastProps {
   timer?: NodeJS.Timeout;
 }
 
-let toastQueue: ToastWithTimer[] = [];
-let listeners: ((toasts: ToastWithTimer[]) => void)[] = [];
+const toastQueue: ToastWithTimer[] = [];
+const listeners: ((toasts: ToastWithTimer[]) => void)[] = [];
 
 function notify() {
   listeners.forEach((listener) => listener([...toastQueue]));

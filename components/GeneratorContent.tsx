@@ -15,7 +15,6 @@ import { useToast } from '@/hooks/use-toast';
 import { ConversationMessage } from '@/lib/supabase/database.types';
 
 export function GeneratorContent() {
-  console.log('Rendering GeneratorContent'); // Debug log
   const t = useTranslations('generator');
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -41,7 +40,6 @@ export function GeneratorContent() {
 
     // Only load if we haven't loaded this specific template yet
     if (loadedTemplateIdRef.current === templateId) {
-      console.log('Template already loaded, skipping:', templateId);
       return;
     }
 
@@ -89,8 +87,6 @@ export function GeneratorContent() {
         
         // Mark this template as loaded to prevent duplicate toasts
         loadedTemplateIdRef.current = id;
-        
-        console.log('Loaded template:', data.name, id); // Debug log
 
         toast({
           title: t('load.success'),
@@ -367,7 +363,7 @@ export function GeneratorContent() {
             onDslUpdate={(updater) => {
               setCurrentDsl((prevDsl) => {
                 if (!prevDsl) return prevDsl;
-                const updated = updater(prevDsl);
+                const updated = updater(prevDsl) as DocumentSchema;
                 // Only set unsaved changes if the DSL actually changed
                 if (JSON.stringify(updated) !== JSON.stringify(prevDsl)) {
                   setHasUnsavedChanges(true);

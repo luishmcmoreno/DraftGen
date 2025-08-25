@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { documentStyles } from '@/utils/documentStyles';
 import { renderNode } from '@/utils/documentRenderer';
@@ -13,7 +13,7 @@ interface AutoPaginatedDocumentProps {
   showVariables?: boolean;
   forPdf?: boolean;
   className?: string;
-  onDslUpdate?: (updater: (dsl: any) => any) => void;
+  onDslUpdate?: (updater: (dsl: unknown) => unknown) => void;
 }
 
 function AutoPaginatedDocumentBase({ 
@@ -71,7 +71,7 @@ function AutoPaginatedDocumentBase({
         return currentPages;
       });
     }
-  }, [content, initialPagination]); // Depend on content and initialPagination
+  }, [content, initialPagination, pages.length]); // Depend on content, initialPagination, and pages.length
 
   // Initial pagination effect
   useEffect(() => {
@@ -250,7 +250,7 @@ function AutoPaginatedDocumentBase({
     // Small delay to ensure DOM is ready
     const timer = setTimeout(processContent, 50);
     return () => clearTimeout(timer);
-  }, [initialPagination, AVAILABLE_HEIGHT]);
+  }, [initialPagination, AVAILABLE_HEIGHT, content]);
 
   if (isProcessing && !forPdf) {
     return (

@@ -17,7 +17,7 @@ interface EditContextType {
   cancelEditing: () => void;
   saveEdit: (newContent: string, forPath?: NodePath) => void;
   isCurrentlyEditing: () => boolean;
-  onDslUpdate?: (updater: (dsl: any) => any) => void;
+  onDslUpdate?: (updater: (dsl: unknown) => unknown) => void;
 }
 
 export const EditContext = createContext<EditContextType | undefined>(undefined);
@@ -27,7 +27,7 @@ export function EditProvider({
   onDslUpdate 
 }: { 
   children: React.ReactNode;
-  onDslUpdate?: (updater: (dsl: any) => any) => void;
+  onDslUpdate?: (updater: (dsl: unknown) => unknown) => void;
 }) {
   const [editState, setEditState] = useState<EditState>({
     editingPath: null,
@@ -74,22 +74,24 @@ export function EditProvider({
       
       if (!path) return dsl; // Early return if no path
       
-      console.log('Saving edit with path:', path, 'content:', newContent);
-      console.log('Starting DSL:', JSON.stringify(dsl, null, 2));
+      // Cast to any for navigation - the DSL structure is validated elsewhere
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dslAny = dsl as any;
       
       // Create a shallow copy with updated children array
       const updatedDsl = {
-        ...dsl,
-        children: [...dsl.children]
+        ...dslAny,
+        children: [...dslAny.children]
       };
       
       // Navigate and update only the necessary parts
+      // Using any here is necessary for dynamic navigation through the DSL tree
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let current: any = updatedDsl;
       
       // Navigate to the target node
       for (let i = 0; i < path.length; i++) {
         const segment = path[i];
-        console.log(`Navigation step ${i}: segment=${segment}, current.type=${current.type}, has children=${!!current.children}, children count=${current.children?.length || 0}`);
         
         // Handle numeric indices
         if (typeof segment === 'number') {
@@ -100,17 +102,14 @@ export function EditProvider({
             if (current.type === 'table' && current.head) {
               if (i === path.length - 1) {
                 // This shouldn't happen - head should have children
-                console.error('Table head navigation error: head should have children');
                 return dsl;
               }
               // Clone the head and continue
               const clonedHead = { ...current.head, children: [...current.head.children] };
               current.head = clonedHead;
               current = clonedHead;
-              console.log('Navigated to table head, current.type now:', current.type);
             } else {
               // Error: trying to access -1 on non-table
-              console.error('Error: trying to navigate to head (-1) on non-table:', current.type);
               return dsl;
             }
             continue;
@@ -121,7 +120,6 @@ export function EditProvider({
             const targetNode = current.children ? current.children[index] : undefined;
             
             if (!targetNode) {
-              console.error('Target node not found at index', index, 'in', current);
               return dsl;
             }
             
@@ -151,7 +149,6 @@ export function EditProvider({
                 updatedNode = targetNode;
               }
             } else {
-              console.error('Unknown node type for editing:', targetNode.type);
               updatedNode = targetNode;
             }
             
@@ -181,7 +178,6 @@ export function EditProvider({
               
               current = clonedChild;
             } else {
-              console.error('Cannot navigate to index', index, 'in', current);
               return dsl;
             }
           }
