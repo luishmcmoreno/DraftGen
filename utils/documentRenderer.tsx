@@ -2,6 +2,7 @@
 import React from 'react';
 import { documentStyles, fontSizeMap, textAlignMap, headingStyleMap } from './documentStyles';
 import { InteractiveNode } from '@/components/InteractiveNode';
+import type { NodePath } from '@/contexts/EditContext';
 import type { 
   NodeType, 
   DocumentSchema,
@@ -23,7 +24,7 @@ export interface RenderOptions {
   forPdf?: boolean; // Rendering for PDF generation
   isFirstOnPage?: boolean; // Is this the first element on the page
   skipWrapper?: boolean; // Skip InteractiveNode wrapper (for nested content)
-  nodePath?: number[]; // Path to the current node in the DSL tree
+  nodePath?: NodePath; // Path to the current node in the DSL tree
 }
 
 function parseMarkdown(text: string): string {
@@ -327,6 +328,8 @@ export function renderNode(
 
     case 'table': {
       const tableNode = node as TableNodeType;
+      // Use a special index for the head to avoid conflicts with body rows
+      const HEAD_INDEX = -1;
       return (
         <table 
           key={index}
@@ -339,70 +342,157 @@ export function renderNode(
         >
           {tableNode.head && (
             <thead>
-              {renderNode(tableNode.head, 0, { ...options, nodePath: currentPath })}
+              {/* Pass HEAD_INDEX to indicate we're in the head section */}
+              {(() => {
+                // Render table-head directly without adding another index to the path
+                const tableHeadNode = tableNode.head;
+                return (
+                  <tr>
+                    {tableHeadNode.children.map((col: TableColumnNodeType, colIndex: number) => {
+                      // Path is [tableIndex, -1, columnIndex]
+                      const cellPath = [...currentPath, HEAD_INDEX, colIndex];
+                      return (
+                        <th 
+                          key={colIndex}
+                          style={{
+                            border: '1px solid #ddd',
+                            padding: '8px',
+                            backgroundColor: '#f5f5f5',
+                            fontWeight: 'bold',
+                            textAlign: 'left',
+                            position: 'relative',
+                          }}
+                          data-node-type="table-header"
+                        >
+                          {!forPdf ? (
+                            <InteractiveNode 
+                              nodeType="table-header" 
+                              inline={true}
+                              nodePath={cellPath}
+                              nodeContent={col.children[0] && 'content' in col.children[0] ? col.children[0].content : ''}
+                            >
+                              {col.children.map((child: NodeType, j: number) => {
+                                const rendered = renderNode(child, j, { ...options, skipWrapper: true, nodePath: cellPath });
+                                // Remove paragraph wrapper for text in table headers but preserve styles
+                                if (React.isValidElement(rendered) && rendered.type === 'p') {
+                                  const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
+                                  // Extract styles but remove paragraph-specific margins
+                                  const { margin, marginTop, marginBottom, ...otherStyles } = props.style || {};
+                                  return props.dangerouslySetInnerHTML 
+                                    ? <span key={j} style={otherStyles} dangerouslySetInnerHTML={props.dangerouslySetInnerHTML} />
+                                    : <span key={j} style={otherStyles}>{props.children}</span>;
+                                }
+                                return rendered;
+                              })}
+                            </InteractiveNode>
+                          ) : (
+                            col.children.map((child: NodeType, j: number) => {
+                              const rendered = renderNode(child, j, { ...options, skipWrapper: true, nodePath: cellPath });
+                              // Remove paragraph wrapper for text in table headers but preserve styles
+                              if (React.isValidElement(rendered) && rendered.type === 'p') {
+                                const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
+                                // Extract styles but remove paragraph-specific margins
+                                const { margin, marginTop, marginBottom, ...otherStyles } = props.style || {};
+                                return props.dangerouslySetInnerHTML 
+                                  ? <span key={j} style={otherStyles} dangerouslySetInnerHTML={props.dangerouslySetInnerHTML} />
+                                  : <span key={j} style={otherStyles}>{props.children}</span>;
+                              }
+                              return rendered;
+                            })
+                          )}
+                        </th>
+                      );
+                    })}
+                  </tr>
+                );
+              })()}
             </thead>
           )}
           <tbody>
-            {tableNode.children.map((row: TableRowNodeType, i: number) => (
-              renderNode(row, i, { ...options, nodePath: currentPath })
-            ))}
+            {tableNode.children.map((row: TableRowNodeType, rowIndex: number) => {
+              // Render table-row directly here to have better control over paths
+              const tableRowNode = row;
+              return (
+                <tr key={rowIndex}>
+                  {tableRowNode.children.map((col: TableColumnNodeType, colIndex: number) => {
+                    // Path is [tableIndex, rowIndex, columnIndex]
+                    const cellPath = [...currentPath, rowIndex, colIndex];
+                    return (
+                      <td 
+                        key={colIndex}
+                        style={{
+                          border: '1px solid #ddd',
+                          padding: '8px',
+                          position: 'relative',
+                        }}
+                        data-node-type="table-column"
+                      >
+                        {!forPdf ? (
+                          <InteractiveNode 
+                            nodeType="table-column" 
+                            inline={true}
+                            nodePath={cellPath}
+                            nodeContent={col.children[0] && 'content' in col.children[0] ? col.children[0].content : ''}
+                          >
+                            {col.children.map((child: NodeType, j: number) => {
+                              const rendered = renderNode(child, j, { ...options, skipWrapper: true, nodePath: cellPath });
+                              // Remove paragraph wrapper for text in table cells but preserve styles
+                              if (React.isValidElement(rendered) && rendered.type === 'p') {
+                                const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
+                                // Extract styles but remove paragraph-specific margins
+                                const { margin, marginTop, marginBottom, ...otherStyles } = props.style || {};
+                                return props.dangerouslySetInnerHTML 
+                                  ? <span key={j} style={otherStyles} dangerouslySetInnerHTML={props.dangerouslySetInnerHTML} />
+                                  : <span key={j} style={otherStyles}>{props.children}</span>;
+                              }
+                              return rendered;
+                            })}
+                          </InteractiveNode>
+                        ) : (
+                          col.children.map((child: NodeType, j: number) => {
+                            const rendered = renderNode(child, j, { ...options, skipWrapper: true, nodePath: cellPath });
+                            // Remove paragraph wrapper for text in table cells but preserve styles
+                            if (React.isValidElement(rendered) && rendered.type === 'p') {
+                              const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
+                              // Extract styles but remove paragraph-specific margins
+                              const { margin, marginTop, marginBottom, ...otherStyles } = props.style || {};
+                              return props.dangerouslySetInnerHTML 
+                                ? <span key={j} style={otherStyles} dangerouslySetInnerHTML={props.dangerouslySetInnerHTML} />
+                                : <span key={j} style={otherStyles}>{props.children}</span>;
+                            }
+                            return rendered;
+                          })
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       );
     }
 
     case 'table-head': {
+      // This case shouldn't be reached anymore since we handle table-head inline in the table case
+      // But keeping it for backwards compatibility
       const tableHeadNode = node as TableHeadNodeType;
       return (
         <tr key={index}>
-          {tableHeadNode.children.map((col: TableColumnNodeType, i: number) => (
+          {tableHeadNode.children.map((col: TableColumnNodeType, colIndex: number) => (
             <th 
-              key={i}
+              key={colIndex}
               style={{
                 border: '1px solid #ddd',
                 padding: '8px',
                 backgroundColor: '#f5f5f5',
                 fontWeight: 'bold',
                 textAlign: 'left',
-                position: 'relative',
               }}
-              data-node-type="table-header"
             >
-              {!forPdf ? (
-                <InteractiveNode 
-                  nodeType="table-header" 
-                  inline={true}
-                  nodePath={[...currentPath, i]}
-                  nodeContent={col.children[0] && 'content' in col.children[0] ? col.children[0].content : ''}
-                >
-                  {col.children.map((child: NodeType, j: number) => {
-                    const rendered = renderNode(child, j, { ...options, skipWrapper: true, nodePath: [...currentPath, i] });
-                    // Remove paragraph wrapper for text in table headers but preserve styles
-                    if (React.isValidElement(rendered) && rendered.type === 'p') {
-                      const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
-                      // Extract styles but remove paragraph-specific margins
-                      const { margin, marginTop, marginBottom, ...otherStyles } = props.style || {};
-                      return props.dangerouslySetInnerHTML 
-                        ? <span key={j} style={otherStyles} dangerouslySetInnerHTML={props.dangerouslySetInnerHTML} />
-                        : <span key={j} style={otherStyles}>{props.children}</span>;
-                    }
-                    return rendered;
-                  })}
-                </InteractiveNode>
-              ) : (
-                col.children.map((child: NodeType, j: number) => {
-                  const rendered = renderNode(child, j, { ...options, skipWrapper: true, nodePath: [...currentPath, i] });
-                  // Remove paragraph wrapper for text in table headers but preserve styles
-                  if (React.isValidElement(rendered) && rendered.type === 'p') {
-                    const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
-                    // Extract styles but remove paragraph-specific margins
-                    const { margin, marginTop, marginBottom, ...otherStyles } = props.style || {};
-                    return props.dangerouslySetInnerHTML 
-                      ? <span key={j} style={otherStyles} dangerouslySetInnerHTML={props.dangerouslySetInnerHTML} />
-                      : <span key={j} style={otherStyles}>{props.children}</span>;
-                  }
-                  return rendered;
-                })
+              {col.children.map((child: NodeType, j: number) => 
+                renderNode(child, j, { ...options, skipWrapper: true })
               )}
             </th>
           ))}
@@ -414,8 +504,8 @@ export function renderNode(
       const tableRowNode = node as TableRowNodeType;
       return (
         <tr key={index}>
-          {tableRowNode.children.map((col: TableColumnNodeType, i: number) => (
-            renderNode(col, i, { ...options, nodePath: currentPath })
+          {tableRowNode.children.map((col: TableColumnNodeType, colIndex: number) => (
+            renderNode(col, colIndex, { ...options, nodePath: [...currentPath, colIndex] })
           ))}
         </tr>
       );
@@ -442,31 +532,31 @@ export function renderNode(
               nodePath={currentPath}
               nodeContent={tableColumnNode.children[0] && 'content' in tableColumnNode.children[0] ? tableColumnNode.children[0].content : ''}
             >
-              {tableColumnNode.children.map((child: NodeType, i: number) => {
-                const rendered = renderNode(child, i, { ...options, skipWrapper: true, nodePath: currentPath });
+              {tableColumnNode.children.map((child: NodeType, j: number) => {
+                const rendered = renderNode(child, j, { ...options, skipWrapper: true, nodePath: currentPath });
                 // Remove paragraph wrapper for text in table cells but preserve styles
                 if (React.isValidElement(rendered) && rendered.type === 'p') {
                   const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
                   // Extract styles but remove paragraph-specific margins
                   const { margin, marginTop, marginBottom, ...otherStyles } = props.style || {};
                   return props.dangerouslySetInnerHTML 
-                    ? <span key={i} style={otherStyles} dangerouslySetInnerHTML={props.dangerouslySetInnerHTML} />
-                    : <span key={i} style={otherStyles}>{props.children}</span>;
+                    ? <span key={j} style={otherStyles} dangerouslySetInnerHTML={props.dangerouslySetInnerHTML} />
+                    : <span key={j} style={otherStyles}>{props.children}</span>;
                 }
                 return rendered;
               })}
             </InteractiveNode>
           ) : (
-            tableColumnNode.children.map((child: NodeType, i: number) => {
-              const rendered = renderNode(child, i, { ...options, skipWrapper: true, nodePath: currentPath });
+            tableColumnNode.children.map((child: NodeType, j: number) => {
+              const rendered = renderNode(child, j, { ...options, skipWrapper: true, nodePath: currentPath });
               // Remove paragraph wrapper for text in table cells but preserve styles
               if (React.isValidElement(rendered) && rendered.type === 'p') {
                 const props = rendered.props as { dangerouslySetInnerHTML?: any; children?: React.ReactNode; style?: React.CSSProperties };
                 // Extract styles but remove paragraph-specific margins
                 const { margin, marginTop, marginBottom, ...otherStyles } = props.style || {};
                 return props.dangerouslySetInnerHTML 
-                  ? <span key={i} style={otherStyles} dangerouslySetInnerHTML={props.dangerouslySetInnerHTML} />
-                  : <span key={i} style={otherStyles}>{props.children}</span>;
+                  ? <span key={j} style={otherStyles} dangerouslySetInnerHTML={props.dangerouslySetInnerHTML} />
+                  : <span key={j} style={otherStyles}>{props.children}</span>;
               }
               return rendered;
             })

@@ -2,14 +2,14 @@
 
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { cn } from '@/lib/utils';
-import { EditContext, isPathBeingEdited } from '@/contexts/EditContext';
+import { EditContext, isPathBeingEdited, type NodePath } from '@/contexts/EditContext';
 
 interface InteractiveNodeProps {
   nodeType: string;
   children: React.ReactNode;
   className?: string;
   inline?: boolean; // For wrapping content inside elements like td
-  nodePath?: number[]; // Path to this node in the DSL tree
+  nodePath?: NodePath; // Path to this node in the DSL tree
   nodeContent?: string; // Original content of the node
   elementType?: string; // The HTML element type (p, h1, h2, etc.)
   elementStyles?: React.CSSProperties; // Original styles to preserve

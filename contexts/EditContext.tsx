@@ -2,17 +2,20 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
+export type PathSegment = number | string;
+export type NodePath = PathSegment[];
+
 interface EditState {
-  editingPath: number[] | null;
+  editingPath: NodePath | null;
   editingContent: string | null;
 }
 
 interface EditContextType {
-  editingPath: number[] | null;
+  editingPath: NodePath | null;
   editingContent: string | null;
-  startEditing: (path: number[], content: string) => void;
+  startEditing: (path: NodePath, content: string) => void;
   cancelEditing: () => void;
-  saveEdit: (newContent: string, forPath?: number[]) => void;
+  saveEdit: (newContent: string, forPath?: NodePath) => void;
   isCurrentlyEditing: () => boolean;
   onDslUpdate?: (updater: (dsl: any) => any) => void;
 }
@@ -35,7 +38,7 @@ export function EditProvider({
     return editState.editingPath !== null;
   }, [editState.editingPath]);
 
-  const startEditing = useCallback((path: number[], content: string) => {
+  const startEditing = useCallback((path: NodePath, content: string) => {
     setEditState({
       editingPath: path,
       editingContent: content
@@ -49,7 +52,7 @@ export function EditProvider({
     });
   }, []);
 
-  const saveEdit = useCallback((newContent: string, forPath?: number[]) => {
+  const saveEdit = useCallback((newContent: string, forPath?: NodePath) => {
     // Capture the path immediately to avoid any state changes affecting it
     const pathToUse = forPath || editState.editingPath;
     
@@ -71,6 +74,9 @@ export function EditProvider({
       
       if (!path) return dsl; // Early return if no path
       
+      console.log('Saving edit with path:', path, 'content:', newContent);
+      console.log('Starting DSL:', JSON.stringify(dsl, null, 2));
+      
       // Create a shallow copy with updated children array
       const updatedDsl = {
         ...dsl,
@@ -82,64 +88,106 @@ export function EditProvider({
       
       // Navigate to the target node
       for (let i = 0; i < path.length; i++) {
-        const index = path[i];
+        const segment = path[i];
+        console.log(`Navigation step ${i}: segment=${segment}, current.type=${current.type}, has children=${!!current.children}, children count=${current.children?.length || 0}`);
         
-        if (i === path.length - 1) {
-          // Last step - update the target node
-          const targetNode = current.children[index];
+        // Handle numeric indices
+        if (typeof segment === 'number') {
+          const index = segment;
           
-          // Create new node with updated content
-          let updatedNode;
-          if (targetNode.type === 'text' || targetNode.type === 'heading') {
-            updatedNode = {
-              ...targetNode,
-              content: newContent
-            };
-          } else if (targetNode.type === 'list-item' || 
-                     targetNode.type === 'table-column' || 
-                     targetNode.type === 'column') {
-            // For container nodes, update the first text child
-            if (targetNode.children && targetNode.children[0]) {
-              updatedNode = {
-                ...targetNode,
-                children: [
-                  {
-                    ...targetNode.children[0],
-                    content: newContent
-                  },
-                  ...targetNode.children.slice(1)
-                ]
-              };
+          // Special handling for table head (index -1)
+          if (index === -1) {
+            if (current.type === 'table' && current.head) {
+              if (i === path.length - 1) {
+                // This shouldn't happen - head should have children
+                console.error('Table head navigation error: head should have children');
+                return dsl;
+              }
+              // Clone the head and continue
+              const clonedHead = { ...current.head, children: [...current.head.children] };
+              current.head = clonedHead;
+              current = clonedHead;
+              console.log('Navigated to table head, current.type now:', current.type);
             } else {
-              updatedNode = targetNode;
+              // Error: trying to access -1 on non-table
+              console.error('Error: trying to navigate to head (-1) on non-table:', current.type);
+              return dsl;
             }
-          } else {
-            updatedNode = targetNode;
+            continue;
           }
           
-          // Update the children array at this level
-          current.children = [
-            ...current.children.slice(0, index),
-            updatedNode,
-            ...current.children.slice(index + 1)
-          ];
+          if (i === path.length - 1) {
+            // Last step - update the target node
+            const targetNode = current.children ? current.children[index] : undefined;
+            
+            if (!targetNode) {
+              console.error('Target node not found at index', index, 'in', current);
+              return dsl;
+            }
+            
+            // Create new node with updated content
+            let updatedNode;
+            if (targetNode.type === 'text' || targetNode.type === 'heading') {
+              updatedNode = {
+                ...targetNode,
+                content: newContent
+              };
+            } else if (targetNode.type === 'list-item' || 
+                       targetNode.type === 'table-column' || 
+                       targetNode.type === 'column') {
+              // For container nodes, update the first text child
+              if (targetNode.children && targetNode.children[0]) {
+                updatedNode = {
+                  ...targetNode,
+                  children: [
+                    {
+                      ...targetNode.children[0],
+                      content: newContent
+                    },
+                    ...targetNode.children.slice(1)
+                  ]
+                };
+              } else {
+                updatedNode = targetNode;
+              }
+            } else {
+              console.error('Unknown node type for editing:', targetNode.type);
+              updatedNode = targetNode;
+            }
+            
+            // Update the children array at this level
+            current.children = [
+              ...current.children.slice(0, index),
+              updatedNode,
+              ...current.children.slice(index + 1)
+            ];
+          } else {
+            // Intermediate step - clone and continue navigation
+            if (current.children && current.children[index]) {
+              // Clone the child node we're navigating into
+              const childNode = current.children[index];
+              const clonedChild = {
+                ...childNode,
+                children: childNode.children ? [...childNode.children] : undefined,
+                head: childNode.head ? { ...childNode.head, children: [...childNode.head.children] } : undefined
+              };
+              
+              // Update parent's children array
+              current.children = [
+                ...current.children.slice(0, index),
+                clonedChild,
+                ...current.children.slice(index + 1)
+              ];
+              
+              current = clonedChild;
+            } else {
+              console.error('Cannot navigate to index', index, 'in', current);
+              return dsl;
+            }
+          }
         } else {
-          // Intermediate step - clone and continue navigation
-          // Clone the child node we're navigating into
-          const childNode = current.children[index];
-          const clonedChild = {
-            ...childNode,
-            children: childNode.children ? [...childNode.children] : undefined
-          };
-          
-          // Update parent's children array
-          current.children = [
-            ...current.children.slice(0, index),
-            clonedChild,
-            ...current.children.slice(index + 1)
-          ];
-          
-          current = clonedChild;
+          // String segments - currently not supported
+          return dsl;
         }
       }
       
@@ -173,7 +221,7 @@ export function useEdit() {
 }
 
 // Helper to check if a path is being edited
-export function isPathBeingEdited(currentPath: number[], editingPath: number[] | null): boolean {
+export function isPathBeingEdited(currentPath: NodePath, editingPath: NodePath | null): boolean {
   if (!editingPath) return false;
   if (currentPath.length !== editingPath.length) return false;
   return currentPath.every((val, index) => val === editingPath[index]);
