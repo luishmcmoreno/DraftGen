@@ -367,7 +367,7 @@ export function GeneratorContent() {
             onDslUpdate={(updater) => {
               setCurrentDsl((prevDsl) => {
                 if (!prevDsl) return prevDsl;
-                const updated = updater(prevDsl) as DocumentSchema;
+                const updated = updater(prevDsl);
                 // Only set unsaved changes if the DSL actually changed
                 if (JSON.stringify(updated) !== JSON.stringify(prevDsl)) {
                   setHasUnsavedChanges(true);

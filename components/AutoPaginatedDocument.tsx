@@ -13,7 +13,7 @@ interface AutoPaginatedDocumentProps {
   showVariables?: boolean;
   forPdf?: boolean;
   className?: string;
-  onDslUpdate?: (updater: (dsl: unknown) => unknown) => void;
+  onDslUpdate?: (updater: (dsl: DocumentSchema) => DocumentSchema) => void;
 }
 
 function AutoPaginatedDocumentBase({
@@ -24,7 +24,6 @@ function AutoPaginatedDocumentBase({
   onDslUpdate,
 }: AutoPaginatedDocumentProps) {
   const [pages, setPages] = useState<NodeType[][]>([[]]);
-  const [pageOffsets, setPageOffsets] = useState<number[]>([0]); // Track starting DSL index for each page
   const [isProcessing, setIsProcessing] = useState(true);
   const [initialPagination, setInitialPagination] = useState(true);
 
@@ -89,10 +88,8 @@ function AutoPaginatedDocumentBase({
     const processContent = async () => {
       setIsProcessing(true);
       const newPages: NodeType[][] = [];
-      const newPageOffsets: number[] = [];
       let currentPage: NodeType[] = [];
       let currentPageHeight = 0;
-      let currentDslIndex = 0; // Track current position in original DSL
 
       // Create a hidden measuring container with exact page styles
       const measuringContainer = document.createElement('div');
@@ -123,9 +120,6 @@ function AutoPaginatedDocumentBase({
       while (remainingNodes.length > 0) {
         const node = remainingNodes.shift()!;
 
-        // Get the original DSL index for this node
-        const originalIndex = nodeToOriginalIndex.get(node);
-        
         // Handle explicit page breaks
         if (node.type === 'page-break') {
           if (currentPage.length > 0) {
@@ -133,13 +127,7 @@ function AutoPaginatedDocumentBase({
             currentPage = [];
             currentPageHeight = 0;
           }
-          currentDslIndex++; // Move to next DSL position
           continue;
-        }
-        
-        // If starting a new page, record the DSL index where this page starts
-        if (currentPage.length === 0) {
-          newPageOffsets.push(originalIndex !== undefined ? originalIndex : currentDslIndex);
         }
 
         const isFirstNode = currentPage.length === 0;
@@ -218,6 +206,7 @@ function AutoPaginatedDocumentBase({
         // Handle overflow
         if (splitResult.overflow) {
           // If nothing fit on this page, and page isn't empty, start a new page
+          const originalIndex = nodeToOriginalIndex.get(node);
           if (!splitResult.fitsOnPage && currentPage.length > 0) {
             newPages.push(currentPage);
             currentPage = [];
@@ -244,9 +233,6 @@ function AutoPaginatedDocumentBase({
             currentPage.push(node);
             currentPageHeight = MAX_CONTENT_HEIGHT; // Force new page next
           }
-        } else {
-          // If no overflow, move to next DSL index
-          currentDslIndex++;
         }
 
         // Check if we should start a new page
@@ -269,11 +255,9 @@ function AutoPaginatedDocumentBase({
       // If no pages were created, create one empty page
       if (newPages.length === 0) {
         newPages.push([]);
-        newPageOffsets.push(0);
       }
 
       setPages(newPages);
-      setPageOffsets(newPageOffsets);
       setIsProcessing(false);
       setInitialPagination(false); // Mark initial pagination as complete
     };
@@ -350,15 +334,17 @@ function AutoPaginatedDocumentBase({
             }}
           >
             {pageContent.map((node, nodeIndex) => {
-              // Get the base offset for this page
-              const baseOffset = pageOffsets[pageIndex] || 0;
+              // Calculate cumulative node count from previous pages using reduce
+              const cumulativeNodeCount = pages
+                .slice(0, pageIndex)
+                .reduce((sum, page) => sum + page.length, 0);
               return (
                 <React.Fragment key={nodeIndex}>
                   {renderNode(node, nodeIndex, {
                     showVariables,
                     forPdf,
                     isFirstOnPage: nodeIndex === 0,
-                    baseIndex: baseOffset,
+                    baseIndex: cumulativeNodeCount,
                   })}
                 </React.Fragment>
               );

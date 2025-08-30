@@ -1,5 +1,21 @@
 import { z } from 'zod';
 
+// Node type enum for type safety
+export enum NodeTypeEnum {
+  TEXT = 'text',
+  HEADING = 'heading',
+  PAGE_BREAK = 'page-break',
+  LIST = 'list',
+  LIST_ITEM = 'list-item',
+  TABLE = 'table',
+  TABLE_HEAD = 'table-head',
+  TABLE_ROW = 'table-row',
+  TABLE_COLUMN = 'table-column',
+  GRID = 'grid',
+  COLUMN = 'column',
+  DOCUMENT = 'document'
+}
+
 // Variable type enum
 export const VariableType = z.enum(['TEXT', 'DATE', 'EMAIL', 'NUMBER', 'PHONE']);
 
@@ -66,13 +82,13 @@ export const TextStyles = z.object({
 
 // Basic content nodes
 export const TextNode = z.object({
-  type: z.literal('text'),
+  type: z.literal(NodeTypeEnum.TEXT),
   content: z.string(),
   styles: TextStyles.optional(),
 });
 
 export const HeadingNode = z.object({
-  type: z.literal('heading'),
+  type: z.literal(NodeTypeEnum.HEADING),
   level: z.union([
     z.literal(1),
     z.literal(2),
@@ -86,20 +102,20 @@ export const HeadingNode = z.object({
 });
 
 export const PageBreakNode = z.object({
-  type: z.literal('page-break'),
+  type: z.literal(NodeTypeEnum.PAGE_BREAK),
 });
 
 // List nodes
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ListItemNode: z.ZodType<any> = z.lazy(() =>
   z.object({
-    type: z.literal('list-item'),
+    type: z.literal(NodeTypeEnum.LIST_ITEM),
     children: z.array(NodeTypeSchema),
   })
 );
 
 export const ListNode = z.object({
-  type: z.literal('list'),
+  type: z.literal(NodeTypeEnum.LIST),
   ordered: z.boolean().default(false),
   children: z.array(ListItemNode),
 });
@@ -108,23 +124,23 @@ export const ListNode = z.object({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const TableColumnNode: z.ZodType<any> = z.lazy(() =>
   z.object({
-    type: z.literal('table-column'),
+    type: z.literal(NodeTypeEnum.TABLE_COLUMN),
     children: z.array(NodeTypeSchema),
   })
 );
 
 export const TableHeadNode = z.object({
-  type: z.literal('table-head'),
+  type: z.literal(NodeTypeEnum.TABLE_HEAD),
   children: z.array(TableColumnNode),
 });
 
 export const TableRowNode = z.object({
-  type: z.literal('table-row'),
+  type: z.literal(NodeTypeEnum.TABLE_ROW),
   children: z.array(TableColumnNode),
 });
 
 export const TableNode = z.object({
-  type: z.literal('table'),
+  type: z.literal(NodeTypeEnum.TABLE),
   head: TableHeadNode.optional(),
   children: z.array(TableRowNode),
 });
@@ -133,14 +149,14 @@ export const TableNode = z.object({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ColumnNode: z.ZodType<any> = z.lazy(() =>
   z.object({
-    type: z.literal('column'),
+    type: z.literal(NodeTypeEnum.COLUMN),
     width: z.number().optional(), // Width in percentage (1-100)
     children: z.array(NodeTypeSchema),
   })
 );
 
 export const GridNode = z.object({
-  type: z.literal('grid'),
+  type: z.literal(NodeTypeEnum.GRID),
   columns: z.number().default(2), // Number of columns
   children: z.array(ColumnNode),
 });
@@ -162,7 +178,7 @@ export const NodeTypeSchema = z.lazy(() =>
 );
 
 export const DocumentNode = z.object({
-  type: z.literal('document'),
+  type: z.literal(NodeTypeEnum.DOCUMENT),
   children: z.array(NodeTypeSchema),
   variables: z.array(VariableDefinition).optional(), // Optional for backward compatibility
 });
@@ -203,6 +219,62 @@ export type NodeType =
   | ColumnNodeType;
 
 export type DocumentSchema = z.infer<typeof DocumentNode>;
+
+// Type guard functions for runtime type checking with TypeScript type narrowing
+export function isTextNode(node: NodeType): node is TextNodeType {
+  return node.type === NodeTypeEnum.TEXT;
+}
+
+export function isHeadingNode(node: NodeType): node is HeadingNodeType {
+  return node.type === NodeTypeEnum.HEADING;
+}
+
+export function isPageBreakNode(node: NodeType): node is PageBreakNodeType {
+  return node.type === NodeTypeEnum.PAGE_BREAK;
+}
+
+export function isListNode(node: NodeType): node is ListNodeType {
+  return node.type === NodeTypeEnum.LIST;
+}
+
+export function isListItemNode(node: NodeType): node is ListItemNodeType {
+  return node.type === NodeTypeEnum.LIST_ITEM;
+}
+
+export function isTableNode(node: NodeType): node is TableNodeType {
+  return node.type === NodeTypeEnum.TABLE;
+}
+
+export function isTableHeadNode(node: NodeType): node is TableHeadNodeType {
+  return node.type === NodeTypeEnum.TABLE_HEAD;
+}
+
+export function isTableRowNode(node: NodeType): node is TableRowNodeType {
+  return node.type === NodeTypeEnum.TABLE_ROW;
+}
+
+export function isTableColumnNode(node: NodeType): node is TableColumnNodeType {
+  return node.type === NodeTypeEnum.TABLE_COLUMN;
+}
+
+export function isGridNode(node: NodeType): node is GridNodeType {
+  return node.type === NodeTypeEnum.GRID;
+}
+
+export function isColumnNode(node: NodeType): node is ColumnNodeType {
+  return node.type === NodeTypeEnum.COLUMN;
+}
+
+// Higher-level semantic type guard functions
+// Check if node has direct content property (text or heading)
+export function isDirectContentNode(node: NodeType): node is TextNodeType | HeadingNodeType {
+  return isTextNode(node) || isHeadingNode(node);
+}
+
+// Check if node is a container that wraps text content
+export function isTextContainerNode(node: NodeType): node is ListItemNodeType | TableColumnNodeType | ColumnNodeType {
+  return isListItemNode(node) || isTableColumnNode(node) || isColumnNode(node);
+}
 
 export function validateDsl(json: unknown): {
   success: boolean;

@@ -7,7 +7,7 @@ import { AutoPaginatedDocument } from './AutoPaginatedDocument';
 interface ViewerProps {
   dsl: DocumentSchema | null;
   className?: string;
-  onDslUpdate?: (updater: (dsl: unknown) => unknown) => void;
+  onDslUpdate?: (updater: (dsl: DocumentSchema) => DocumentSchema) => void;
 }
 
 export function Viewer({ dsl, className, onDslUpdate }: ViewerProps) {
