@@ -105,9 +105,38 @@ export const PageBreakNode = z.object({
   type: z.literal(NodeTypeEnum.PAGE_BREAK),
 });
 
+// Forward declare the types to handle recursion
+// These need to match the actual inferred types exactly
+type ListNodeType = {
+  type: NodeTypeEnum.LIST;
+  ordered?: boolean;
+  children: ListItemNodeType[];
+};
+
+type ListItemNodeType = {
+  type: NodeTypeEnum.LIST_ITEM;
+  children: NodeType[];
+};
+
+type TableColumnNodeType = {
+  type: NodeTypeEnum.TABLE_COLUMN;
+  children: NodeType[];
+};
+
+type GridNodeType = {
+  type: NodeTypeEnum.GRID;
+  columns?: number;
+  children: ColumnNodeType[];
+};
+
+type ColumnNodeType = {
+  type: NodeTypeEnum.COLUMN;
+  width?: number;
+  children: NodeType[];
+};
+
 // List nodes
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const ListItemNode: z.ZodType<any> = z.lazy(() =>
+export const ListItemNode: z.ZodType<ListItemNodeType> = z.lazy(() =>
   z.object({
     type: z.literal(NodeTypeEnum.LIST_ITEM),
     children: z.array(NodeTypeSchema),
@@ -116,13 +145,12 @@ export const ListItemNode: z.ZodType<any> = z.lazy(() =>
 
 export const ListNode = z.object({
   type: z.literal(NodeTypeEnum.LIST),
-  ordered: z.boolean().default(false),
+  ordered: z.boolean().optional().default(false),
   children: z.array(ListItemNode),
 });
 
 // Table nodes
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const TableColumnNode: z.ZodType<any> = z.lazy(() =>
+export const TableColumnNode: z.ZodType<TableColumnNodeType> = z.lazy(() =>
   z.object({
     type: z.literal(NodeTypeEnum.TABLE_COLUMN),
     children: z.array(NodeTypeSchema),
@@ -146,8 +174,7 @@ export const TableNode = z.object({
 });
 
 // Grid nodes
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const ColumnNode: z.ZodType<any> = z.lazy(() =>
+export const ColumnNode: z.ZodType<ColumnNodeType> = z.lazy(() =>
   z.object({
     type: z.literal(NodeTypeEnum.COLUMN),
     width: z.number().optional(), // Width in percentage (1-100)
@@ -157,7 +184,7 @@ export const ColumnNode: z.ZodType<any> = z.lazy(() =>
 
 export const GridNode = z.object({
   type: z.literal(NodeTypeEnum.GRID),
-  columns: z.number().default(2), // Number of columns
+  columns: z.number().optional().default(2), // Number of columns
   children: z.array(ColumnNode),
 });
 
@@ -196,14 +223,11 @@ export type TextStylesType = z.infer<typeof TextStyles>;
 export type TextNodeType = z.infer<typeof TextNode>;
 export type HeadingNodeType = z.infer<typeof HeadingNode>;
 export type PageBreakNodeType = z.infer<typeof PageBreakNode>;
-export type ListNodeType = z.infer<typeof ListNode>;
-export type ListItemNodeType = z.infer<typeof ListItemNode>;
+// ListNodeType, ListItemNodeType, TableColumnNodeType, GridNodeType, and ColumnNodeType 
+// are already forward declared above for recursion handling
 export type TableNodeType = z.infer<typeof TableNode>;
 export type TableHeadNodeType = z.infer<typeof TableHeadNode>;
 export type TableRowNodeType = z.infer<typeof TableRowNode>;
-export type TableColumnNodeType = z.infer<typeof TableColumnNode>;
-export type GridNodeType = z.infer<typeof GridNode>;
-export type ColumnNodeType = z.infer<typeof ColumnNode>;
 
 export type NodeType =
   | TextNodeType

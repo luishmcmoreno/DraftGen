@@ -4,9 +4,11 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 import {
   DocumentSchema,
   NodeType,
+  TableNodeType,
   TableHeadNodeType,
   isDirectContentNode,
   isTextContainerNode,
+  isTableNode,
 } from '@/lib/dslValidator';
 
 export type PathSegment = number | string;
@@ -17,33 +19,20 @@ type UpdateResult =
   | { success: true; data: DocumentSchema }
   | { success: false; error: string };
 
-// Specific types for nodes with certain properties
-// These are more precise versions without index signatures
-type NodeWithChildren = 
-  | DocumentSchema
-  | NodeType
-  | { type: string; children: NodeType[] };
-
-type TableNodeWithHead = Extract<NodeType, { head: TableHeadNodeType }> & {
-  head: TableHeadNodeType;
-};
-
 // Union type for all possible nodes during tree traversal
 type NavigableNode = 
   | DocumentSchema 
-  | NodeType;
+  | NodeType
+  | TableHeadNodeType;
 
 // Type guard to check if a node has children
-function hasChildren(node: NavigableNode): node is NodeWithChildren {
-  return 'children' in node && Array.isArray(node.children);
+function hasChildren(node: NavigableNode): node is DocumentSchema | Extract<NodeType, { children: any }> | TableHeadNodeType {
+  return 'children' in node && Array.isArray((node as any).children);
 }
 
 // Type guard to check if a node is a table with head
-function isTableWithHead(node: NavigableNode): node is TableNodeWithHead {
-  return 'head' in node && 
-         node.head !== undefined && 
-         'children' in node.head && 
-         Array.isArray(node.head.children);
+function isTableWithHead(node: NavigableNode): node is TableNodeType {
+  return isTableNode(node as NodeType) && 'head' in node && node.head !== undefined;
 }
 
 interface EditState {
@@ -82,7 +71,7 @@ function validatePath(node: NavigableNode, path: NodePath, index: number = 0): b
     if (!isTableWithHead(node)) {
       return false; // -1 is only valid for tables with heads
     }
-    return validatePath(node.head, path, index + 1);
+    return validatePath(node.head as NavigableNode, path, index + 1);
   }
 
   // Regular index: check if node has children and index is valid
@@ -90,12 +79,13 @@ function validatePath(node: NavigableNode, path: NodePath, index: number = 0): b
     return false;
   }
 
-  if (segment < 0 || segment >= node.children.length) {
+  const children = (node as any).children;
+  if (segment < 0 || segment >= children.length) {
     return false; // Index out of bounds
   }
 
   // Continue validation with the child node
-  return validatePath(node.children[segment], path, index + 1);
+  return validatePath(children[segment], path, index + 1);
 }
 
 // Recursive helper to immutably update a node at a specific path
@@ -128,7 +118,7 @@ function recursiveUpdate(
     }
 
     const updatedHead = recursiveUpdate(
-      node.head,
+      node.head as NavigableNode,
       path,
       currentIndex + 1,
       newContent
@@ -142,16 +132,21 @@ function recursiveUpdate(
     return {
       ...node,
       head: updatedHead as TableHeadNodeType
-    };
+    } as NavigableNode;
   }
 
   // Handle regular array indices
-  if (!hasChildren(node) || segment < 0 || segment >= node.children.length) {
+  if (!hasChildren(node)) {
+    return null;
+  }
+
+  const children = (node as any).children;
+  if (segment < 0 || segment >= children.length) {
     return null;
   }
 
   const updatedChild = recursiveUpdate(
-    node.children[segment],
+    children[segment],
     path,
     currentIndex + 1,
     newContent
@@ -162,13 +157,13 @@ function recursiveUpdate(
   }
 
   // Create new node with updated children array
-  const newChildren = [...node.children];
+  const newChildren = [...children];
   newChildren[segment] = updatedChild as NodeType;
 
   return {
     ...node,
     children: newChildren
-  };
+  } as NavigableNode;
 }
 
 // Helper function to create an updated node with new content
@@ -183,14 +178,15 @@ function createUpdatedNode(node: NodeType, newContent: string): NodeType {
   
   // Container nodes that wrap text content
   if (isTextContainerNode(node)) {
-    if (node.children && node.children[0]) {
+    const children = (node as any).children;
+    if (children && children[0] && 'content' in children[0]) {
       return {
         ...node,
         children: [
-          { ...node.children[0], content: newContent },
-          ...node.children.slice(1),
+          { ...children[0], content: newContent },
+          ...children.slice(1),
         ],
-      };
+      } as NodeType;
     }
   }
   
