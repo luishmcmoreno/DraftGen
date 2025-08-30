@@ -25,6 +25,7 @@ export interface RenderOptions {
   isFirstOnPage?: boolean; // Is this the first element on the page
   skipWrapper?: boolean; // Skip InteractiveNode wrapper (for nested content)
   nodePath?: NodePath; // Path to the current node in the DSL tree
+  baseIndex?: number; // Base index offset for paginated content
 }
 
 function parseMarkdown(text: string): string {
@@ -109,8 +110,12 @@ export function renderNode(
     isFirstOnPage = false,
     skipWrapper = false,
     nodePath = [],
+    baseIndex = 0, // Add baseIndex with default value of 0
   } = options;
-  const currentPath = [...nodePath, index];
+  
+  // Calculate the actual index considering the base offset
+  const actualIndex = baseIndex + index;
+  const currentPath = [...nodePath, actualIndex];
 
   switch (node.type) {
     case 'text': {
@@ -253,7 +258,7 @@ export function renderNode(
           }}
         >
           {listNode.children.map((item: ListItemNodeType, i: number) =>
-            renderNode(item, i, { ...options, nodePath: currentPath })
+            renderNode(item, i, { ...options, nodePath: currentPath, baseIndex: 0 })
           )}
         </ListTag>
       );
@@ -286,6 +291,7 @@ export function renderNode(
                   ...options,
                   skipWrapper: true,
                   nodePath: currentPath,
+                  baseIndex: 0,
                 });
                 // Remove paragraph wrapper for text in list items but preserve styles
                 if (React.isValidElement(rendered) && rendered.type === 'p') {
@@ -317,6 +323,7 @@ export function renderNode(
                 ...options,
                 skipWrapper: true,
                 nodePath: currentPath,
+                baseIndex: 0,
               });
               // Remove paragraph wrapper for text in list items but preserve styles
               if (React.isValidElement(rendered) && rendered.type === 'p') {
@@ -400,6 +407,7 @@ export function renderNode(
                                   ...options,
                                   skipWrapper: true,
                                   nodePath: cellPath,
+                                  baseIndex: 0,
                                 });
                                 // Remove paragraph wrapper for text in table headers but preserve styles
                                 if (React.isValidElement(rendered) && rendered.type === 'p') {
@@ -432,6 +440,7 @@ export function renderNode(
                                 ...options,
                                 skipWrapper: true,
                                 nodePath: cellPath,
+                                baseIndex: 0,
                               });
                               // Remove paragraph wrapper for text in table headers but preserve styles
                               if (React.isValidElement(rendered) && rendered.type === 'p') {
@@ -501,6 +510,7 @@ export function renderNode(
                                 ...options,
                                 skipWrapper: true,
                                 nodePath: cellPath,
+                                baseIndex: 0,
                               });
                               // Remove paragraph wrapper for text in table cells but preserve styles
                               if (React.isValidElement(rendered) && rendered.type === 'p') {
@@ -533,6 +543,7 @@ export function renderNode(
                               ...options,
                               skipWrapper: true,
                               nodePath: cellPath,
+                              baseIndex: 0,
                             });
                             // Remove paragraph wrapper for text in table cells but preserve styles
                             if (React.isValidElement(rendered) && rendered.type === 'p') {
@@ -546,22 +557,22 @@ export function renderNode(
                                 props.style || {};
                               return props.dangerouslySetInnerHTML ? (
                                 <span
-                                  key={j}
-                                  style={otherStyles}
-                                  dangerouslySetInnerHTML={props.dangerouslySetInnerHTML}
-                                />
-                              ) : (
-                                <span key={j} style={otherStyles}>
-                                  {props.children}
-                                </span>
-                              );
-                            }
-                            return rendered;
-                          })
-                        )}
-                      </td>
-                    );
-                  })}
+                                    key={j}
+                                    style={otherStyles}
+                                    dangerouslySetInnerHTML={props.dangerouslySetInnerHTML}
+                                  />
+                                ) : (
+                                  <span key={j} style={otherStyles}>
+                                    {props.children}
+                                  </span>
+                                );
+                              }
+                              return rendered;
+                            })
+                          )}
+                        </td>
+                      );
+                    })}
                 </tr>
               );
             })}
@@ -588,7 +599,7 @@ export function renderNode(
               }}
             >
               {col.children.map((child: NodeType, j: number) =>
-                renderNode(child, j, { ...options, skipWrapper: true })
+                renderNode(child, j, { ...options, skipWrapper: true, baseIndex: 0 })
               )}
             </th>
           ))}
@@ -601,7 +612,7 @@ export function renderNode(
       return (
         <tr key={index}>
           {tableRowNode.children.map((col: TableColumnNodeType, colIndex: number) =>
-            renderNode(col, colIndex, { ...options, nodePath: [...currentPath, colIndex] })
+            renderNode(col, colIndex, { ...options, nodePath: [...currentPath, colIndex], baseIndex: 0 })
           )}
         </tr>
       );
@@ -637,6 +648,7 @@ export function renderNode(
                   ...options,
                   skipWrapper: true,
                   nodePath: currentPath,
+                  baseIndex: 0,
                 });
                 // Remove paragraph wrapper for text in table cells but preserve styles
                 if (React.isValidElement(rendered) && rendered.type === 'p') {
@@ -668,6 +680,7 @@ export function renderNode(
                 ...options,
                 skipWrapper: true,
                 nodePath: currentPath,
+                baseIndex: 0,
               });
               // Remove paragraph wrapper for text in table cells but preserve styles
               if (React.isValidElement(rendered) && rendered.type === 'p') {
@@ -712,7 +725,7 @@ export function renderNode(
           }}
         >
           {gridNode.children.map((col: ColumnNodeType, i: number) =>
-            renderNode(col, i, { ...options, nodePath: currentPath })
+            renderNode(col, i, { ...options, nodePath: currentPath, baseIndex: 0 })
           )}
         </div>
       );
@@ -730,7 +743,7 @@ export function renderNode(
           }}
         >
           {columnNode.children.map((child: NodeType, i: number) =>
-            renderNode(child, i, { ...options, nodePath: currentPath })
+            renderNode(child, i, { ...options, nodePath: currentPath, baseIndex: 0 })
           )}
         </div>
       );

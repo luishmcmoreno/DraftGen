@@ -24,6 +24,7 @@ function AutoPaginatedDocumentBase({
   onDslUpdate,
 }: AutoPaginatedDocumentProps) {
   const [pages, setPages] = useState<NodeType[][]>([[]]);
+  const [pageOffsets, setPageOffsets] = useState<number[]>([0]); // Track starting DSL index for each page
   const [isProcessing, setIsProcessing] = useState(true);
   const [initialPagination, setInitialPagination] = useState(true);
 
@@ -88,8 +89,10 @@ function AutoPaginatedDocumentBase({
     const processContent = async () => {
       setIsProcessing(true);
       const newPages: NodeType[][] = [];
+      const newPageOffsets: number[] = [];
       let currentPage: NodeType[] = [];
       let currentPageHeight = 0;
+      let currentDslIndex = 0; // Track current position in original DSL
 
       // Create a hidden measuring container with exact page styles
       const measuringContainer = document.createElement('div');
@@ -111,9 +114,18 @@ function AutoPaginatedDocumentBase({
       const remainingNodes = [...content.children];
       const MAX_CONTENT_HEIGHT = AVAILABLE_HEIGHT; // Use full available height
 
+      // Map to track original DSL indices
+      const nodeToOriginalIndex = new Map<NodeType, number>();
+      content.children.forEach((node, index) => {
+        nodeToOriginalIndex.set(node, index);
+      });
+
       while (remainingNodes.length > 0) {
         const node = remainingNodes.shift()!;
 
+        // Get the original DSL index for this node
+        const originalIndex = nodeToOriginalIndex.get(node);
+        
         // Handle explicit page breaks
         if (node.type === 'page-break') {
           if (currentPage.length > 0) {
@@ -121,7 +133,13 @@ function AutoPaginatedDocumentBase({
             currentPage = [];
             currentPageHeight = 0;
           }
+          currentDslIndex++; // Move to next DSL position
           continue;
+        }
+        
+        // If starting a new page, record the DSL index where this page starts
+        if (currentPage.length === 0) {
+          newPageOffsets.push(originalIndex !== undefined ? originalIndex : currentDslIndex);
         }
 
         const isFirstNode = currentPage.length === 0;
@@ -206,18 +224,29 @@ function AutoPaginatedDocumentBase({
             currentPageHeight = 0;
             // Add the overflow back to process on the new page
             remainingNodes.unshift(splitResult.overflow);
+            // Keep the same original index for split content
+            if (originalIndex !== undefined) {
+              nodeToOriginalIndex.set(splitResult.overflow, originalIndex);
+            }
           } else if (splitResult.fitsOnPage) {
             // Part of the node fit, start new page for overflow
             newPages.push(currentPage);
             currentPage = [];
             currentPageHeight = 0;
             remainingNodes.unshift(splitResult.overflow);
+            // Keep the same original index for split content
+            if (originalIndex !== undefined) {
+              nodeToOriginalIndex.set(splitResult.overflow, originalIndex);
+            }
           } else {
             // Nothing fit and page is empty - this node is too big for a page
             // Force it onto this page anyway (will overflow)
             currentPage.push(node);
             currentPageHeight = MAX_CONTENT_HEIGHT; // Force new page next
           }
+        } else {
+          // If no overflow, move to next DSL index
+          currentDslIndex++;
         }
 
         // Check if we should start a new page
@@ -231,6 +260,7 @@ function AutoPaginatedDocumentBase({
       // Add the last page if it has content
       if (currentPage.length > 0) {
         newPages.push(currentPage);
+        // No need to add offset for the last page as it's not used
       }
 
       // Clean up measuring container
@@ -239,9 +269,11 @@ function AutoPaginatedDocumentBase({
       // If no pages were created, create one empty page
       if (newPages.length === 0) {
         newPages.push([]);
+        newPageOffsets.push(0);
       }
 
       setPages(newPages);
+      setPageOffsets(newPageOffsets);
       setIsProcessing(false);
       setInitialPagination(false); // Mark initial pagination as complete
     };
@@ -317,15 +349,20 @@ function AutoPaginatedDocumentBase({
               position: 'relative',
             }}
           >
-            {pageContent.map((node, nodeIndex) => (
-              <React.Fragment key={nodeIndex}>
-                {renderNode(node, nodeIndex, {
-                  showVariables,
-                  forPdf,
-                  isFirstOnPage: nodeIndex === 0,
-                })}
-              </React.Fragment>
-            ))}
+            {pageContent.map((node, nodeIndex) => {
+              // Get the base offset for this page
+              const baseOffset = pageOffsets[pageIndex] || 0;
+              return (
+                <React.Fragment key={nodeIndex}>
+                  {renderNode(node, nodeIndex, {
+                    showVariables,
+                    forPdf,
+                    isFirstOnPage: nodeIndex === 0,
+                    baseIndex: baseOffset,
+                  })}
+                </React.Fragment>
+              );
+            })}
           </div>
 
           {/* Page number footer and page break indicator */}
