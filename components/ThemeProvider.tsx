@@ -38,11 +38,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (!mounted) return;
 
     const root = document.documentElement;
-    
+
     const applyTheme = (theme: Theme) => {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
       const resolvedTheme = theme === 'system' ? systemTheme : theme;
-      
+
       root.classList.remove('light', 'dark');
       root.classList.add(resolvedTheme);
       root.setAttribute('data-theme', resolvedTheme);

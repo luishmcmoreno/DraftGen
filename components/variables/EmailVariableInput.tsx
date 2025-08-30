@@ -15,14 +15,14 @@ export default function EmailVariableInput({
   variable,
   value,
   onChange,
-  onError
+  onError,
 }: EmailVariableInputProps) {
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
-  
+
   const validation = variable.validation || {};
   const allowedDomains = validation.domains;
-  
+
   useEffect(() => {
     if (touched) {
       const validationError = validateVariableValue(variable, value);
@@ -31,7 +31,7 @@ export default function EmailVariableInput({
       onError?.(errorMsg);
     }
   }, [value, variable, touched, onError]);
-  
+
   return (
     <div className="space-y-1">
       <div className="relative">
@@ -51,14 +51,34 @@ export default function EmailVariableInput({
           autoComplete="email"
         />
         <div className="absolute left-3 top-2.5 pointer-events-none">
-          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          <svg
+            className="w-4 h-4 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
           </svg>
         </div>
         {value && !error && (
           <div className="absolute right-3 top-2.5 pointer-events-none">
-            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              className="w-4 h-4 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
         )}
@@ -66,9 +86,7 @@ export default function EmailVariableInput({
       {variable.helpText && !error && (
         <p className="text-xs text-gray-600 dark:text-gray-400">{variable.helpText}</p>
       )}
-      {error && touched && (
-        <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
-      )}
+      {error && touched && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
       {allowedDomains && allowedDomains.length > 0 && !error && (
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Allowed domains: {allowedDomains.join(', ')}

@@ -3,14 +3,10 @@ import Topbar from '@/components/Topbar';
 import { requireAuth, getProfile } from '@/lib/supabase/auth';
 import { GeneratorContent } from '@/components/GeneratorContent';
 
-export default async function GeneratorPage({
-  params
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function GeneratorPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  
+
   // Require authentication
   await requireAuth();
   const profile = await getProfile();
@@ -20,5 +16,5 @@ export default async function GeneratorPage({
       <Topbar profile={profile} />
       <GeneratorContent />
     </>
-  )
+  );
 }

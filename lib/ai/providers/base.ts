@@ -270,22 +270,29 @@ COMPLEX EXAMPLE:
   protected validateResponse(response: unknown): GenerateTemplateResponse {
     // Type guard to check if response has the expected shape
     const responseObj = response as Record<string, unknown>;
-    
+
     // If the AI didn't include variables, add them automatically
-    if (!responseObj.variables || !Array.isArray(responseObj.variables) || responseObj.variables.length === 0) {
+    if (
+      !responseObj.variables ||
+      !Array.isArray(responseObj.variables) ||
+      responseObj.variables.length === 0
+    ) {
       // console.log('AI response missing variables, adding them automatically');
       response = migrateTemplateVariables(response as DocumentSchema);
     }
-    
+
     const validation = validateDsl(response);
-    
+
     if (!validation.success) {
       // eslint-disable-next-line no-console
       console.error('Validation error details:', validation.error);
       // eslint-disable-next-line no-console
       const responseWithChildren = response as { children?: unknown[] };
       // eslint-disable-next-line no-console
-      console.error('Invalid node at position:', JSON.stringify(responseWithChildren?.children?.[19], null, 2));
+      console.error(
+        'Invalid node at position:',
+        JSON.stringify(responseWithChildren?.children?.[19], null, 2)
+      );
       throw new Error(`Invalid AI response: ${validation.error}`);
     }
 

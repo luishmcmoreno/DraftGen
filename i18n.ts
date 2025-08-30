@@ -22,13 +22,13 @@ export default getRequestConfig(async ({ locale }) => {
     },
     getMessageFallback: ({ namespace, key, error }) => {
       const path = [namespace, key].filter(Boolean).join('.');
-      
+
       if (error.code === 'MISSING_MESSAGE') {
         console.warn(`⚠️ Missing translation: "${path}" for locale "${validLocale}"`);
         return `[${path}]`;
       }
-      
+
       return `[Error: ${path}]`;
-    }
+    },
   };
 });

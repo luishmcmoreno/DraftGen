@@ -22,11 +22,11 @@ interface SaveTemplateModalProps {
   defaultName?: string;
 }
 
-export function SaveTemplateModal({ 
-  isOpen, 
-  onClose, 
-  onSave, 
-  defaultName = '' 
+export function SaveTemplateModal({
+  isOpen,
+  onClose,
+  onSave,
+  defaultName = '',
 }: SaveTemplateModalProps) {
   const t = useTranslations('generator.save');
   const [name, setName] = useState(defaultName);
@@ -48,15 +48,11 @@ export function SaveTemplateModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{t('modalTitle')}</DialogTitle>
-            <DialogDescription>
-              {t('modalDescription')}
-            </DialogDescription>
+            <DialogDescription>{t('modalDescription')}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">
-                {t('name')}
-              </Label>
+              <Label htmlFor="name">{t('name')}</Label>
               <Input
                 id="name"
                 value={name}
@@ -67,9 +63,7 @@ export function SaveTemplateModal({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">
-                {t('description')}
-              </Label>
+              <Label htmlFor="description">{t('description')}</Label>
               <Textarea
                 id="description"
                 value={description}

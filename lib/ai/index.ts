@@ -13,7 +13,7 @@ export function getAIProvider(): AIProvider {
   }
 
   const provider = process.env.AI_PROVIDER || 'mock';
-  
+
   switch (provider) {
     case 'gemini':
       const geminiKey = process.env.GEMINI_API_KEY;
@@ -26,7 +26,7 @@ export function getAIProvider(): AIProvider {
         providerInstance = new GeminiProvider(geminiKey);
       }
       break;
-    
+
     case 'mock':
     default:
       // eslint-disable-next-line no-console

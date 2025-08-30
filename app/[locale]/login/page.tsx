@@ -1,13 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-export default async function LoginPage({
-  params
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  
+
   const t = await getTranslations({ locale, namespace: 'auth' });
 
   return (
@@ -17,12 +13,10 @@ export default async function LoginPage({
           <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-gray-50">
             {t('login.title')}
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            {t('login.subtitle')}
-          </p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{t('login.subtitle')}</p>
         </div>
         <div className="mt-8 bg-white dark:bg-gray-900 py-8 px-4 shadow-card dark:shadow-card-dark sm:rounded-lg sm:px-10">
-          <a 
+          <a
             href="/api/auth/login"
             className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
@@ -49,5 +43,5 @@ export default async function LoginPage({
         </div>
       </div>
     </main>
-  )
+  );
 }

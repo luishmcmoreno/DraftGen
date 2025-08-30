@@ -15,22 +15,22 @@ interface InteractiveNodeProps {
   elementStyles?: React.CSSProperties; // Original styles to preserve
 }
 
-export function InteractiveNode({ 
-  nodeType, 
-  children, 
+export function InteractiveNode({
+  nodeType,
+  children,
   className,
   inline = false,
   nodePath = [],
   nodeContent = '',
   elementType = 'div',
-  elementStyles = {}
+  elementStyles = {},
 }: InteractiveNodeProps) {
   const [isHovered, setIsHovered] = useState(false);
   const editContext = useContext(EditContext);
   const isEditing = editContext ? isPathBeingEdited(nodePath, editContext.editingPath) : false;
   const editableRef = useRef<HTMLDivElement>(null);
   const [editContent, setEditContent] = useState(nodeContent);
-  
+
   // Show hover state only if this node is selected or no node is selected
   const showHoverState = isHovered && (!editContext?.editingPath || isEditing);
 
@@ -57,11 +57,11 @@ export function InteractiveNode({
     if (!isEditing && isHovered && nodePath.length > 0 && editContext) {
       e.stopPropagation();
       e.preventDefault();
-      
+
       // Extract text content from the node
       const textContent = extractTextContent(e.currentTarget);
       setEditContent(textContent);
-      
+
       // Start editing - this will automatically deselect any other node
       editContext.startEditing(nodePath, textContent);
     }
@@ -71,7 +71,9 @@ export function InteractiveNode({
   const extractTextContent = (element: EventTarget): string => {
     const el = element as HTMLElement;
     // Find the actual content element (p, h1-h6, span)
-    const contentEl = el.querySelector('p, h1, h2, h3, h4, h5, h6, span:not(.variable-token):not(.interactive-node-label)');
+    const contentEl = el.querySelector(
+      'p, h1, h2, h3, h4, h5, h6, span:not(.variable-token):not(.interactive-node-label)'
+    );
     if (contentEl) {
       // Get inner text to preserve line breaks, or convert br tags to newlines
       const html = contentEl.innerHTML;
@@ -93,7 +95,7 @@ export function InteractiveNode({
   // Get content from contentEditable preserving line breaks
   const getEditableContent = (): string => {
     if (!editableRef.current) return '';
-    
+
     // Get the innerHTML and convert breaks to newlines
     const html = editableRef.current.innerHTML;
     const withLineBreaks = html
@@ -102,7 +104,7 @@ export function InteractiveNode({
       .replace(/<div>/gi, '\n')
       .replace(/<\/div>/gi, '')
       .replace(/<[^>]*>/g, ''); // Remove remaining HTML tags
-    
+
     // Decode HTML entities
     const textarea = document.createElement('textarea');
     textarea.innerHTML = withLineBreaks;
@@ -112,7 +114,7 @@ export function InteractiveNode({
   // Handle keyboard events during editing
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (!editContext) return;
-    
+
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       // Get content directly from the contentEditable element
@@ -151,7 +153,7 @@ export function InteractiveNode({
     const EditWrapper = inline ? 'span' : 'div';
     // Use the actual element type for content editable
     const ContentElement = inline ? 'span' : elementType;
-    
+
     return (
       <EditWrapper
         className={cn(
@@ -161,38 +163,35 @@ export function InteractiveNode({
         )}
         data-node-type={nodeType}
       >
-        {React.createElement(
-          ContentElement,
-          {
-            ref: editableRef,
-            contentEditable: true,
-            suppressContentEditableWarning: true,
-            tabIndex: 0,
-            onKeyDown: handleKeyDown,
-            style: {
-              ...elementStyles, // Apply original element styles
-              outline: '2px solid #3b82f6',
-              outlineOffset: '2px',
-              borderRadius: '0.25rem',
-              backgroundColor: 'rgba(59, 130, 246, 0.05)',
-              cursor: 'text',
-            },
-            onBlur: () => {
-              // Save on blur if we have context
-              if (editContext) {
-                const content = getEditableContent();
-                if (content.trim() !== '') {
-                  editContext.saveEdit(content);
-                } else {
-                  editContext.cancelEditing();
-                }
+        {React.createElement(ContentElement, {
+          ref: editableRef,
+          contentEditable: true,
+          suppressContentEditableWarning: true,
+          tabIndex: 0,
+          onKeyDown: handleKeyDown,
+          style: {
+            ...elementStyles, // Apply original element styles
+            outline: '2px solid #3b82f6',
+            outlineOffset: '2px',
+            borderRadius: '0.25rem',
+            backgroundColor: 'rgba(59, 130, 246, 0.05)',
+            cursor: 'text',
+          },
+          onBlur: () => {
+            // Save on blur if we have context
+            if (editContext) {
+              const content = getEditableContent();
+              if (content.trim() !== '') {
+                editContext.saveEdit(content);
+              } else {
+                editContext.cancelEditing();
               }
-            },
-            dangerouslySetInnerHTML: { 
-              __html: editContent.replace(/\n/g, '<br>') 
             }
-          }
-        )}
+          },
+          dangerouslySetInnerHTML: {
+            __html: editContent.replace(/\n/g, '<br>'),
+          },
+        })}
       </EditWrapper>
     );
   }
@@ -211,11 +210,7 @@ export function InteractiveNode({
         onClick={handleClick}
         data-node-type={nodeType}
       >
-        {showHoverState && (
-          <span className="interactive-node-label">
-            {getNodeLabel(nodeType)}
-          </span>
-        )}
+        {showHoverState && <span className="interactive-node-label">{getNodeLabel(nodeType)}</span>}
         {children}
       </span>
     );
@@ -233,11 +228,7 @@ export function InteractiveNode({
       onClick={handleClick}
       data-node-type={nodeType}
     >
-      {showHoverState && (
-        <div className="interactive-node-label">
-          {getNodeLabel(nodeType)}
-        </div>
-      )}
+      {showHoverState && <div className="interactive-node-label">{getNodeLabel(nodeType)}</div>}
       {children}
     </div>
   );

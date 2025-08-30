@@ -16,7 +16,7 @@ function notify() {
 
 export function toast(options: Omit<ToastProps, 'id' | 'onClose'>) {
   const id = Date.now().toString();
-  
+
   const newToast: ToastWithTimer = {
     id,
     ...options,
@@ -51,9 +51,9 @@ export function Toaster() {
     const listener = (newToasts: ToastWithTimer[]) => {
       setToasts(newToasts);
     };
-    
+
     listeners.push(listener);
-    
+
     return () => {
       const index = listeners.indexOf(listener);
       if (index > -1) {
@@ -68,10 +68,7 @@ export function Toaster() {
     <div className="fixed bottom-0 right-0 z-50 flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]">
       {toasts.map((toastItem) => (
         <div key={toastItem.id} className="mb-2">
-          <Toast
-            {...toastItem}
-            onClose={() => dismissToast(toastItem.id)}
-          />
+          <Toast {...toastItem} onClose={() => dismissToast(toastItem.id)} />
         </div>
       ))}
     </div>

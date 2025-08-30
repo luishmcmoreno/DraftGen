@@ -83,7 +83,7 @@ export const documentStyles = {
     display: 'flex' as const,
     flexDirection: 'column' as const,
   },
-  
+
   paragraph: {
     margin: '0 0 1em 0', // Standard paragraph spacing
     lineHeight: '1.5',
@@ -91,7 +91,7 @@ export const documentStyles = {
     fontSize: '12pt', // Match page font size
     fontFamily: 'inherit',
   },
-  
+
   variable: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -102,7 +102,7 @@ export const documentStyles = {
     backgroundColor: '#dbeafe', // blue-100
     color: '#1e40af', // blue-800
     margin: '0 0.25rem',
-  }
+  },
 };
 
 export const documentClassNames = {

@@ -1,7 +1,7 @@
 import { useTranslations as useNextIntlTranslations } from 'next-intl';
-import { 
+import {
   getTranslations as getNextIntlTranslations,
-  getLocale as getNextIntlLocale 
+  getLocale as getNextIntlLocale,
 } from 'next-intl/server';
 
 export { useLocale, useFormatter } from 'next-intl';
@@ -14,12 +14,7 @@ export const getTranslations = async (namespace?: string) => {
   return getNextIntlTranslations({ locale, namespace });
 };
 
-export type TranslationNamespaces = 
-  | 'common'
-  | 'auth'
-  | 'templates'
-  | 'generator'
-  | 'viewer';
+export type TranslationNamespaces = 'common' | 'auth' | 'templates' | 'generator' | 'viewer';
 
 export const useTypedTranslations = <T extends TranslationNamespaces>(namespace: T) => {
   return useNextIntlTranslations(namespace);

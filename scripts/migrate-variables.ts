@@ -17,29 +17,29 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function migrateTemplates() {
   console.log('Starting template migration...');
-  
+
   // Fetch all templates
   const { data: templates, error } = await supabase
     .from('templates')
     .select('id, json')
     .order('created_at', { ascending: false });
-  
+
   if (error) {
     console.error('Error fetching templates:', error);
     return;
   }
-  
+
   if (!templates || templates.length === 0) {
     console.log('No templates found');
     return;
   }
-  
+
   console.log(`Found ${templates.length} templates to migrate`);
-  
+
   let migrated = 0;
   let skipped = 0;
   let failed = 0;
-  
+
   for (const template of templates) {
     try {
       // Check if already has variables defined
@@ -48,27 +48,29 @@ async function migrateTemplates() {
         skipped++;
         continue;
       }
-      
+
       // Migrate the template
       const migratedJson = migrateTemplateVariables(template.json);
-      
+
       // Update the template in the database
       const { error: updateError } = await supabase
         .from('templates')
-        .update({ 
+        .update({
           json: migratedJson,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', template.id);
-      
+
       if (updateError) {
         console.error(`Failed to update template ${template.id}:`, updateError);
         failed++;
       } else {
         console.log(`✓ Migrated template ${template.id}`);
         if (migratedJson.variables) {
-          console.log(`  Added ${migratedJson.variables.length} typed variables:`, 
-            migratedJson.variables.map(v => `${v.name} (${v.type})`).join(', '));
+          console.log(
+            `  Added ${migratedJson.variables.length} typed variables:`,
+            migratedJson.variables.map((v) => `${v.name} (${v.type})`).join(', ')
+          );
         }
         migrated++;
       }
@@ -77,7 +79,7 @@ async function migrateTemplates() {
       failed++;
     }
   }
-  
+
   console.log('\nMigration complete!');
   console.log(`✓ Migrated: ${migrated}`);
   console.log(`⊘ Skipped: ${skipped}`);

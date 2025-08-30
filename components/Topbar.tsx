@@ -7,9 +7,9 @@ import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
-const ThemeToggle = dynamic(() => import('./ThemeToggle'), { 
+const ThemeToggle = dynamic(() => import('./ThemeToggle'), {
   ssr: false,
-  loading: () => null 
+  loading: () => null,
 });
 
 type UserProfile = {
@@ -22,7 +22,7 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
+
   const isActive = (path: string) => pathname?.includes(path);
 
   // Close dropdown when clicking outside
@@ -40,7 +40,7 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
     if (!name) return 'U';
     return name
       .split(' ')
-      .map(n => n[0])
+      .map((n) => n[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -123,5 +123,5 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -34,14 +34,14 @@ export function autopaginateDocument(dsl: any): any {
       // Estimate height of this text node
       const content = node.content || '';
       const estimatedHeight = estimateContentHeight(content);
-      
+
       // Check if this content would overflow the current page
       if (currentPageHeight > 0 && currentPageHeight + estimatedHeight > MAX_PAGE_HEIGHT) {
         // Insert an automatic page break
         paginatedChildren.push({ type: 'page-break', auto: true });
         currentPageHeight = 0;
       }
-      
+
       paginatedChildren.push(node);
       currentPageHeight += estimatedHeight;
     } else {
@@ -52,6 +52,6 @@ export function autopaginateDocument(dsl: any): any {
 
   return {
     ...dsl,
-    children: paginatedChildren
+    children: paginatedChildren,
   };
 }

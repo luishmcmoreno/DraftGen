@@ -6,33 +6,28 @@ export async function POST(request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { prompt, existingJson } = await request.json();
 
     if (!prompt || typeof prompt !== 'string') {
-      return NextResponse.json(
-        { error: 'Invalid prompt' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid prompt' }, { status: 400 });
     }
 
     // Get AI provider and generate template
     const provider = getAIProvider();
     const result = await provider.generateTemplate({
       prompt,
-      existingJson
+      existingJson,
     });
 
     return NextResponse.json(result);
-    
   } catch (error) {
     // Handle specific AI errors
     if (error instanceof AIError) {
@@ -48,16 +43,9 @@ export async function POST(request: NextRequest) {
           { status: 422 }
         );
       }
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
-    
-    return NextResponse.json(
-      { error: 'Failed to generate template' },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: 'Failed to generate template' }, { status: 500 });
   }
 }
-

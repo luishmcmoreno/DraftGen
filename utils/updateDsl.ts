@@ -14,12 +14,12 @@ export function updateNodeContent(
 ): DocumentSchema {
   // Deep clone the DSL to avoid mutations
   const updatedDsl = JSON.parse(JSON.stringify(dsl));
-  
+
   // Navigate to the target node
   let current: any = updatedDsl;
   const pathToParent = path.slice(0, -1);
   const targetIndex = path[path.length - 1];
-  
+
   // Navigate to parent
   for (const index of pathToParent) {
     if (current.children && current.children[index]) {
@@ -29,13 +29,13 @@ export function updateNodeContent(
       return dsl; // Return original if path is invalid
     }
   }
-  
+
   // Update the target node
   if (current.children && current.children[targetIndex]) {
     const targetNode = current.children[targetIndex];
     updateNodeContentByType(targetNode, newContent);
   }
-  
+
   return updatedDsl;
 }
 
@@ -49,7 +49,7 @@ function updateNodeContentByType(node: any, newContent: string): void {
       // Direct content update
       node.content = newContent;
       break;
-      
+
     case 'list-item':
     case 'table-column':
     case 'column':
@@ -63,7 +63,7 @@ function updateNodeContentByType(node: any, newContent: string): void {
         }
       }
       break;
-      
+
     default:
       console.warn(`Cannot update content for node type: ${node.type}`);
   }
@@ -76,7 +76,7 @@ export function getNodeContent(node: NodeType): string {
   if ('content' in node) {
     return node.content;
   }
-  
+
   // For container nodes, get content from first text child
   if ('children' in node && Array.isArray(node.children) && node.children.length > 0) {
     const firstChild = node.children[0];
@@ -84,7 +84,7 @@ export function getNodeContent(node: NodeType): string {
       return firstChild.content;
     }
   }
-  
+
   return '';
 }
 
@@ -93,7 +93,7 @@ export function getNodeContent(node: NodeType): string {
  */
 export function isEditableNode(dsl: DocumentSchema, path: number[]): boolean {
   let current: any = dsl;
-  
+
   for (let i = 0; i < path.length; i++) {
     const index = path[i];
     if (current.children && current.children[index]) {
@@ -102,7 +102,7 @@ export function isEditableNode(dsl: DocumentSchema, path: number[]): boolean {
       return false;
     }
   }
-  
+
   // Check if node type is editable
   const editableTypes = ['text', 'heading', 'list-item', 'table-column', 'column'];
   return editableTypes.includes(current.type);

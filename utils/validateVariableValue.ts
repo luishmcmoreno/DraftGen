@@ -1,18 +1,19 @@
-import { ExtractedVariable } from './extractVariablesTyped'
-import { isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js'
+import { ExtractedVariable } from './extractVariablesTyped';
+import { isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js';
 
 export interface ValidationError {
-  field: string
-  message: string
-  code: string
+  field: string;
+  message: string;
+  code: string;
 }
 
 /**
  * Validates an email address using a comprehensive regex
  */
 function isValidEmail(email: string): boolean {
-  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
-  return emailRegex.test(email)
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  return emailRegex.test(email);
 }
 
 /**
@@ -22,18 +23,18 @@ function isValidPhone(phone: string, defaultCountry?: string): boolean {
   try {
     // If it starts with +, validate as international number
     if (phone.startsWith('+')) {
-      return isValidPhoneNumber(phone)
+      return isValidPhoneNumber(phone);
     }
-    
+
     // If defaultCountry is provided, validate with that country
     if (defaultCountry) {
-      return isValidPhoneNumber(phone, defaultCountry as any)
+      return isValidPhoneNumber(phone, defaultCountry as any);
     }
-    
+
     // Otherwise, try to validate as international
-    return isValidPhoneNumber(phone)
+    return isValidPhoneNumber(phone);
   } catch (error) {
-    return false
+    return false;
   }
 }
 
@@ -41,25 +42,25 @@ function isValidPhone(phone: string, defaultCountry?: string): boolean {
  * Validates a date string
  */
 function isValidDate(dateStr: string): boolean {
-  const date = new Date(dateStr)
-  return date instanceof Date && !isNaN(date.getTime())
+  const date = new Date(dateStr);
+  return date instanceof Date && !isNaN(date.getTime());
 }
 
 /**
  * Validates a number
  */
 function isValidNumber(value: string, decimals?: number): boolean {
-  const num = parseFloat(value)
-  if (isNaN(num)) return false
-  
+  const num = parseFloat(value);
+  if (isNaN(num)) return false;
+
   if (decimals !== undefined) {
-    const parts = value.split('.')
+    const parts = value.split('.');
     if (parts.length > 1 && parts[1].length > decimals) {
-      return false
+      return false;
     }
   }
-  
-  return true
+
+  return true;
 }
 
 /**
@@ -74,135 +75,135 @@ export function validateVariableValue(
     return {
       field: variable.name,
       message: `${variable.label || variable.name} is required`,
-      code: 'REQUIRED'
-    }
+      code: 'REQUIRED',
+    };
   }
-  
+
   // If not required and empty, it's valid
   if (!value || value.trim() === '') {
-    return null
+    return null;
   }
-  
-  const trimmedValue = value.trim()
-  const validation = variable.validation || {}
-  
+
+  const trimmedValue = value.trim();
+  const validation = variable.validation || {};
+
   switch (variable.type) {
     case 'TEXT':
       if (validation.minLength && trimmedValue.length < validation.minLength) {
         return {
           field: variable.name,
           message: `${variable.label || variable.name} must be at least ${validation.minLength} characters`,
-          code: 'MIN_LENGTH'
-        }
+          code: 'MIN_LENGTH',
+        };
       }
       if (validation.maxLength && trimmedValue.length > validation.maxLength) {
         return {
           field: variable.name,
           message: `${variable.label || variable.name} must not exceed ${validation.maxLength} characters`,
-          code: 'MAX_LENGTH'
-        }
+          code: 'MAX_LENGTH',
+        };
       }
       if (validation.pattern) {
-        const regex = new RegExp(validation.pattern)
+        const regex = new RegExp(validation.pattern);
         if (!regex.test(trimmedValue)) {
           return {
             field: variable.name,
             message: `${variable.label || variable.name} format is invalid`,
-            code: 'PATTERN'
-          }
+            code: 'PATTERN',
+          };
         }
       }
-      break
-      
+      break;
+
     case 'EMAIL':
       if (!isValidEmail(trimmedValue)) {
         return {
           field: variable.name,
           message: `${variable.label || variable.name} must be a valid email address`,
-          code: 'INVALID_EMAIL'
-        }
+          code: 'INVALID_EMAIL',
+        };
       }
       if (validation.domains && validation.domains.length > 0) {
-        const domain = trimmedValue.split('@')[1]
+        const domain = trimmedValue.split('@')[1];
         if (!validation.domains.includes(domain)) {
           return {
             field: variable.name,
             message: `Email domain must be one of: ${validation.domains.join(', ')}`,
-            code: 'INVALID_DOMAIN'
-          }
+            code: 'INVALID_DOMAIN',
+          };
         }
       }
-      break
-      
+      break;
+
     case 'DATE':
       if (!isValidDate(trimmedValue)) {
         return {
           field: variable.name,
           message: `${variable.label || variable.name} must be a valid date`,
-          code: 'INVALID_DATE'
-        }
+          code: 'INVALID_DATE',
+        };
       }
-      const date = new Date(trimmedValue)
+      const date = new Date(trimmedValue);
       if (validation.minDate) {
-        const minDate = new Date(validation.minDate)
+        const minDate = new Date(validation.minDate);
         if (date < minDate) {
           return {
             field: variable.name,
             message: `${variable.label || variable.name} must be after ${validation.minDate}`,
-            code: 'DATE_TOO_EARLY'
-          }
+            code: 'DATE_TOO_EARLY',
+          };
         }
       }
       if (validation.maxDate) {
-        const maxDate = new Date(validation.maxDate)
+        const maxDate = new Date(validation.maxDate);
         if (date > maxDate) {
           return {
             field: variable.name,
             message: `${variable.label || variable.name} must be before ${validation.maxDate}`,
-            code: 'DATE_TOO_LATE'
-          }
+            code: 'DATE_TOO_LATE',
+          };
         }
       }
-      break
-      
+      break;
+
     case 'NUMBER':
       if (!isValidNumber(trimmedValue, validation.decimals)) {
         return {
           field: variable.name,
           message: `${variable.label || variable.name} must be a valid number${validation.decimals !== undefined ? ` with up to ${validation.decimals} decimal places` : ''}`,
-          code: 'INVALID_NUMBER'
-        }
+          code: 'INVALID_NUMBER',
+        };
       }
-      const num = parseFloat(trimmedValue)
+      const num = parseFloat(trimmedValue);
       if (validation.min !== undefined && num < validation.min) {
         return {
           field: variable.name,
           message: `${variable.label || variable.name} must be at least ${validation.min}`,
-          code: 'NUMBER_TOO_SMALL'
-        }
+          code: 'NUMBER_TOO_SMALL',
+        };
       }
       if (validation.max !== undefined && num > validation.max) {
         return {
           field: variable.name,
           message: `${variable.label || variable.name} must not exceed ${validation.max}`,
-          code: 'NUMBER_TOO_LARGE'
-        }
+          code: 'NUMBER_TOO_LARGE',
+        };
       }
-      break
-      
+      break;
+
     case 'PHONE':
-      const defaultCountry = validation.defaultCountry || undefined
+      const defaultCountry = validation.defaultCountry || undefined;
       if (!isValidPhone(trimmedValue, defaultCountry)) {
         return {
           field: variable.name,
           message: `${variable.label || variable.name} must be a valid phone number`,
-          code: 'INVALID_PHONE'
-        }
+          code: 'INVALID_PHONE',
+        };
       }
-      break
+      break;
   }
-  
-  return null
+
+  return null;
 }
 
 /**
@@ -212,82 +213,79 @@ export function validateAllVariables(
   variables: ExtractedVariable[],
   values: Record<string, string>
 ): ValidationError[] {
-  const errors: ValidationError[] = []
-  
+  const errors: ValidationError[] = [];
+
   for (const variable of variables) {
-    const error = validateVariableValue(variable, values[variable.name])
+    const error = validateVariableValue(variable, values[variable.name]);
     if (error) {
-      errors.push(error)
+      errors.push(error);
     }
   }
-  
-  return errors
+
+  return errors;
 }
 
 /**
  * Formats a value based on variable type
  */
-export function formatVariableValue(
-  variable: ExtractedVariable,
-  value: string
-): string {
-  if (!value) return value
-  
+export function formatVariableValue(variable: ExtractedVariable, value: string): string {
+  if (!value) return value;
+
   switch (variable.type) {
     case 'PHONE':
       try {
-        const phoneNumber = parsePhoneNumberWithError(value)
+        const phoneNumber = parsePhoneNumberWithError(value);
         if (phoneNumber) {
           // Use international format by default, or national if specified
-          const format = variable.validation?.displayFormat || 'INTERNATIONAL'
+          const format = variable.validation?.displayFormat || 'INTERNATIONAL';
           if (format === 'NATIONAL' && phoneNumber.country) {
-            return phoneNumber.formatNational()
+            return phoneNumber.formatNational();
           }
-          return phoneNumber.formatInternational()
+          return phoneNumber.formatInternational();
         }
       } catch (error) {
         // If parsing fails, return the original value
       }
-      break
-      
+      break;
+
     case 'DATE':
-      const date = new Date(value)
+      const date = new Date(value);
       if (!isNaN(date.getTime())) {
         // Use browser's locale for date formatting
         // The format property can specify the style: 'short', 'medium', 'long', 'full'
-        const format = variable.validation?.format || 'medium'
-        
+        const format = variable.validation?.format || 'medium';
+
         // Map format values to Intl.DateTimeFormat options
-        let options: Intl.DateTimeFormatOptions = {}
-        
+        let options: Intl.DateTimeFormatOptions = {};
+
         switch (format) {
           case 'short':
-            options = { dateStyle: 'short' }
-            break
+            options = { dateStyle: 'short' };
+            break;
           case 'long':
-            options = { dateStyle: 'long' }
-            break
+            options = { dateStyle: 'long' };
+            break;
           case 'full':
-            options = { dateStyle: 'full' }
-            break
+            options = { dateStyle: 'full' };
+            break;
           case 'medium':
           default:
-            options = { dateStyle: 'medium' }
-            break
+            options = { dateStyle: 'medium' };
+            break;
         }
-        
+
         // Use browser's locale (undefined) to format the date
-        return new Intl.DateTimeFormat(undefined, options).format(date)
+        return new Intl.DateTimeFormat(undefined, options).format(date);
       }
-      break
-      
+      break;
+
     case 'NUMBER':
-      const num = parseFloat(value)
+      const num = parseFloat(value);
       if (!isNaN(num) && variable.validation?.decimals !== undefined) {
-        return num.toFixed(variable.validation.decimals)
+        return num.toFixed(variable.validation.decimals);
       }
-      break
+      break;
   }
-  
-  return value
+
+  return value;
 }

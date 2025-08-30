@@ -27,9 +27,7 @@ export function Toast({ title, description, variant = 'default', onClose }: Toas
     >
       <div className="grid gap-1">
         <div className="text-sm font-semibold">{title}</div>
-        {description && (
-          <div className="text-sm opacity-90">{description}</div>
-        )}
+        {description && <div className="text-sm opacity-90">{description}</div>}
       </div>
       {onClose && (
         <button

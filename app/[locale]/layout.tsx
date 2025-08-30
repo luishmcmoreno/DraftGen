@@ -9,13 +9,9 @@ export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({
-  params
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  
+
   return {
     openGraph: {
       locale,
@@ -25,14 +21,14 @@ export async function generateMetadata({
 
 export default async function LocaleLayout({
   children,
-  params
+  params,
 }: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  
-  if (!locales.includes(locale as typeof locales[number])) {
+
+  if (!locales.includes(locale as (typeof locales)[number])) {
     notFound();
   }
 

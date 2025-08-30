@@ -21,17 +21,17 @@ interface DeleteTemplateModalProps {
   onConfirm: (templateId: string) => Promise<void>;
 }
 
-export default function DeleteTemplateModal({ 
-  template, 
-  onClose, 
-  onConfirm 
+export default function DeleteTemplateModal({
+  template,
+  onClose,
+  onConfirm,
 }: DeleteTemplateModalProps) {
   const t = useTranslations('templates.delete');
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleConfirm = async () => {
     if (!template) return;
-    
+
     setIsDeleting(true);
     await onConfirm(template.id);
     setIsDeleting(false);
@@ -48,20 +48,10 @@ export default function DeleteTemplateModal({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onClose}
-            disabled={isDeleting}
-          >
+          <Button type="button" variant="outline" onClick={onClose} disabled={isDeleting}>
             {t('cancel')}
           </Button>
-          <Button 
-            type="button" 
-            variant="destructive"
-            onClick={handleConfirm}
-            disabled={isDeleting}
-          >
+          <Button type="button" variant="destructive" onClick={handleConfirm} disabled={isDeleting}>
             {isDeleting ? '...' : t('confirm')}
           </Button>
         </DialogFooter>

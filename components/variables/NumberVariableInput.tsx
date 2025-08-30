@@ -15,17 +15,17 @@ export default function NumberVariableInput({
   variable,
   value,
   onChange,
-  onError
+  onError,
 }: NumberVariableInputProps) {
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
-  
+
   const validation = variable.validation || {};
   const min = validation.min;
   const max = validation.max;
   const step = validation.step || (validation.decimals ? Math.pow(10, -validation.decimals) : 1);
   const decimals = validation.decimals || 0;
-  
+
   useEffect(() => {
     if (touched) {
       const validationError = validateVariableValue(variable, value);
@@ -34,7 +34,7 @@ export default function NumberVariableInput({
       onError?.(errorMsg);
     }
   }, [value, variable, touched, onError]);
-  
+
   const handleIncrement = () => {
     const num = parseFloat(value) || 0;
     const newValue = num + step;
@@ -42,7 +42,7 @@ export default function NumberVariableInput({
       onChange(newValue.toFixed(decimals));
     }
   };
-  
+
   const handleDecrement = () => {
     const num = parseFloat(value) || 0;
     const newValue = num - step;
@@ -50,7 +50,7 @@ export default function NumberVariableInput({
       onChange(newValue.toFixed(decimals));
     }
   };
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     // Allow empty string, negative sign, and decimal point during typing
@@ -58,17 +58,15 @@ export default function NumberVariableInput({
       onChange(inputValue);
       return;
     }
-    
+
     // Validate that it's a valid number format
-    const regex = decimals > 0 
-      ? new RegExp(`^-?\\d*\\.?\\d{0,${decimals}}$`)
-      : /^-?\d*$/;
-    
+    const regex = decimals > 0 ? new RegExp(`^-?\\d*\\.?\\d{0,${decimals}}$`) : /^-?\d*$/;
+
     if (regex.test(inputValue)) {
       onChange(inputValue);
     }
   };
-  
+
   return (
     <div className="space-y-1">
       <div className="relative">
@@ -112,7 +110,12 @@ export default function NumberVariableInput({
             tabIndex={-1}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </button>
         </div>
@@ -120,9 +123,7 @@ export default function NumberVariableInput({
       {variable.helpText && !error && (
         <p className="text-xs text-gray-600 dark:text-gray-400">{variable.helpText}</p>
       )}
-      {error && touched && (
-        <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
-      )}
+      {error && touched && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
       {(min !== undefined || max !== undefined) && !error && (
         <p className="text-xs text-gray-500 dark:text-gray-400">
           {min !== undefined && max !== undefined && `Range: ${min} - ${max}`}

@@ -2,22 +2,22 @@ import { createClient } from '@/lib/supabase/server';
 import { upsertProfile } from '@/lib/supabase/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ locale: string }> }
-) {
+export async function GET(request: NextRequest, context: { params: Promise<{ locale: string }> }) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
   const origin = requestUrl.origin;
-  
+
   // Get the locale from params
   const { locale } = await context.params;
   const localePrefix = locale === 'en' ? '' : `/${locale}`;
 
   if (code) {
     const supabase = await createClient();
-    const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
-    
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.exchangeCodeForSession(code);
+
     if (sessionError) {
       return NextResponse.redirect(`${origin}${localePrefix}/login?error=invalid_code`);
     }

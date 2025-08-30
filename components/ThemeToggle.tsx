@@ -7,12 +7,12 @@ import { ThemeContext } from './ThemeProvider';
 export default function ThemeToggle() {
   const t = useTranslations('common');
   const themeContext = useContext(ThemeContext);
-  
+
   if (!themeContext) {
     // If no theme context, just return null or a placeholder
     return null;
   }
-  
+
   const { theme, setTheme } = themeContext;
 
   return (

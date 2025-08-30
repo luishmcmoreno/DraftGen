@@ -18,7 +18,7 @@ interface TemplateCardProps {
 export default function TemplateCard({ template, onGenerate, onDelete }: TemplateCardProps) {
   const t = useTranslations('templates.card');
   const [showTooltip, setShowTooltip] = useState(false);
-  
+
   const visibleTags = template.tags.slice(0, 3);
   const remainingTags = template.tags.slice(3);
   const hasOverflow = remainingTags.length > 0;
@@ -32,16 +32,14 @@ export default function TemplateCard({ template, onGenerate, onDelete }: Templat
       >
         <Trash2 className="w-4 h-4" />
       </button>
-      
+
       <div className="flex-grow flex flex-col gap-4">
         <div className="flex flex-col gap-1 pr-8">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {template.name}
           </h3>
           {template.description && (
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              {template.description}
-            </p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">{template.description}</p>
           )}
         </div>
 
@@ -80,8 +78,12 @@ export default function TemplateCard({ template, onGenerate, onDelete }: Templat
         )}
 
         <div className="text-xs text-gray-500 dark:text-gray-400 mt-auto flex flex-col gap-1">
-          <div>{t('createdAt')}: {formatDate(template.created_at)}</div>
-          <div>{t('updatedAt')}: {formatDate(template.updated_at)}</div>
+          <div>
+            {t('createdAt')}: {formatDate(template.created_at)}
+          </div>
+          <div>
+            {t('updatedAt')}: {formatDate(template.updated_at)}
+          </div>
         </div>
       </div>
 

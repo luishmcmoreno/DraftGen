@@ -50,8 +50,8 @@ export default function TemplatesClient({ templates: initialTemplates }: Templat
       }
 
       // Remove template from state
-      setTemplates(prev => prev.filter(t => t.id !== templateId));
-      
+      setTemplates((prev) => prev.filter((t) => t.id !== templateId));
+
       toast({
         title: t('delete.success'),
         variant: 'default',
@@ -69,10 +69,7 @@ export default function TemplatesClient({ templates: initialTemplates }: Templat
 
   return (
     <>
-      <VariableFormModal
-        template={selectedTemplate}
-        onClose={handleCloseModal}
-      />
+      <VariableFormModal template={selectedTemplate} onClose={handleCloseModal} />
 
       <DeleteTemplateModal
         template={templateToDelete}

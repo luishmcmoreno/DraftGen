@@ -55,17 +55,12 @@ export function ChatPanel({ messages, onSubmit, isLoading }: ChatPanelProps) {
         {messages.map((message, index) => (
           <div
             key={index}
-            className={cn(
-              'flex',
-              message.role === 'user' ? 'justify-end' : 'justify-start'
-            )}
+            className={cn('flex', message.role === 'user' ? 'justify-end' : 'justify-start')}
           >
             <div
               className={cn(
                 'max-w-[85%] rounded-lg px-3 py-2 text-sm',
-                message.role === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted'
+                message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
               )}
             >
               {message.content}

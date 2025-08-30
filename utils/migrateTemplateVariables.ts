@@ -1,41 +1,66 @@
-import { DocumentSchema, VariableDefinitionType } from '@/lib/dslValidator'
-import { extractVariables } from './extractVariables'
+import { DocumentSchema, VariableDefinitionType } from '@/lib/dslValidator';
+import { extractVariables } from './extractVariables';
 
 /**
  * Infers variable type from variable name patterns
  */
 function inferVariableType(variableName: string): VariableDefinitionType['type'] {
-  const name = variableName.toLowerCase()
-  
+  const name = variableName.toLowerCase();
+
   // Email patterns
   if (name.includes('email') || name.includes('mail') || name.endsWith('_email')) {
-    return 'EMAIL'
+    return 'EMAIL';
   }
-  
+
   // Date patterns
-  if (name.includes('date') || name.includes('deadline') || name.includes('due') || 
-      name.includes('expires') || name.includes('expiry') || name.includes('birth') ||
-      name.includes('start') || name.includes('end') || name.includes('from') || 
-      name.includes('to') || name.includes('when')) {
-    return 'DATE'
+  if (
+    name.includes('date') ||
+    name.includes('deadline') ||
+    name.includes('due') ||
+    name.includes('expires') ||
+    name.includes('expiry') ||
+    name.includes('birth') ||
+    name.includes('start') ||
+    name.includes('end') ||
+    name.includes('from') ||
+    name.includes('to') ||
+    name.includes('when')
+  ) {
+    return 'DATE';
   }
-  
+
   // Number patterns
-  if (name.includes('amount') || name.includes('price') || name.includes('cost') ||
-      name.includes('quantity') || name.includes('number') || name.includes('count') ||
-      name.includes('total') || name.includes('sum') || name.includes('percentage') ||
-      name.includes('rate') || name.includes('value') || name.includes('score')) {
-    return 'NUMBER'
+  if (
+    name.includes('amount') ||
+    name.includes('price') ||
+    name.includes('cost') ||
+    name.includes('quantity') ||
+    name.includes('number') ||
+    name.includes('count') ||
+    name.includes('total') ||
+    name.includes('sum') ||
+    name.includes('percentage') ||
+    name.includes('rate') ||
+    name.includes('value') ||
+    name.includes('score')
+  ) {
+    return 'NUMBER';
   }
-  
+
   // Phone patterns
-  if (name.includes('phone') || name.includes('mobile') || name.includes('tel') ||
-      name.includes('cell') || name.includes('fax') || name.includes('contact_number')) {
-    return 'PHONE'
+  if (
+    name.includes('phone') ||
+    name.includes('mobile') ||
+    name.includes('tel') ||
+    name.includes('cell') ||
+    name.includes('fax') ||
+    name.includes('contact_number')
+  ) {
+    return 'PHONE';
   }
-  
+
   // Default to TEXT
-  return 'TEXT'
+  return 'TEXT';
 }
 
 /**
@@ -44,8 +69,8 @@ function inferVariableType(variableName: string): VariableDefinitionType['type']
 function generateLabel(variableName: string): string {
   return variableName
     .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 }
 
 /**
@@ -55,25 +80,25 @@ function generateDefaultValidation(type: VariableDefinitionType['type']): any {
   switch (type) {
     case 'TEXT':
       return {
-        maxLength: 500
-      }
+        maxLength: 500,
+      };
     case 'EMAIL':
-      return {}
+      return {};
     case 'DATE':
       return {
-        format: 'medium'
-      }
+        format: 'medium',
+      };
     case 'NUMBER':
       return {
         min: 0,
-        decimals: 2
-      }
+        decimals: 2,
+      };
     case 'PHONE':
       return {
-        format: 'INTERNATIONAL'
-      }
+        format: 'INTERNATIONAL',
+      };
     default:
-      return {}
+      return {};
   }
 }
 
@@ -84,15 +109,15 @@ function generateDefaultValidation(type: VariableDefinitionType['type']): any {
 export function migrateTemplateVariables(dsl: DocumentSchema): DocumentSchema {
   // If variables are already defined, return as-is
   if (dsl.variables && dsl.variables.length > 0) {
-    return dsl
+    return dsl;
   }
-  
+
   // Extract all variables from the template
-  const variableNames = extractVariables(dsl)
-  
+  const variableNames = extractVariables(dsl);
+
   // Generate variable definitions
-  const variables: VariableDefinitionType[] = variableNames.map(name => {
-    const type = inferVariableType(name)
+  const variables: VariableDefinitionType[] = variableNames.map((name) => {
+    const type = inferVariableType(name);
     return {
       name,
       type,
@@ -101,22 +126,22 @@ export function migrateTemplateVariables(dsl: DocumentSchema): DocumentSchema {
       validation: generateDefaultValidation(type),
       placeholder: `Enter ${generateLabel(name).toLowerCase()}`,
       helpText: undefined,
-      defaultValue: undefined
-    }
-  })
-  
+      defaultValue: undefined,
+    };
+  });
+
   // Return migrated DSL
   return {
     ...dsl,
-    variables
-  }
+    variables,
+  };
 }
 
 /**
  * Batch migrates multiple templates
  */
 export function migrateTemplates(templates: DocumentSchema[]): DocumentSchema[] {
-  return templates.map(migrateTemplateVariables)
+  return templates.map(migrateTemplateVariables);
 }
 
 /**
@@ -178,5 +203,5 @@ BEGIN
     WHERE id = template_record.id;
   END LOOP;
 END $$;
-`
+`;
 }

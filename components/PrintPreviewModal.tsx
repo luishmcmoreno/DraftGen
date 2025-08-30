@@ -9,7 +9,11 @@ interface PrintPreviewModalProps {
   onClose: () => void;
 }
 
-export default function PrintPreviewModal({ content, templateName, onClose }: PrintPreviewModalProps) {
+export default function PrintPreviewModal({
+  content,
+  templateName,
+  onClose,
+}: PrintPreviewModalProps) {
   const handlePrint = () => {
     window.print();
     // Optionally close after printing (you can remove this if you want to keep it open)
@@ -38,7 +42,7 @@ export default function PrintPreviewModal({ content, templateName, onClose }: Pr
           </div>
         </div>
       </div>
-      
+
       {/* Document content */}
       <Viewer dsl={content} />
     </div>

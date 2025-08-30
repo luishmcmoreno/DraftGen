@@ -21,7 +21,9 @@ export function GeneratorContent() {
   const pathname = usePathname();
   const templateId = searchParams.get('templateId');
   const [currentDsl, setCurrentDsl] = useState<DocumentSchema | null>(null);
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
@@ -45,11 +47,7 @@ export function GeneratorContent() {
 
     const loadTemplate = async (id: string) => {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from('templates')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const { data, error } = await supabase.from('templates').select('*').eq('id', id).single();
 
       if (error) {
         toast({
@@ -66,25 +64,27 @@ export function GeneratorContent() {
         setTemplateName(data.name);
         setTemplateDescription(data.description || '');
         setHasUnsavedChanges(false);
-        
+
         // Load conversation history
         try {
           const response = await fetch(`/api/conversation-history?templateId=${id}`);
           const historyData = await response.json();
-          
+
           if (historyData.history?.messages) {
             // Set the messages from history
-            setMessages(historyData.history.messages.map((msg: { role: string; content: string }) => ({
-              role: msg.role,
-              content: msg.content
-            })));
+            setMessages(
+              historyData.history.messages.map((msg: { role: string; content: string }) => ({
+                role: msg.role,
+                content: msg.content,
+              }))
+            );
           }
           setIsInitialLoad(false); // Mark initial load as complete
         } catch {
           // Silently fail loading history
           setIsInitialLoad(false);
         }
-        
+
         // Mark this template as loaded to prevent duplicate toasts
         loadedTemplateIdRef.current = id;
 
@@ -101,15 +101,15 @@ export function GeneratorContent() {
 
   const handlePromptSubmit = async (prompt: string) => {
     setIsLoading(true);
-    setMessages(prev => [...prev, { role: 'user', content: prompt }]);
+    setMessages((prev) => [...prev, { role: 'user', content: prompt }]);
 
     try {
       const response = await fetch('/api/ai/generate-template', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          prompt, 
-          existingJson: currentDsl 
+        body: JSON.stringify({
+          prompt,
+          existingJson: currentDsl,
         }),
       });
 
@@ -121,20 +121,26 @@ export function GeneratorContent() {
 
       setCurrentDsl(data.json);
       setHasUnsavedChanges(true);
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: t('chat.success') 
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: t('chat.success'),
+        },
+      ]);
     } catch (error) {
       toast({
         title: t('chat.error.title'),
         description: error instanceof Error ? error.message : t('chat.error.invalidJson'),
         variant: 'destructive',
       });
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: t('chat.error.invalidJson') 
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: t('chat.error.invalidJson'),
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -147,9 +153,9 @@ export function GeneratorContent() {
 
     // Debounce the save to avoid too many API calls
     const timeoutId = setTimeout(async () => {
-      const messagesWithTimestamp: ConversationMessage[] = messages.map(msg => ({
+      const messagesWithTimestamp: ConversationMessage[] = messages.map((msg) => ({
         ...msg,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }));
 
       try {
@@ -158,10 +164,10 @@ export function GeneratorContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             templateId,
-            messages: messagesWithTimestamp
-          })
+            messages: messagesWithTimestamp,
+          }),
         });
-        
+
         if (!response.ok) {
           await response.json();
           // Silently fail - conversation history is not critical
@@ -180,7 +186,7 @@ export function GeneratorContent() {
 
     const supabase = createClient();
     const variables = extractVariables(currentDsl);
-    
+
     const { error } = await supabase
       .from('templates')
       .update({
@@ -212,8 +218,10 @@ export function GeneratorContent() {
 
     const supabase = createClient();
     const variables = extractVariables(currentDsl);
-    
-    const { data: { user } } = await supabase.auth.getUser();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
       toast({
         title: t('save.failure'),
@@ -276,9 +284,9 @@ export function GeneratorContent() {
       } else if (data) {
         // Save conversation history for the newly created template
         if (messages.length > 0) {
-          const messagesWithTimestamp: ConversationMessage[] = messages.map(msg => ({
+          const messagesWithTimestamp: ConversationMessage[] = messages.map((msg) => ({
             ...msg,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           }));
 
           try {
@@ -287,8 +295,8 @@ export function GeneratorContent() {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 templateId: data.id,
-                messages: messagesWithTimestamp
-              })
+                messages: messagesWithTimestamp,
+              }),
             });
           } catch {
             // Silently fail - conversation history is not critical for template creation
@@ -302,7 +310,7 @@ export function GeneratorContent() {
         setTemplateName(name);
         setHasUnsavedChanges(false);
         setIsSaveModalOpen(false);
-        
+
         // Update URL to include the new template ID for continued editing
         // This allows history persistence on subsequent messages
         const newUrl = `${pathname}?templateId=${data.id}`;
@@ -348,17 +356,13 @@ export function GeneratorContent() {
               </div>
             )}
           </div>
-          <ChatPanel
-            messages={messages}
-            onSubmit={handlePromptSubmit}
-            isLoading={isLoading}
-          />
+          <ChatPanel messages={messages} onSubmit={handlePromptSubmit} isLoading={isLoading} />
         </div>
 
         {/* Right Panel - Viewer (77.5%) */}
         <div className="w-[77.5%] bg-muted/30 flex flex-col">
-          <Viewer 
-            dsl={currentDsl} 
+          <Viewer
+            dsl={currentDsl}
             className="flex-1"
             onDslUpdate={(updater) => {
               setCurrentDsl((prevDsl) => {

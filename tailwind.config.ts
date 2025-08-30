@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
   darkMode: 'class',
@@ -10,7 +10,17 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        sans: [
+          'Inter',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif',
+        ],
       },
       colors: {
         gray: {
@@ -69,19 +79,19 @@ const config: Config = {
         ring: 'rgb(var(--ring) / <alpha-value>)',
       },
       boxShadow: {
-        'soft': '0 0 5px rgba(0, 0, 0, 0.15)',
+        soft: '0 0 5px rgba(0, 0, 0, 0.15)',
         'soft-dark': '0 0 5px rgba(0, 0, 0, 0.5)',
-        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+        card: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
         'card-dark': '0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.5)',
       },
       width: {
-        'a4': '794px',
+        a4: '794px',
       },
       minHeight: {
-        'a4': '1123px',
+        a4: '1123px',
       },
     },
   },
   plugins: [],
-}
-export default config
+};
+export default config;

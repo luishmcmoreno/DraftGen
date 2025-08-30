@@ -3,26 +3,27 @@ import { NextResponse, NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
-  
+
   // Get the origin from the request URL
   const requestUrl = new URL(request.url);
   const origin = requestUrl.origin;
-  
+
   // Get the referer to check for locale
   const referer = request.headers.get('referer');
   let callbackUrl = `${origin}/auth/callback`;
-  
+
   if (referer) {
     const refererUrl = new URL(referer);
     const pathSegments = refererUrl.pathname.split('/').filter(Boolean);
     const locale = pathSegments[0];
-    
+
     // If the referer has a locale prefix, use it in the callback
     if (['en', 'pt'].includes(locale)) {
-      callbackUrl = locale === 'en' ? `${origin}/auth/callback` : `${origin}/${locale}/auth/callback`;
+      callbackUrl =
+        locale === 'en' ? `${origin}/auth/callback` : `${origin}/${locale}/auth/callback`;
     }
   }
-  
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {

@@ -5,22 +5,18 @@ import { ConversationMessage } from '@/lib/supabase/database.types';
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { templateId, messages } = await request.json();
 
     if (!templateId || !Array.isArray(messages)) {
-      return NextResponse.json(
-        { error: 'Invalid request data' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid request data' }, { status: 400 });
     }
 
     // Check if conversation history already exists for this template and user
@@ -37,7 +33,7 @@ export async function POST(request: NextRequest) {
         .from('conversation_history')
         .update({
           messages: messages as ConversationMessage[],
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', existing.id);
 
@@ -50,54 +46,41 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Create new conversation history
-      const { error } = await supabase
-        .from('conversation_history')
-        .insert({
-          template_id: templateId,
-          user_id: user.id,
-          messages: messages as ConversationMessage[]
-        });
+      const { error } = await supabase.from('conversation_history').insert({
+        template_id: templateId,
+        user_id: user.id,
+        messages: messages as ConversationMessage[],
+      });
 
       if (error) {
         // console.error('Error creating conversation history:', error);
-        return NextResponse.json(
-          { error: 'Failed to save conversation history' },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: 'Failed to save conversation history' }, { status: 500 });
       }
     }
 
     return NextResponse.json({ success: true });
-    
   } catch {
     // console.error('Error in conversation history API:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const templateId = searchParams.get('templateId');
 
     if (!templateId) {
-      return NextResponse.json(
-        { error: 'Template ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Template ID is required' }, { status: 400 });
     }
 
     const { data, error } = await supabase
@@ -107,23 +90,17 @@ export async function GET(request: NextRequest) {
       .eq('user_id', user.id)
       .single();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows found"
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 is "no rows found"
       // console.error('Error fetching conversation history:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch conversation history' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch conversation history' }, { status: 500 });
     }
 
-    return NextResponse.json({ 
-      history: data || null 
+    return NextResponse.json({
+      history: data || null,
     });
-    
   } catch {
     // console.error('Error in conversation history API:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -159,16 +159,17 @@ RLS is mandatory. All app queries must operate under the authenticated user.
 ```
 
 **Zod schema (`/lib/dslValidator.ts`):**
+
 ```ts
-import { z } from "zod";
+import { z } from 'zod';
 
 export const TextNode = z.object({
-  type: z.literal("text"),
+  type: z.literal('text'),
   content: z.string(),
 });
 
 export const DocumentNode = z.object({
-  type: z.literal("document"),
+  type: z.literal('document'),
   children: z.array(TextNode),
 });
 
@@ -183,12 +184,13 @@ export type DocumentSchema = z.infer<typeof DocumentNode>;
 ## 🧩 Utilities
 
 **Variable extraction (`/utils/extractVariables.ts`):**
+
 ```ts
 export const extractVariables = (dsl: unknown): string[] => {
   const result = new Set<string>();
   const visit = (node: any) => {
-    if (!node || typeof node !== "object") return;
-    if (node.type === "text" && typeof node.content === "string") {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'text' && typeof node.content === 'string') {
       const re = /\$\{([A-Z0-9_]+)\}/g;
       let m;
       while ((m = re.exec(node.content))) result.add(m[1]);
@@ -201,14 +203,14 @@ export const extractVariables = (dsl: unknown): string[] => {
 ```
 
 **Variable substitution (`/utils/substituteVariables.ts`):**
+
 ```ts
 export const substituteVariables = (dsl: any, values: Record<string, string>) => {
   const clone = structuredClone(dsl);
-  const replace = (text: string) =>
-    text.replace(/\$\{([A-Z0-9_]+)\}/g, (_, k) => values[k] ?? "");
+  const replace = (text: string) => text.replace(/\$\{([A-Z0-9_]+)\}/g, (_, k) => values[k] ?? '');
 
   const walk = (node: any) => {
-    if (node.type === "text" && typeof node.content === "string") {
+    if (node.type === 'text' && typeof node.content === 'string') {
       node.content = replace(node.content);
     }
     if (Array.isArray(node.children)) node.children.forEach(walk);
@@ -220,11 +222,12 @@ export const substituteVariables = (dsl: any, values: Record<string, string>) =>
 ```
 
 **Date formatting (`/utils/formatDate.ts`):**
+
 ```ts
 export const formatDate = (d: string | number | Date) =>
   new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short"
+    dateStyle: 'medium',
+    timeStyle: 'short',
   }).format(new Date(d));
 ```
 
@@ -236,6 +239,7 @@ export const formatDate = (d: string | number | Date) =>
 **/templates** — List user templates as cards.  
 **/generator** — Lovable-style page (chat + viewer).  
 **/api/ai/generate-template** — Server route that:
+
 - Receives `{ prompt, existingJson? }`
 - Calls LLM with system instructions to output **only** valid JSON matching the DSL
 - Validates with Zod; on success returns the JSON; on failure returns an error
@@ -247,24 +251,28 @@ export const formatDate = (d: string | number | Date) =>
 ## 🧱 Components
 
 **Topbar.tsx**
+
 - Left: app name/logo (i18n key)
 - Links: `/generator`, `/templates` (highlight active)
 - Right: user avatar (from `profiles.avatar_url`) with dropdown (Profile placeholder, Logout)
 - i18n keys: `common.nav.generator`, `common.nav.templates`, `common.nav.logout`, `common.appName`
 
 **TemplateCard.tsx**
+
 - Shows: name, description, createdAt, updatedAt, up to 3 variable chips.
 - If more than 3, show `+X` and on hover a tooltip lists remaining.
 - Buttons: **Edit** → `/generator?templateId=...`; **Generate** → opens variable modal.
 - i18n: `templates.card.*`
 
 **ChatPanel.tsx**
+
 - Textarea input; send button; messages list (user vs system).
 - On send: POST to `/api/ai/generate-template` with `{ prompt, existingJson }`.
 - Validate JSON; update viewer state or surface error toast.
 - i18n: `generator.chat.placeholder`, `generator.chat.send`, `generator.chat.error.invalidJson`
 
 **Viewer.tsx**
+
 - Renders DSL to HTML.
 - A4 simulation:
   - `.page { width: 794px; min-height: 1123px; margin: 1rem auto; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.15); }`
@@ -275,6 +283,7 @@ export const formatDate = (d: string | number | Date) =>
 - i18n: content is user data; labels/tooltips use keys if any.
 
 **VariableFormModal.tsx**
+
 - Dynamically builds a form from `extractVariables(dsl)`.
 - Input types: all text in MVP (date/time later).
 - On submit: `substituteVariables(dsl, values)` → HTML → client PDF download.
@@ -285,9 +294,11 @@ export const formatDate = (d: string | number | Date) =>
 ## 📄 Pages — Functional Specs & Acceptance Criteria
 
 ### 1) Login Page (`/login`)
+
 **Description:** Google Sign-In using Supabase; on success, upsert profile and redirect to `/templates`.
 
 **AC:**
+
 - “Continue with Google” button triggers OAuth.
 - On first login, `profiles` upsert with `display_name`, `avatar_url`, default `role='GENERATOR'`.
 - After login, redirect to `/templates`.
@@ -298,9 +309,11 @@ export const formatDate = (d: string | number | Date) =>
 ---
 
 ### 2) Templates Page (`/templates`)
+
 **Description:** List user’s templates as cards.
 
 **AC:**
+
 - Fetch templates with RLS (only owner’s rows).
 - Card shows: name, description, createdAt, updatedAt (formatted).
 - Variable chips show up to 3; `+X` on overflow with tooltip listing remaining names.
@@ -314,9 +327,11 @@ export const formatDate = (d: string | number | Date) =>
 ---
 
 ### 3) Draft Generator (`/generator`)
+
 **Description:** Lovable-style. Prompts change the draft JSON; no manual editing in MVP.
 
 **AC:**
+
 - Two panes: left Chat (≈22.5%), right Viewer (≈77.5%).
 - If `templateId` is provided, preload DSL JSON into viewer and chat context.
 - Sending prompt calls API; API returns **full** valid JSON DSL.
@@ -332,9 +347,11 @@ export const formatDate = (d: string | number | Date) =>
 ---
 
 ### 4) Generate Document (from Template Card or Generator)
+
 **Description:** Client-only PDF generation; no DB persistence.
 
 **AC:**
+
 - Clicking **Generate** opens a modal showing inputs for every `${VAR}`.
 - On submit:
   - Substitute variables into DSL
@@ -393,21 +410,22 @@ Insert one example template (via MCP or UI):
 
 ## 🚀 Implementation Order (Suggested)
 
-1) Project bootstrap: Next.js, Tailwind, i18n, Supabase client  
-2) Auth: Google login, profile upsert  
-3) Topbar (nav + avatar + logout)  
-4) Templates page (list + variable tags + actions)  
-5) Generator page (chat → AI → JSON, save template, preload by ID)  
-6) Viewer (JSON → HTML, A4 simulation, print CSS scaffold)  
-7) Generate Document (variable modal → client PDF)  
-8) Toaster + error handling polish  
-9) RLS sanity checks and general QA
+1. Project bootstrap: Next.js, Tailwind, i18n, Supabase client
+2. Auth: Google login, profile upsert
+3. Topbar (nav + avatar + logout)
+4. Templates page (list + variable tags + actions)
+5. Generator page (chat → AI → JSON, save template, preload by ID)
+6. Viewer (JSON → HTML, A4 simulation, print CSS scaffold)
+7. Generate Document (variable modal → client PDF)
+8. Toaster + error handling polish
+9. RLS sanity checks and general QA
 
 ---
 
 ## 📋 Detailed Task List (AI-Ready)
 
 ### G-01 — Bootstrap Project
+
 - Next.js (App Router), TS, Tailwind, ESLint/Prettier
 - Minimal layout + neutral theme
 
@@ -416,6 +434,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### G-02 — i18n Wiring
+
 - Integrate `next-intl` (or `next-i18next`)
 - Set up `/messages/{en,pt}.json`
 - Create helpers for server/client translations
@@ -426,6 +445,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### G-03 — Supabase Client & Env
+
 - Configure public anon client for client-side
 - Configure server-side client for secure calls
 - Env vars documented
@@ -435,6 +455,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### A-01 — Google Auth
+
 - `/login` with “Continue with Google”
 - `/auth/callback` handling (if needed)
 - Redirect to `/templates` on success
@@ -445,6 +466,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### A-02 — Profiles Upsert
+
 - After login, upsert `profiles` with display_name, avatar_url, role
 - Show avatar/name in topbar
 
@@ -453,6 +475,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### N-01 — Topbar
+
 - App name (i18n)
 - Links: `/generator`, `/templates`
 - Avatar dropdown: Profile (placeholder), Logout
@@ -462,6 +485,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### T-01 — Templates Table (MCP)
+
 - Create table & RLS policies as defined
 - Create indexes
 
@@ -470,6 +494,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### T-02 — Templates List Page
+
 - Fetch and display cards
 - Variable tags (max 3 + `+X` tooltip)
 - Buttons: **Edit**, **Generate**
@@ -479,6 +504,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### T-03 — Variable Extraction Util
+
 - Implement recursive extraction (`${VAR}`)
 - Export util; unit tests
 
@@ -487,6 +513,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### GNR-01 — Generator Layout
+
 - Split page: Chat left (22.5%), Viewer right (77.5%)
 - If `templateId` present, preload DSL
 
@@ -495,6 +522,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### GNR-02 — AI Chat → JSON
+
 - `/api/ai/generate-template` route
 - Prompt with optional `existingJson`
 - Validate Zod; update viewer or show error
@@ -504,6 +532,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### GNR-03 — Save Template
+
 - Modal for name + description
 - Extract variables to `tags`
 - Insert into DB; toast + update list or redirect
@@ -513,6 +542,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### GNR-04 — Modify Existing via Prompt
+
 - If loaded template, prompts apply changes
 - Use full JSON replacement (MVP), merge later if needed
 
@@ -521,6 +551,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### V-01 — DSL → HTML Viewer
+
 - Render `document` + `text`
 - Variables as styled tokens
 - A4 simulation `.page` + soft shadow
@@ -530,6 +561,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### V-02 — Print CSS Scaffold
+
 - `@page { size: A4; margin: 2cm; }`
 - `.page-break` support (future types)
 
@@ -538,6 +570,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### D-01 — Generate Document (Client-only PDF)
+
 - Modal with dynamic inputs for variables
 - Substitute values → HTML snapshot
 - html2pdf.js to download the PDF
@@ -548,6 +581,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### U-01 — Minimalist Theme
+
 - Neutral palette, accessible contrast, spacing scale
 - Card/viewer shadows; consistent typographic scale
 
@@ -556,6 +590,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### U-02 — Toasts & Errors
+
 - Add toast system
 - Surface success/error for: login, save, AI call, generate
 
@@ -564,6 +599,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### S-01 — RLS Sanity
+
 - Attempt cross-user access returns 403 (manual test)
 - Normal owner operations unaffected
 
@@ -572,6 +608,7 @@ Insert one example template (via MCP or UI):
 ---
 
 ### S-02 — Secrets Handling
+
 - AI keys only server-side (route/edge function)
 - Confirm no secrets in client bundle
 
@@ -593,11 +630,11 @@ Insert one example template (via MCP or UI):
 
 ```css
 .page {
-  width: 794px;           /* A4 @ 96dpi ≈ 210mm */
-  min-height: 1123px;     /* A4 @ 96dpi ≈ 297mm */
+  width: 794px; /* A4 @ 96dpi ≈ 210mm */
+  min-height: 1123px; /* A4 @ 96dpi ≈ 297mm */
   margin: 1rem auto;
   background: #fff;
-  box-shadow: 0 0 5px rgba(0,0,0,0.15);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
   padding: 2rem;
 }
 
@@ -607,8 +644,13 @@ Insert one example template (via MCP or UI):
 }
 
 @media print {
-  body { background: transparent; }
-  .page { box-shadow: none; margin: 0 auto; }
+  body {
+    background: transparent;
+  }
+  .page {
+    box-shadow: none;
+    margin: 0 auto;
+  }
 }
 ```
 
@@ -623,4 +665,3 @@ Insert one example template (via MCP or UI):
 - Generate Document opens a variable form and downloads a PDF client-side.
 - All UI strings use i18n keys.
 - RLS and secret handling confirmed.
-

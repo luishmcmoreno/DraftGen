@@ -23,11 +23,13 @@ export function Viewer({ dsl, className, onDslUpdate }: ViewerProps) {
   }
 
   return (
-    <div className={cn('py-8 px-4 bg-gray-100 dark:bg-gray-900 h-full overflow-y-scroll', className)}>
+    <div
+      className={cn('py-8 px-4 bg-gray-100 dark:bg-gray-900 h-full overflow-y-scroll', className)}
+    >
       <div className="max-w-[850px] mx-auto">
-        <AutoPaginatedDocument 
-          content={dsl} 
-          showVariables={true} 
+        <AutoPaginatedDocument
+          content={dsl}
+          showVariables={true}
           forPdf={false}
           onDslUpdate={onDslUpdate}
         />

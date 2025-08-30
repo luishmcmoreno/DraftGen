@@ -16,12 +16,12 @@ interface AutoPaginatedDocumentProps {
   onDslUpdate?: (updater: (dsl: unknown) => unknown) => void;
 }
 
-function AutoPaginatedDocumentBase({ 
-  content, 
-  showVariables = true, 
+function AutoPaginatedDocumentBase({
+  content,
+  showVariables = true,
   forPdf = false,
   className = '',
-  onDslUpdate
+  onDslUpdate,
 }: AutoPaginatedDocumentProps) {
   const [pages, setPages] = useState<NodeType[][]>([[]]);
   const [isProcessing, setIsProcessing] = useState(true);
@@ -33,29 +33,29 @@ function AutoPaginatedDocumentBase({
   const PADDING_BOTTOM = 72; // 1 inch
   // Available height is page height minus top and bottom padding
   const AVAILABLE_HEIGHT = PAGE_HEIGHT - PADDING_TOP - PADDING_BOTTOM; // 979px for content
-  
+
   // Update pages when content changes (for inline edits)
   useEffect(() => {
     if (initialPagination || !content || !Array.isArray(content.children)) {
       return;
     }
-    
+
     // Skip if content hasn't been initialized yet
     if (!content.children || content.children.length === 0) {
       return;
     }
-    
+
     // For content updates after initial pagination, update pages directly
     // This avoids full re-pagination for simple text edits
     if (pages.length > 0) {
-      setPages(currentPages => {
+      setPages((currentPages) => {
         // Count total nodes in current pages
         const totalNodesInPages = currentPages.reduce((sum, page) => sum + page.length, 0);
-        
+
         // If the number of nodes hasn't changed, just update the content
         if (totalNodesInPages === content.children.length) {
           let nodeIndex = 0;
-          const updatedPages = currentPages.map(pageNodes => {
+          const updatedPages = currentPages.map((pageNodes) => {
             return pageNodes.map(() => {
               if (nodeIndex < content.children.length) {
                 return content.children[nodeIndex++];
@@ -66,7 +66,7 @@ function AutoPaginatedDocumentBase({
           });
           return updatedPages;
         }
-        
+
         // If structure changed, keep current pagination
         return currentPages;
       });
@@ -90,7 +90,7 @@ function AutoPaginatedDocumentBase({
       const newPages: NodeType[][] = [];
       let currentPage: NodeType[] = [];
       let currentPageHeight = 0;
-      
+
       // Create a hidden measuring container with exact page styles
       const measuringContainer = document.createElement('div');
       measuringContainer.style.cssText = `
@@ -110,10 +110,10 @@ function AutoPaginatedDocumentBase({
       // Process nodes with the ability to split them
       const remainingNodes = [...content.children];
       const MAX_CONTENT_HEIGHT = AVAILABLE_HEIGHT; // Use full available height
-      
+
       while (remainingNodes.length > 0) {
         const node = remainingNodes.shift()!;
-        
+
         // Handle explicit page breaks
         if (node.type === 'page-break') {
           if (currentPage.length > 0) {
@@ -123,10 +123,10 @@ function AutoPaginatedDocumentBase({
           }
           continue;
         }
-        
+
         const isFirstNode = currentPage.length === 0;
         const remainingHeight = MAX_CONTENT_HEIGHT - currentPageHeight;
-        
+
         // Try to split the node if needed
         const splitResult = await splitNodeAtHeight(
           node,
@@ -134,18 +134,17 @@ function AutoPaginatedDocumentBase({
           measuringContainer,
           isFirstNode
         );
-        
-        
+
         // Add the part that fits to current page
         if (splitResult.fitsOnPage) {
           currentPage.push(splitResult.fitsOnPage);
-          
+
           // Measure the actual cumulative height to account for margin collapse
           const testDocument = {
             type: 'document' as const,
-            children: [...currentPage]
+            children: [...currentPage],
           };
-          
+
           // Create a temporary container to measure
           const tempContainer = document.createElement('div');
           tempContainer.style.cssText = measuringContainer.style.cssText;
@@ -154,50 +153,50 @@ function AutoPaginatedDocumentBase({
           tempContainer.style.position = 'absolute';
           tempContainer.style.left = '-9999px';
           document.body.appendChild(tempContainer);
-          
+
           // Render directly without wrapper divs
           const tempRoot = createRoot(tempContainer);
           tempRoot.render(
             <>
-              {testDocument.children.map((child, index) => 
+              {testDocument.children.map((child, index) =>
                 renderNode(child, index, { showVariables: true, forPdf: false })
               )}
             </>
           );
-          
+
           // Wait for render
-          await new Promise(resolve => setTimeout(resolve, 20));
-          
+          await new Promise((resolve) => setTimeout(resolve, 20));
+
           // Measure using the last element's offsetTop + height
           const allChildren = tempContainer.children;
           let actualCumulativeHeight = 0;
-          
+
           if (allChildren.length > 0) {
             const firstChild = allChildren[0] as HTMLElement;
             const lastChild = allChildren[allChildren.length - 1] as HTMLElement;
-            
+
             if (firstChild && lastChild) {
               // Get the baseline offset (first element's top position)
               const baselineOffset = firstChild.offsetTop;
-              
+
               // Calculate height from baseline to bottom of last element
-              actualCumulativeHeight = (lastChild.offsetTop - baselineOffset) + lastChild.offsetHeight;
-              
+              actualCumulativeHeight =
+                lastChild.offsetTop - baselineOffset + lastChild.offsetHeight;
+
               // Also account for any bottom margin on the last element
               const computedStyle = window.getComputedStyle(lastChild);
               const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
               actualCumulativeHeight += marginBottom;
             }
           }
-          
+
           // Clean up
           tempRoot.unmount();
           document.body.removeChild(tempContainer);
-          
+
           currentPageHeight = actualCumulativeHeight;
-          
         }
-        
+
         // Handle overflow
         if (splitResult.overflow) {
           // If nothing fit on this page, and page isn't empty, start a new page
@@ -220,7 +219,7 @@ function AutoPaginatedDocumentBase({
             currentPageHeight = MAX_CONTENT_HEIGHT; // Force new page next
           }
         }
-        
+
         // Check if we should start a new page
         if (currentPageHeight >= MAX_CONTENT_HEIGHT && remainingNodes.length > 0) {
           newPages.push(currentPage);
@@ -278,7 +277,7 @@ function AutoPaginatedDocumentBase({
             boxSizing: 'border-box' as const,
             position: 'relative' as const,
             margin: forPdf ? '0' : '0 auto',
-            marginBottom: forPdf ? '0' : (pageIndex < pages.length - 1 ? '2rem' : '1rem'),
+            marginBottom: forPdf ? '0' : pageIndex < pages.length - 1 ? '2rem' : '1rem',
             boxShadow: !forPdf ? documentStyles.page.boxShadow : 'none',
             border: !forPdf ? documentStyles.page.border : 'none',
             pageBreakAfter: forPdf && pageIndex < pages.length - 1 ? 'always' : 'auto',
@@ -288,7 +287,7 @@ function AutoPaginatedDocumentBase({
           {/* Page number indicator */}
           {!forPdf && (
             <>
-              <div 
+              <div
                 className="absolute -top-6 left-0 text-xs text-gray-500 dark:text-gray-400 font-medium z-10"
                 style={{ top: '-24px' }}
               >
@@ -309,27 +308,30 @@ function AutoPaginatedDocumentBase({
               </div>
             </>
           )}
-          
+
           {/* Page content - constrained within padding */}
-          <div className="page-content" style={{
-            maxHeight: `${AVAILABLE_HEIGHT}px`,
-            position: 'relative',
-          }}>
+          <div
+            className="page-content"
+            style={{
+              maxHeight: `${AVAILABLE_HEIGHT}px`,
+              position: 'relative',
+            }}
+          >
             {pageContent.map((node, nodeIndex) => (
               <React.Fragment key={nodeIndex}>
-                {renderNode(node, nodeIndex, { 
-                  showVariables, 
+                {renderNode(node, nodeIndex, {
+                  showVariables,
                   forPdf,
-                  isFirstOnPage: nodeIndex === 0
+                  isFirstOnPage: nodeIndex === 0,
                 })}
               </React.Fragment>
             ))}
           </div>
-          
+
           {/* Page number footer and page break indicator */}
           {!forPdf && (
             <>
-              <div 
+              <div
                 className="absolute bottom-8 left-0 right-0 text-center text-gray-400"
                 style={{ fontSize: '10px' }}
               >
@@ -353,11 +355,7 @@ function AutoPaginatedDocumentBase({
 
   // Wrap with EditProvider only if we have onDslUpdate
   if (onDslUpdate && !forPdf) {
-    return (
-      <EditProvider onDslUpdate={onDslUpdate}>
-        {renderContent()}
-      </EditProvider>
-    );
+    return <EditProvider onDslUpdate={onDslUpdate}>{renderContent()}</EditProvider>;
   }
 
   return renderContent();
