@@ -55,11 +55,11 @@ export default function RoutinesPage() {
       // Update usage statistics
       await updateConversionRoutineUsage(routine.id);
       // Navigate to convert page with routine loaded and auto-run
-      router.push(`/convert?routineId=${routine.id}&run=true`);
+      router.push(`/?routineId=${routine.id}&run=true`);
     } catch (err) {
       console.error('Failed to update routine usage:', err);
       // Still navigate even if usage update fails
-      router.push(`/convert?routineId=${routine.id}&run=true`);
+      router.push(`/?routineId=${routine.id}&run=true`);
     }
   };
 
@@ -132,7 +132,7 @@ export default function RoutinesPage() {
               Conversion Routines
             </h1>
             <button
-              onClick={() => router.push('/convert')}
+              onClick={() => router.push('/routines/create')}
               className="px-6 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-semibold"
             >
               Create New Routine
@@ -185,7 +185,7 @@ export default function RoutinesPage() {
                 Create your first conversion routine to get started with automated text processing workflows.
               </p>
               <button
-                onClick={() => router.push('/convert')}
+                onClick={() => router.push('/routines/create')}
                 className="px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-semibold"
               >
                 Create Your First Routine

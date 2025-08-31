@@ -21,7 +21,7 @@ type UserProfile = {
 export default function Topbar({ profile }: { profile?: UserProfile | null }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { signOut } = useAuth();
+  const { signIn, signOut } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -66,9 +66,9 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
             </Link>
             <nav className="flex gap-6">
               <Link
-                href="/convert"
+                href="/"
                 className={`transition-colors ${
-                  isActive('/convert')
+                  pathname === '/'
                     ? 'text-foreground font-medium'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
@@ -87,44 +87,53 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
               </Link>
             </nav>
           </div>
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted transition-colors"
-            >
-              {profile?.avatar_url ? (
-                <Image
-                  src={profile.avatar_url}
-                  alt={profile.display_name || 'User'}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground">
-                  {getInitials(profile?.display_name || null)}
+          {profile ? (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted transition-colors"
+              >
+                {profile.avatar_url ? (
+                  <Image
+                    src={profile.avatar_url}
+                    alt={profile.display_name || 'User'}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground">
+                    {getInitials(profile.display_name || null)}
+                  </div>
+                )}
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-popover rounded-lg shadow-lg border border-border py-1 z-50">
+                  <div className="px-4 py-2 text-sm text-muted-foreground border-b border-border">
+                    {profile.display_name || 'User'}
+                  </div>
+                  <div className="py-1">
+                    <ThemeToggle />
+                  </div>
+                  <div className="border-t border-border pt-1">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </div>
               )}
+            </div>
+          ) : (
+            <button
+              onClick={() => signIn()}
+              className="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium"
+            >
+              Sign in with Google
             </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-popover rounded-lg shadow-lg border border-border py-1 z-50">
-                <div className="px-4 py-2 text-sm text-muted-foreground border-b border-border">
-                  {profile?.display_name || 'User'}
-                </div>
-                <div className="py-1">
-                  <ThemeToggle />
-                </div>
-                <div className="border-t border-border pt-1">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </header>

@@ -38,15 +38,15 @@ export default function RoutineCard({
   const router = useRouter();
 
   const handleEdit = () => {
-    router.push(`/convert?routineId=${routine.id}`);
+    router.push(`/routines/create?routineId=${routine.id}`);
   };
 
   const handleRun = () => {
     if (onRun) {
       onRun(routine);
     } else {
-      // Default behavior: navigate to convert page with routine loaded
-      router.push(`/convert?routineId=${routine.id}&run=true`);
+      // Default behavior: navigate to home page with routine loaded
+      router.push(`/?routineId=${routine.id}&run=true`);
     }
   };
 

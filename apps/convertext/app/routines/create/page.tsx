@@ -2,21 +2,20 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Topbar from '../../src/components/Topbar';
-import WorkflowTimeline from '../../src/components/WorkflowTimeline';
-import WorkflowLibrary from '../../src/components/WorkflowLibrary';
-import { AuthButton, AuthGuard } from '../../src/components/AuthButton';
-import { useAuth } from '../../src/components/AuthProvider';
-import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, TextConversionResponse, ToolEvaluation } from '../../src/types/conversion';
+import Topbar from '../../../src/components/Topbar';
+import WorkflowTimeline from '../../../src/components/WorkflowTimeline';
+import WorkflowLibrary from '../../../src/components/WorkflowLibrary';
+import { useAuth } from '../../../src/components/AuthProvider';
+import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, ToolEvaluation } from '../../../src/types/conversion';
 import { 
   createNewConversionRoutineExecution, 
   addStepToConversionRoutine, 
   updateStepStatus, 
   replayConversionRoutine,
   saveConversionRoutineToStorage
-} from '../../src/utils/workflow-supabase';
+} from '../../../src/utils/workflow-supabase';
 
-function ConvertContent() {
+function CreateRoutineContent() {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -27,8 +26,39 @@ function ConvertContent() {
   const [initialText, setInitialText] = useState<string>();
   const [showConversionRoutineLibrary, setShowConversionRoutineLibrary] = useState(false);
 
-  // Initialize routine
+  // Initialize routine - check for in-progress routine from home page
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const routineInProgressStr = sessionStorage.getItem('routineInProgress');
+      if (routineInProgressStr) {
+        try {
+          const { routine: inProgressRoutine, nextStepText } = JSON.parse(routineInProgressStr);
+          
+          // Clear the session storage
+          sessionStorage.removeItem('routineInProgress');
+          
+          // Create a new step with the text from the previous conversion
+          const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
+            status: 'editing',
+            input: {
+              text: nextStepText,
+              taskDescription: '',
+              exampleOutput: undefined
+            }
+          };
+          
+          const updatedRoutine = addStepToConversionRoutine(inProgressRoutine, newStep);
+          setRoutine(updatedRoutine);
+          setInitialText(nextStepText);
+          setInitialTask('');
+          return;
+        } catch (error) {
+          console.error('Failed to parse routine in progress:', error);
+        }
+      }
+    }
+    
+    // Default: create new routine
     setRoutine(createNewConversionRoutineExecution());
   }, []);
 
@@ -36,18 +66,17 @@ function ConvertContent() {
   useEffect(() => {
     const task = searchParams.get('task');
     const text = searchParams.get('text');
-    const example = searchParams.get('example');
     
     if (task && text) {
       setInitialTask(task);
       setInitialText(text);
       
       // Clear URL parameters after loading them
-      router.replace('/convert');
+      router.replace('/routines/create');
     }
   }, [searchParams, router]);
 
-  // Redirect non-authenticated users to home
+  // Redirect non-authenticated users to home with login prompt
   useEffect(() => {
     if (!user) {
       router.push('/');
@@ -163,24 +192,6 @@ function ConvertContent() {
     }) : null);
   };
 
-  const handleNewConversionRoutine = () => {
-    if (!routine) return;
-    setRoutine(createNewConversionRoutineExecution(routine.provider));
-    setError(null);
-  };
-
-  const handleClearConversionRoutine = () => {
-    if (!routine) return;
-    setRoutine(prev => prev ? ({
-      ...prev,
-      steps: [],
-      name: 'ConverText',
-      currentStepIndex: 0,
-      status: 'idle',
-      lastUpdated: new Date()
-    }) : null);
-    setError(null);
-  };
 
   const handleExampleSelect = (task: string, sampleInput?: string) => {
     setInitialTask(task);
@@ -257,6 +268,14 @@ function ConvertContent() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Topbar profile={{ display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null }} />
+      
+      {/* Page Header */}
+      <div className="px-4 py-6 bg-card border-b border-border">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Create Conversion Routine</h1>
+          <p className="text-muted-foreground">Build and test multi-step text conversion workflows that can be saved and reused.</p>
+        </div>
+      </div>
 
       <WorkflowTimeline
         steps={routine.steps}
@@ -291,10 +310,10 @@ function ConvertContent() {
   );
 }
 
-export default function Convert() {
+export default function CreateRoutinePage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ConvertContent />
+      <CreateRoutineContent />
     </Suspense>
   );
 }

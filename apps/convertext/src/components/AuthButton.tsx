@@ -37,13 +37,13 @@ export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButto
           </span>
         </div>
         
-        {showConvertButton && pathname !== '/convert' && (
+        {showConvertButton && pathname !== '/' && (
           <button
             onClick={() => {
               if (onAuthClick) {
                 onAuthClick();
               } else {
-                router.push('/convert');
+                router.push('/');
               }
             }}
             className="px-3 py-1 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors"

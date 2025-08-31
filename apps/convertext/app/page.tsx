@@ -195,36 +195,36 @@ export default function Home() {
   const handleAddNewStep = (previousResult: string) => {
     if (!routine) return;
     
-    // Create a new step with "editing" status
-    const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
-      status: 'editing',
-      input: {
-        text: previousResult,
-        taskDescription: '',
-        exampleOutput: undefined
+    // For multi-step routine creation, redirect to the routine creation page
+    if (user) {
+      // Store the current routine in sessionStorage to continue in the routine creation page
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('routineInProgress', JSON.stringify({
+          routine,
+          nextStepText: previousResult
+        }));
       }
-    };
-    
-    const updatedRoutine = addStepToConversionRoutine(routine, newStep);
-    setRoutine(updatedRoutine);
-    
-    // Set the initial values for the new step
-    setInitialTask('');
-    setInitialText(previousResult);
+      router.push('/routines/create');
+    } else {
+      // Show login dialog for unauthenticated users
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('pendingRoutineCreation', JSON.stringify({
+          routine,
+          nextStepText: previousResult,
+          timestamp: Date.now()
+        }));
+      }
+      setShowLoginDialog(true);
+    }
   };
 
   const handleLoginAndContinue = async () => {
-    if (!initialTask || !initialText) return;
-    
     try {
       setLoading(true);
       
-      // Pass pending conversion data to the auth flow
-      await signIn({
-        taskDescription: initialTask,
-        text: initialText,
-        exampleOutput: undefined
-      });
+      // The pending conversion is already stored in sessionStorage
+      // Just trigger the sign in, and the conversion will be retried after auth
+      await signIn();
       
       setShowLoginDialog(false);
       
@@ -235,10 +235,48 @@ export default function Home() {
     }
   };
 
-  // Effect to retry pending conversion after login
+  // Effect to retry pending conversion or redirect for routine creation after login
   useEffect(() => {
     if (user && typeof window !== 'undefined') {
-      // Check for pending conversion in sessionStorage
+      // Check for pending routine creation first
+      const pendingRoutineStr = sessionStorage.getItem('pendingRoutineCreation');
+      if (pendingRoutineStr) {
+        try {
+          const pendingRoutine = JSON.parse(pendingRoutineStr);
+          const { routine, nextStepText, timestamp } = pendingRoutine;
+          
+          // Only process if recent (within 10 minutes)
+          const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
+          
+          if (isRecent && routine && nextStepText) {
+            console.log('Redirecting to routine creation after authentication');
+            
+            // Store the routine for the creation page
+            sessionStorage.setItem('routineInProgress', JSON.stringify({
+              routine,
+              nextStepText
+            }));
+            
+            // Clear the pending routine creation
+            sessionStorage.removeItem('pendingRoutineCreation');
+            
+            // Close the login dialog if it's open
+            setShowLoginDialog(false);
+            
+            // Redirect to routine creation page
+            router.push('/routines/create');
+            return;
+          } else {
+            // Clear expired pending routine
+            sessionStorage.removeItem('pendingRoutineCreation');
+          }
+        } catch (error) {
+          console.error('Failed to parse pending routine creation:', error);
+          sessionStorage.removeItem('pendingRoutineCreation');
+        }
+      }
+      
+      // Check for pending conversion
       const pendingConversionStr = sessionStorage.getItem('pendingConversion');
       if (pendingConversionStr) {
         try {
@@ -293,62 +331,11 @@ export default function Home() {
     );
   }
 
-  // Simplified interface for authenticated users
-  if (user) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Topbar profile={{ display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null }} />
-
-        {/* Main content for authenticated users */}
-        <div className="flex-1 flex items-center justify-center">
-          <div className="max-w-2xl w-full mx-4">
-            <div className="bg-card border border-border rounded-lg shadow-md p-8 text-center">
-              <h2 className="text-3xl font-bold text-foreground mb-4">Welcome back!</h2>
-              <p className="text-muted-foreground mb-8">
-                Ready to convert some text? Start a new conversion workflow or continue with a saved routine.
-              </p>
-              
-              <div className="space-y-4">
-                <button
-                  onClick={() => router.push('/convert')}
-                  className="w-full px-6 py-3 text-lg text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-semibold"
-                >
-                  Start Converting
-                </button>
-                
-                <button
-                  onClick={() => setShowConversionRoutineLibrary(true)}
-                  className="w-full px-6 py-3 text-lg text-blue-600 border-2 border-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-semibold"
-                >
-                  Browse Saved Routines
-                </button>
-              </div>
-
-              <div className="mt-8 text-sm text-muted-foreground">
-                <p>Your conversion history and routines are automatically saved.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <WorkflowLibrary
-          isOpen={showConversionRoutineLibrary}
-          onClose={() => setShowConversionRoutineLibrary(false)}
-          onReplayConversionRoutine={(savedRoutine) => {
-            replayConversionRoutine(savedRoutine, 'mock');
-            // Navigate to convert page with the routine
-            router.push('/convert');
-          }}
-        />
-      </div>
-    );
-  }
-
-  // Full conversion interface for unauthenticated users
+  // Main conversion interface for all users
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Topbar profile={null} />
+      <Topbar profile={user ? { display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null } : null} />
 
       <WorkflowTimeline
         steps={routine.steps}

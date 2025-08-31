@@ -56,8 +56,8 @@ export async function GET(request: NextRequest) {
       try {
         const pendingData = JSON.parse(decodeURIComponent(state));
         if (pendingData.taskDescription && pendingData.text) {
-          // Redirect to conversion page with pending data
-          const redirectUrl = new URL('/convert', request.url);
+          // Redirect to home page with pending data
+          const redirectUrl = new URL('/', request.url);
           redirectUrl.searchParams.set('task', pendingData.taskDescription);
           redirectUrl.searchParams.set('text', pendingData.text);
           if (pendingData.exampleOutput) {
