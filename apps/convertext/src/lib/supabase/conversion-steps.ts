@@ -1,5 +1,5 @@
 import { createClient } from './client';
-import type { Database } from './database.types';
+import type { Database, Json } from './database.types';
 import type { WorkflowStep, ConversionResult, ToolEvaluation } from '../../types/conversion';
 
 type ConversionStepRow = Database['public']['Tables']['conversion_steps']['Row'];
@@ -32,8 +32,8 @@ function workflowStepToDbInsert(
     execution_id: executionId,
     step_number: step.stepNumber,
     status: step.status,
-    input_data: step.input,
-    output_data: step.output || null,
+    input_data: step.input as unknown as Json,
+    output_data: (step.output as unknown as Json) || null,
     error_message: step.error || null,
     duration_ms: step.duration || null,
   };
@@ -78,7 +78,7 @@ export async function updateConversionStep(
   };
 
   if (updates.status) updateData.status = updates.status;
-  if (updates.output) updateData.output_data = updates.output;
+  if (updates.output) updateData.output_data = updates.output as unknown as Json;
   if (updates.error) updateData.error_message = updates.error;
   if (updates.duration) updateData.duration_ms = updates.duration;
 

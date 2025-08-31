@@ -1,13 +1,13 @@
 import { createClient } from './client';
 import type { 
   Database, 
-  ConversionRoutineStepTemplate 
+  ConversionRoutineStepTemplate,
+  Json 
 } from './database.types';
 import type { SavedConversionRoutine, ConversionRoutineExecution, WorkflowStep } from '../../types/conversion';
 
 type ConversionRoutineRow = Database['public']['Tables']['conversion_routines']['Row'];
 type ConversionRoutineInsert = Database['public']['Tables']['conversion_routines']['Insert'];
-type ConversionRoutineUpdate = Database['public']['Tables']['conversion_routines']['Update'];
 
 type RoutineExecutionRow = Database['public']['Tables']['routine_executions']['Row'];
 type RoutineExecutionInsert = Database['public']['Tables']['routine_executions']['Insert'];
@@ -19,7 +19,7 @@ function dbRowToSavedRoutine(row: ConversionRoutineRow): SavedConversionRoutine 
     id: row.id,
     name: row.name,
     description: row.description || undefined,
-    steps: row.steps as ConversionRoutineStepTemplate[],
+    steps: (row.steps as unknown) as ConversionRoutineStepTemplate[],
     createdAt: new Date(row.created_at),
     lastUsed: row.last_used ? new Date(row.last_used) : undefined,
     usageCount: row.usage_count,
@@ -57,7 +57,7 @@ export async function saveConversionRoutine(routine: SavedConversionRoutine): Pr
     owner_id: user.user.id,
     name: routine.name,
     description: routine.description || null,
-    steps: routine.steps,
+    steps: routine.steps as unknown as Json,
     usage_count: routine.usageCount,
     created_at: routine.createdAt.toISOString(),
     last_used: routine.lastUsed?.toISOString() || null,
@@ -89,7 +89,7 @@ export async function getStoredConversionRoutines(): Promise<SavedConversionRout
     .from('conversion_routines')
     .select('*')
     .eq('owner_id', user.user.id)
-    .order('last_used', { ascending: false, nullsLast: true })
+    .order('last_used', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false });
 
   if (error) {

@@ -54,26 +54,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   useEffect(() => {
+    let unsubscribe: (() => void) | null = null;
+
     // Set up auth state listener
-    const unsubscribe = onAuthStateChange(async (authUser) => {
-      setUser(authUser);
-      setLoading(false);
+    const setupAuth = async () => {
+      unsubscribe = await onAuthStateChange(async (authUser) => {
+        setUser(authUser);
+        setLoading(false);
 
-      if (authUser) {
-        await refreshProfile();
-        
-        // Migrate localStorage data to Supabase on first sign-in
-        try {
-          await migrateLocalStorageToSupabase();
-        } catch (error) {
-          console.warn('Failed to migrate localStorage data:', error);
+        if (authUser) {
+          await refreshProfile();
+          
+          // Migrate localStorage data to Supabase on first sign-in
+          try {
+            await migrateLocalStorageToSupabase();
+          } catch (error) {
+            console.warn('Failed to migrate localStorage data:', error);
+          }
+        } else {
+          setProfile(null);
         }
-      } else {
-        setProfile(null);
-      }
-    });
+      });
+    };
 
-    return unsubscribe;
+    setupAuth();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   useEffect(() => {

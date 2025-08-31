@@ -9,7 +9,7 @@ export default async function handler(
     const { code } = req.query;
 
     if (code && typeof code === 'string') {
-      const supabase = await createClient();
+      const supabase = createClient(req, res);
       
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       

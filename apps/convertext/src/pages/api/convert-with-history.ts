@@ -81,7 +81,7 @@ export default async function handler(
         tool_used: result.tool_used,
         confidence: result.confidence,
         render_mode: result.render_mode,
-        tool_args: result.tool_args,
+        tool_args: result.tool_args as any,
         error: result.error,
       };
 
