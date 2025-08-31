@@ -244,26 +244,26 @@ export default function Convert() {
   // Show loading while waiting for user auth or routine initialization
   if (!user || !routine) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p className="mt-2 text-slate-600">Loading...</p>
+        <p className="mt-2 text-muted-foreground">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header with auth */}
-      <header className="bg-white border-b border-slate-200 px-4 py-2">
+      <header className="bg-card border-b border-border px-4 py-2">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <button
               onClick={() => router.push('/')}
-              className="text-lg font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+              className="text-lg font-semibold text-foreground hover:text-primary transition-colors"
             >
               ConverText
             </button>
-            <span className="text-sm text-slate-500">Convert</span>
+            <span className="text-sm text-muted-foreground">Convert</span>
           </div>
           <AuthButton />
         </div>

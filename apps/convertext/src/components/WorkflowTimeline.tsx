@@ -252,13 +252,13 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
                 type="text"
                 value={routineName}
                 onChange={(e) => setRoutineName(e.target.value)}
-                className="text-xl font-semibold text-foreground border-none focus:ring-0 p-0"
+                className="text-xl font-semibold text-foreground bg-transparent border-none focus:ring-0 p-0"
               />
               <textarea
                 value={routineDescription}
                 onChange={(e) => setRoutineDescription(e.target.value)}
                 placeholder="Add a description..."
-                className="text-sm text-muted-foreground mt-1 w-full border-none focus:ring-0 p-0 resize-none"
+                className="text-sm text-muted-foreground bg-transparent mt-1 w-full border-none focus:ring-0 p-0 resize-none"
                 rows={1}
               />
             </div>
@@ -322,7 +322,7 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
                   value={routineName}
                   onChange={(e) => setRoutineName(e.target.value)}
                   placeholder="Enter routine name"
-                  className="w-full px-3 py-2 border border-input bg-background rounded-lg focus:border-ring focus:ring-ring"
+                  className="w-full px-4 py-2 border border-input bg-background text-foreground rounded-lg focus:border-ring focus:ring-ring"
                   autoFocus
                 />
               </div>
@@ -336,7 +336,7 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
                   onChange={(e) => setRoutineDescription(e.target.value)}
                   placeholder="Describe what this routine does..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-input bg-background rounded-lg focus:border-ring focus:ring-ring"
+                  className="w-full px-4 py-2 border border-input bg-background text-foreground rounded-lg focus:border-ring focus:ring-ring"
                 />
               </div>
             </div>

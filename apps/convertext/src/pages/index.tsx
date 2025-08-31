@@ -316,11 +316,11 @@ export default function Home() {
   // Simplified interface for authenticated users
   if (user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col">
+      <div className="min-h-screen bg-background flex flex-col">
         {/* Header with auth */}
-        <header className="bg-white border-b border-slate-200 px-4 py-2">
+        <header className="bg-card border-b border-border px-4 py-2">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 className="text-lg font-semibold text-slate-900">ConverText</h1>
+            <h1 className="text-lg font-semibold text-foreground">ConverText</h1>
             <AuthButton showConvertButton />
           </div>
         </header>
@@ -328,9 +328,9 @@ export default function Home() {
         {/* Main content for authenticated users */}
         <div className="flex-1 flex items-center justify-center">
           <div className="max-w-2xl w-full mx-4">
-            <div className="bg-white rounded-lg shadow-md p-8 text-center">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Welcome back!</h2>
-              <p className="text-gray-600 mb-8">
+            <div className="bg-card border border-border rounded-lg shadow-md p-8 text-center">
+              <h2 className="text-3xl font-bold text-foreground mb-4">Welcome back!</h2>
+              <p className="text-muted-foreground mb-8">
                 Ready to convert some text? Start a new conversion workflow or continue with a saved routine.
               </p>
               
@@ -350,7 +350,7 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="mt-8 text-sm text-gray-500">
+              <div className="mt-8 text-sm text-muted-foreground">
                 <p>Your conversion history and routines are automatically saved.</p>
               </div>
             </div>
@@ -446,12 +446,12 @@ export default function Home() {
       {/* Login Dialog */}
       {showLoginDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+          <div className="bg-card border border-border rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
             <div className="text-center">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className="text-xl font-semibold text-foreground mb-4">
                 Sign in to Continue
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-muted-foreground mb-6">
                 To start your text conversion, please sign in with Google. This will save your conversion history and allow you to reuse workflows.
               </p>
               <div className="flex space-x-3">
@@ -465,7 +465,7 @@ export default function Home() {
                       sessionStorage.removeItem('pendingConversion');
                     }
                   }}
-                  className="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2 text-sm text-muted-foreground border border-input rounded hover:bg-muted/50 transition-colors"
                   disabled={loading}
                 >
                   Cancel

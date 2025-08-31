@@ -16,14 +16,25 @@ export async function signInWithGoogle(pendingConversion?: PendingConversion) {
   
   const supabase = createClient();
   
+  // Sanitize pending conversion to avoid circular references
+  const sanitizedConversion = pendingConversion ? {
+    taskDescription: pendingConversion.taskDescription,
+    text: pendingConversion.text,
+    exampleOutput: pendingConversion.exampleOutput
+  } : null;
+  
   const redirectTo = `${window.location.origin}/api/auth/callback`;
   const options: any = { redirectTo };
   
   // Include pending conversion data in the state parameter
-  if (pendingConversion) {
-    options.queryParams = {
-      state: encodeURIComponent(JSON.stringify(pendingConversion))
-    };
+  if (sanitizedConversion) {
+    try {
+      options.queryParams = {
+        state: encodeURIComponent(JSON.stringify(sanitizedConversion))
+      };
+    } catch (jsonError) {
+      console.warn('Failed to stringify pending conversion, proceeding without state:', jsonError);
+    }
   }
   
   console.log('=== OAuth options ===', options);
