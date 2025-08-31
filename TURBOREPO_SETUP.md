@@ -7,7 +7,7 @@ This project has been converted to a Turborepo monorepo structure.
 ```
 .
 ├── apps/
-│   ├── web/          # Main DraftGen Next.js app (port 3000)
+│   ├── draft-gen/    # Main DraftGen Next.js app (port 3000)
 │   └── admin/        # Admin app placeholder (port 3001)
 ├── packages/
 │   ├── ui/           # Shared UI components library
@@ -41,7 +41,7 @@ From the root directory:
 ## Environment Variables
 
 Each app has its own `.env` file in its directory:
-- `apps/web/.env` - Environment variables for the main app
+- `apps/draft-gen/.env` - Environment variables for the main app
 - `apps/admin/.env` - Environment variables for the admin app
 
 ## Benefits
