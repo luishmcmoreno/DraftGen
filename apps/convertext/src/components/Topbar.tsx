@@ -74,6 +74,16 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
               >
                 Convert
               </Link>
+              <Link
+                href="/routines"
+                className={`transition-colors ${
+                  isActive('/routines')
+                    ? 'text-foreground font-medium'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Routines
+              </Link>
             </nav>
           </div>
           <div className="relative" ref={dropdownRef}>

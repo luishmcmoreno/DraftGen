@@ -57,7 +57,7 @@ export async function saveConversionRoutine(routine: SavedConversionRoutine): Pr
     .select('id')
     .eq('id', routine.id)
     .eq('owner_id', user.user.id)
-    .single();
+    .maybeSingle();
 
   let data, error;
   
