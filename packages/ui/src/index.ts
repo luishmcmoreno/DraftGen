@@ -1,5 +1,6 @@
 // Export all UI components here
 export * from './button'
+export * from './google-signin-button'
 export * from './card'
 export * from './template-card'
 export * from './input'

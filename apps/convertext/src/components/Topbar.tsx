@@ -7,6 +7,8 @@ import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { FileText } from 'lucide-react';
 import { useAuth } from './AuthProvider';
+import { useTheme } from './ThemeProvider';
+import { GoogleSignInButton } from '@draft-gen/ui';
 
 const ThemeToggle = dynamic(() => import('./ThemeToggle'), {
   ssr: false,
@@ -22,6 +24,7 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
   const router = useRouter();
   const pathname = usePathname();
   const { signIn, signOut } = useAuth();
+  const { resolvedTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -127,12 +130,11 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
               )}
             </div>
           ) : (
-            <button
+            <GoogleSignInButton
               onClick={() => signIn()}
-              className="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium"
-            >
-              Sign in with Google
-            </button>
+              variant={resolvedTheme === 'dark' ? 'neutral' : 'light'}
+              size="medium"
+            />
           )}
         </div>
       </div>

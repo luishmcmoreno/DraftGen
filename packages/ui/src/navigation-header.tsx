@@ -17,6 +17,7 @@ export interface NavigationHeaderProps {
   onGetStarted?: () => void
   signInLabel?: string
   getStartedLabel?: string
+  customActions?: React.ReactNode
   className?: string
 }
 
@@ -29,6 +30,7 @@ export const NavigationHeader = React.forwardRef<HTMLElement, NavigationHeaderPr
     onGetStarted,
     signInLabel = "Sign In",
     getStartedLabel = "Get Started",
+    customActions,
     className,
     ...props
   }, ref) => {
@@ -82,15 +84,21 @@ export const NavigationHeader = React.forwardRef<HTMLElement, NavigationHeaderPr
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
-            {onSignIn && (
-              <Button variant="ghost" size="sm" onClick={onSignIn}>
-                {signInLabel}
-              </Button>
-            )}
-            {onGetStarted && (
-              <Button variant="gradient" size="sm" onClick={onGetStarted}>
-                {getStartedLabel}
-              </Button>
+            {customActions ? (
+              customActions
+            ) : (
+              <>
+                {onSignIn && (
+                  <Button variant="ghost" size="sm" onClick={onSignIn}>
+                    {signInLabel}
+                  </Button>
+                )}
+                {onGetStarted && (
+                  <Button variant="gradient" size="sm" onClick={onGetStarted}>
+                    {getStartedLabel}
+                  </Button>
+                )}
+              </>
             )}
           </div>
 
@@ -128,31 +136,39 @@ export const NavigationHeader = React.forwardRef<HTMLElement, NavigationHeaderPr
               
               {/* Mobile Actions */}
               <div className="pt-4 space-y-2 border-t border-border">
-                {onSignIn && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="w-full justify-start"
-                    onClick={() => {
-                      onSignIn()
-                      setIsMobileMenuOpen(false)
-                    }}
-                  >
-                    {signInLabel}
-                  </Button>
-                )}
-                {onGetStarted && (
-                  <Button 
-                    variant="gradient" 
-                    size="sm" 
-                    className="w-full"
-                    onClick={() => {
-                      onGetStarted()
-                      setIsMobileMenuOpen(false)
-                    }}
-                  >
-                    {getStartedLabel}
-                  </Button>
+                {customActions ? (
+                  <div className="w-full flex justify-center">
+                    {customActions}
+                  </div>
+                ) : (
+                  <>
+                    {onSignIn && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full justify-start"
+                        onClick={() => {
+                          onSignIn()
+                          setIsMobileMenuOpen(false)
+                        }}
+                      >
+                        {signInLabel}
+                      </Button>
+                    )}
+                    {onGetStarted && (
+                      <Button 
+                        variant="gradient" 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => {
+                          onGetStarted()
+                          setIsMobileMenuOpen(false)
+                        }}
+                      >
+                        {getStartedLabel}
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
             </div>

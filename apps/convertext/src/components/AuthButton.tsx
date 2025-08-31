@@ -1,6 +1,8 @@
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from './AuthProvider';
+import { useTheme } from './ThemeProvider';
+import { GoogleSignInButton } from '@draft-gen/ui';
 
 interface AuthButtonProps {
   onAuthClick?: () => void; // Custom handler for authenticated users
@@ -9,6 +11,7 @@ interface AuthButtonProps {
 
 export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButtonProps = {}) {
   const { user, profile, loading, signIn, signOut } = useAuth();
+  const { resolvedTheme } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -63,12 +66,11 @@ export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButto
   }
 
   return (
-    <button
+    <GoogleSignInButton
       onClick={() => signIn()}
-      className="px-4 py-2 text-sm text-primary-foreground bg-primary hover:bg-primary/90 rounded transition-colors"
-    >
-      Sign in with Google
-    </button>
+      variant={resolvedTheme === 'dark' ? 'neutral' : 'light'}
+      size="medium"
+    />
   );
 }
 

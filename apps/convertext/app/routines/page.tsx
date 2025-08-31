@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import Topbar from '../../src/components/Topbar';
 import RoutineCard from '../../src/components/RoutineCard';
 import { useAuth } from '../../src/components/AuthProvider';
+import { useTheme } from '../../src/components/ThemeProvider';
 import { SavedConversionRoutine } from '../../src/types/conversion';
+import { GoogleSignInButton } from '@draft-gen/ui';
 import { 
   getStoredConversionRoutines, 
   deleteConversionRoutine,
@@ -14,6 +16,7 @@ import {
 
 export default function RoutinesPage() {
   const { user, signIn } = useAuth();
+  const { resolvedTheme } = useTheme();
   const router = useRouter();
   const [routines, setRoutines] = useState<SavedConversionRoutine[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,12 +108,11 @@ export default function RoutinesPage() {
               <p className="text-muted-foreground mb-4">
                 You need to sign in to view your saved conversion routines.
               </p>
-              <button
+              <GoogleSignInButton
                 onClick={() => signIn()}
-                className="px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-semibold"
-              >
-                Sign in with Google
-              </button>
+                variant={resolvedTheme === 'dark' ? 'neutral' : 'light'}
+                size="large"
+              />
             </div>
           </div>
         </main>

@@ -6,6 +6,8 @@ import Topbar from '../src/components/Topbar';
 import WorkflowTimeline from '../src/components/WorkflowTimeline';
 import WorkflowLibrary from '../src/components/WorkflowLibrary';
 import { useAuth } from '../src/components/AuthProvider';
+import { useTheme } from '../src/components/ThemeProvider';
+import { GoogleSignInButton } from '@draft-gen/ui';
 import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, ToolEvaluation } from '../src/types/conversion';
 import { 
   createNewConversionRoutineExecution, 
@@ -17,6 +19,7 @@ import {
 
 export default function Home() {
   const { user, signIn } = useAuth();
+  const { resolvedTheme } = useTheme();
   const router = useRouter();
   const [routine, setRoutine] = useState<ConversionRoutineExecution | null>(null);
   const [loading, setLoading] = useState(false);
@@ -394,20 +397,12 @@ export default function Home() {
                 >
                   Cancel
                 </button>
-                <button
+                <GoogleSignInButton
                   onClick={handleLoginAndContinue}
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors disabled:opacity-50"
-                >
-                  {loading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Signing in...
-                    </div>
-                  ) : (
-                    'Sign in with Google'
-                  )}
-                </button>
+                  variant={resolvedTheme === 'dark' ? 'neutral' : 'light'}
+                  size="medium"
+                  className="flex-1"
+                />
               </div>
             </div>
           </div>

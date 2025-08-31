@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from '@/lib/i18n';
+import { useTheme } from './ThemeProvider';
 import { 
   HeroSection, 
   FeaturesGrid, 
   NavigationHeader, 
   Footer,
   Button,
-  Card
+  Card,
+  GoogleSignInButton
 } from '@draft-gen/ui';
 import { 
   FileText, 
@@ -29,6 +31,7 @@ interface LandingPageProps {
 export default function LandingPage({ isAuthenticated, locale }: LandingPageProps) {
   const t = useTranslations('landing');
   const tCommon = useTranslations('common');
+  const { resolvedTheme } = useTheme();
   const router = useRouter();
   const [prompt, setPrompt] = useState('');
 
@@ -102,8 +105,14 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
       <NavigationHeader 
         appName={t('appName')}
         links={navLinks}
-        getStartedLabel={tCommon('loginGoogle')}
-        onGetStarted={() => router.push('/api/auth/login')}
+        customActions={
+          <GoogleSignInButton
+            onClick={() => router.push('/api/auth/login')}
+            variant={resolvedTheme === 'dark' ? 'neutral' : 'light'}
+            size="small"
+            text={tCommon('loginGoogle')}
+          />
+        }
       />
 
       <HeroSection
@@ -119,6 +128,7 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
         subtitle={t('hero.subtitle')}
         badgeText={t('hero.badge')}
         placeholderText={t('hero.placeholder')}
+        examplesText={t('hero.examples')}
         ctaText={t('hero.cta')}
         onSubmit={handlePromptSubmit}
         onGetStarted={handleGetStarted}

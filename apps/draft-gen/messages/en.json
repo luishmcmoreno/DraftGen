@@ -124,7 +124,8 @@
       "subtitle": "Create templates, transform data, and generate documents with AI. From invoices to contracts, automate your document workflow in minutes.",
       "badge": "Transform documents with AI",
       "placeholder": "Describe the document template you need... (e.g., 'Create an invoice template for my consulting business')",
-      "cta": "Start Building Now"
+      "cta": "Start Building Now",
+      "examples": "Try: \"Create a professional invoice template\" or \"Help me clean up messy contract data\""
     },
     "features": {
       "title": "Everything you need for document automation",

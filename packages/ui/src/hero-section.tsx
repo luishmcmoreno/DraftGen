@@ -11,6 +11,7 @@ export interface HeroSectionProps {
   subtitle?: string
   badgeText?: string
   placeholderText?: string
+  examplesText?: string
   ctaText?: string
   onSubmit?: (message: string) => void
   onGetStarted?: () => void
@@ -29,6 +30,7 @@ export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
     subtitle = "Create templates, transform data, and generate documents with AI. From invoices to contracts, automate your document workflow in minutes.",
     badgeText = "Transform documents with AI",
     placeholderText = "Describe the document template you need... (e.g., 'Create an invoice template for my consulting business')",
+    examplesText = "Try: \"Create a professional invoice template\" or \"Help me clean up messy contract data\"",
     ctaText = "Start Building Now",
     onSubmit,
     onGetStarted,
@@ -96,7 +98,7 @@ export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground mt-3 text-left">
-                  Try: "Create a professional invoice template" or "Help me clean up messy contract data"
+                  {examplesText}
                 </p>
               </Card>
             </div>
