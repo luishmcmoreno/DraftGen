@@ -5,7 +5,7 @@ module.exports = {
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
-    '../src/**/*.{js,ts,jsx,tsx}', // Include parent UI components
+    '../../packages/ui/src/**/*.{js,ts,jsx,tsx}', // Include UI package components
   ],
   prefix: "",
   theme: {
