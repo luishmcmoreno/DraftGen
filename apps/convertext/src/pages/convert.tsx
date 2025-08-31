@@ -14,8 +14,8 @@ import {
   saveConversionRoutineToStorage
 } from '../utils/workflow-supabase';
 
-export default function Home() {
-  const { user, signIn } = useAuth();
+export default function Convert() {
+  const { user } = useAuth();
   const router = useRouter();
   const [routine, setRoutine] = useState<ConversionRoutineExecution | null>(null);
   const [loading, setLoading] = useState(false);
@@ -23,33 +23,36 @@ export default function Home() {
   const [initialTask, setInitialTask] = useState<string>();
   const [initialText, setInitialText] = useState<string>();
   const [showConversionRoutineLibrary, setShowConversionRoutineLibrary] = useState(false);
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
+  // Initialize routine
   useEffect(() => {
     setRoutine(createNewConversionRoutineExecution());
   }, []);
 
-  const handleSubmit = async (taskDescription: string, text: string, exampleOutput?: string) => {
-    if (!taskDescription.trim() || !routine) return;
-
-    // Check if user is authenticated before proceeding with the conversion
-    if (!user) {
-      // Store pending conversion in sessionStorage for post-auth retry
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('pendingConversion', JSON.stringify({
-          taskDescription,
-          text,
-          exampleOutput,
-          timestamp: Date.now()
-        }));
-      }
+  // Handle URL query parameters (for pending conversions)
+  useEffect(() => {
+    if (router.isReady && router.query) {
+      const { task, text, example } = router.query;
       
-      // Show login dialog instead of proceeding
-      setShowLoginDialog(true);
-      setInitialTask(taskDescription);
-      setInitialText(text);
-      return;
+      if (typeof task === 'string' && typeof text === 'string') {
+        setInitialTask(task);
+        setInitialText(text);
+        
+        // Clear URL parameters after loading them
+        router.replace('/convert', undefined, { shallow: true });
+      }
     }
+  }, [router.isReady, router.query, router]);
+
+  // Redirect non-authenticated users to home
+  useEffect(() => {
+    if (!user && router.isReady) {
+      router.push('/');
+    }
+  }, [user, router]);
+
+  const handleSubmit = async (taskDescription: string, text: string, exampleOutput?: string) => {
+    if (!taskDescription.trim() || !routine || !user) return;
 
     const startTime = Date.now();
 
@@ -211,7 +214,6 @@ export default function Home() {
   const handleAddNewStep = (previousResult: string) => {
     if (!routine) return;
     
-    // Create a new step with "editing" status
     const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
       status: 'editing',
       input: {
@@ -224,72 +226,11 @@ export default function Home() {
     const updatedRoutine = addStepToConversionRoutine(routine, newStep);
     setRoutine(updatedRoutine);
     
-    // Set the initial values for the new step
     setInitialTask('');
     setInitialText(previousResult);
   };
 
-  const handleLoginAndContinue = async () => {
-    if (!initialTask || !initialText) return;
-    
-    try {
-      setLoading(true);
-      
-      // Pass pending conversion data to the auth flow
-      await signIn({
-        taskDescription: initialTask,
-        text: initialText,
-        exampleOutput: undefined
-      });
-      
-      setShowLoginDialog(false);
-      
-    } catch (error) {
-      console.error('Login failed:', error);
-      setError('Login failed. Please try again.');
-      setLoading(false);
-    }
-  };
-
-  // Effect to retry pending conversion after login
-  useEffect(() => {
-    if (user && typeof window !== 'undefined') {
-      // Check for pending conversion in sessionStorage
-      const pendingConversionStr = sessionStorage.getItem('pendingConversion');
-      if (pendingConversionStr) {
-        try {
-          const pendingConversion = JSON.parse(pendingConversionStr);
-          const { taskDescription, text, exampleOutput, timestamp } = pendingConversion;
-          
-          // Only retry if the pending conversion is recent (within 10 minutes)
-          const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
-          
-          if (isRecent && taskDescription && text) {
-            console.log('Retrying pending conversion after authentication:', { taskDescription: taskDescription.substring(0, 50) + '...', textLength: text.length });
-            
-            // Clear the pending conversion
-            sessionStorage.removeItem('pendingConversion');
-            
-            // Close the login dialog if it's open
-            setShowLoginDialog(false);
-            
-            // Retry the conversion
-            setTimeout(() => {
-              handleSubmit(taskDescription, text, exampleOutput);
-            }, 500); // Give a bit more time for auth to settle
-          } else {
-            // Clear expired pending conversion
-            sessionStorage.removeItem('pendingConversion');
-          }
-        } catch (error) {
-          console.error('Failed to parse pending conversion:', error);
-          sessionStorage.removeItem('pendingConversion');
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
+  // Clear initial values after they are used
   useEffect(() => {
     if (initialTask || initialText) {
       const timer = setTimeout(() => {
@@ -300,7 +241,8 @@ export default function Home() {
     }
   }, [initialTask, initialText]);
 
-  if (!routine) {
+  // Show loading while waiting for user auth or routine initialization
+  if (!user || !routine) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -309,70 +251,20 @@ export default function Home() {
     );
   }
 
-  // Simplified interface for authenticated users
-  if (user) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        {/* Header with auth */}
-        <header className="bg-white border-b border-slate-200 px-4 py-2">
-          <div className="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 className="text-lg font-semibold text-slate-900">ConverText</h1>
-            <AuthButton showConvertButton />
-          </div>
-        </header>
-
-        {/* Main content for authenticated users */}
-        <div className="flex-1 flex items-center justify-center">
-          <div className="max-w-2xl w-full mx-4">
-            <div className="bg-white rounded-lg shadow-md p-8 text-center">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Welcome back!</h2>
-              <p className="text-gray-600 mb-8">
-                Ready to convert some text? Start a new conversion workflow or continue with a saved routine.
-              </p>
-              
-              <div className="space-y-4">
-                <button
-                  onClick={() => router.push('/convert')}
-                  className="w-full px-6 py-3 text-lg text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-semibold"
-                >
-                  Start Converting
-                </button>
-                
-                <button
-                  onClick={() => setShowConversionRoutineLibrary(true)}
-                  className="w-full px-6 py-3 text-lg text-blue-600 border-2 border-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-semibold"
-                >
-                  Browse Saved Routines
-                </button>
-              </div>
-
-              <div className="mt-8 text-sm text-gray-500">
-                <p>Your conversion history and routines are automatically saved.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <WorkflowLibrary
-          isOpen={showConversionRoutineLibrary}
-          onClose={() => setShowConversionRoutineLibrary(false)}
-          onReplayConversionRoutine={(savedRoutine) => {
-            const replayedRoutine = replayConversionRoutine(savedRoutine, 'mock');
-            // Navigate to convert page with the routine
-            router.push('/convert');
-          }}
-        />
-      </div>
-    );
-  }
-
-  // Full conversion interface for unauthenticated users
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header with auth */}
       <header className="bg-white border-b border-slate-200 px-4 py-2">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <h1 className="text-lg font-semibold text-slate-900">ConverText</h1>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => router.push('/')}
+              className="text-lg font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+            >
+              ConverText
+            </button>
+            <span className="text-sm text-slate-500">Convert</span>
+          </div>
           <AuthButton />
         </div>
       </header>
@@ -418,53 +310,6 @@ export default function Home() {
         onClose={() => setShowConversionRoutineLibrary(false)}
         onReplayConversionRoutine={handleReplayConversionRoutine}
       />
-
-      {/* Login Dialog */}
-      {showLoginDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-            <div className="text-center">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Sign in to Continue
-              </h2>
-              <p className="text-gray-600 mb-6">
-                To start your text conversion, please sign in with Google. This will save your conversion history and allow you to reuse workflows.
-              </p>
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => {
-                    setShowLoginDialog(false);
-                    setInitialTask(undefined);
-                    setInitialText(undefined);
-                    // Clear any pending conversion
-                    if (typeof window !== 'undefined') {
-                      sessionStorage.removeItem('pendingConversion');
-                    }
-                  }}
-                  className="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleLoginAndContinue}
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors disabled:opacity-50"
-                >
-                  {loading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Signing in...
-                    </div>
-                  ) : (
-                    'Sign in with Google'
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

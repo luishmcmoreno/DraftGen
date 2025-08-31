@@ -13,11 +13,17 @@ import type { Database } from '../lib/supabase/database.types';
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type User = any; // Supabase User type
 
+interface PendingConversion {
+  taskDescription: string;
+  text: string;
+  exampleOutput?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: () => Promise<void>;
+  signIn: (pendingConversion?: PendingConversion) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -127,9 +133,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loadUser();
   }, []);
 
-  const handleSignIn = async () => {
+  const handleSignIn = async (pendingConversion?: PendingConversion) => {
+    console.log('=== handleSignIn called ===', { pendingConversion });
     try {
-      await signInWithGoogle();
+      await signInWithGoogle(pendingConversion);
     } catch (error) {
       console.error('Sign in failed:', error);
       throw error;

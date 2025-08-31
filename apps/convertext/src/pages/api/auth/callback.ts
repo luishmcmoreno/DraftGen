@@ -45,6 +45,27 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         }
         
         console.log('Auth exchange successful');
+        
+        // Check for pending conversion in the URL state parameter
+        const { state } = req.query;
+        if (state && typeof state === 'string') {
+          try {
+            const pendingData = JSON.parse(decodeURIComponent(state));
+            if (pendingData.taskDescription && pendingData.text) {
+              // Redirect to conversion page with pending data
+              const params = new URLSearchParams({
+                task: pendingData.taskDescription,
+                text: pendingData.text,
+                ...(pendingData.exampleOutput && { example: pendingData.exampleOutput })
+              });
+              return res.redirect(`/convert?${params.toString()}`);
+            }
+          } catch (err) {
+            console.log('Failed to parse state parameter:', err);
+          }
+        }
+        
+        // Default redirect to home
         return res.redirect('/');
       })
       .catch((error) => {
