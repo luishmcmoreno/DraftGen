@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Button } from '@draft-gen/ui';
 
 export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -7,19 +8,17 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
   const t = await getTranslations({ locale, namespace: 'auth' });
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+    <main className="min-h-screen flex items-center justify-center bg-background">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-gray-50">
+          <h2 className="mt-6 text-3xl font-bold text-foreground">
             {t('login.title')}
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{t('login.subtitle')}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{t('login.subtitle')}</p>
         </div>
-        <div className="mt-8 bg-white dark:bg-gray-900 py-8 px-4 shadow-card dark:shadow-card-dark sm:rounded-lg sm:px-10">
-          <a
-            href="/api/auth/login"
-            className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
+        <div className="mt-8 bg-card py-8 px-4 shadow-md sm:rounded-lg sm:px-10">
+          <Button asChild size="lg" variant="outline" className="w-full gap-3">
+            <a href="/api/auth/login">
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
@@ -39,7 +38,8 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
               />
             </svg>
             {t('login.googleCta')}
-          </a>
+            </a>
+          </Button>
         </div>
       </div>
     </main>

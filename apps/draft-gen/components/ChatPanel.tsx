@@ -2,8 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@draft-gen/ui';
-import { Textarea } from '@/components/ui/textarea';
+import { Button, Textarea } from '@draft-gen/ui';
 import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -86,7 +85,8 @@ export function ChatPanel({ messages, onSubmit, isLoading }: ChatPanelProps) {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={t('placeholder')}
-            className="resize-none pr-12"
+            className="pr-12"
+            resize="none"
             rows={3}
             disabled={isLoading}
           />

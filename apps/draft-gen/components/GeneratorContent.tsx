@@ -326,7 +326,7 @@ export function GeneratorContent() {
         <div className="w-[22.5%] border-r border-border flex flex-col">
           <div className="p-4 border-b border-border flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-medium">{t('title')}</h2>
+              <h2 className="text-lg font-medium text-foreground">{t('title')}</h2>
               {currentDsl && (
                 <Button
                   size="sm"
@@ -347,10 +347,10 @@ export function GeneratorContent() {
               )}
             </div>
             {hasUnsavedChanges && (
-              <div className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400">
+              <div className="flex items-center gap-2 text-sm text-warning">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-warning/75 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-warning"></span>
                 </span>
                 <span>{t('unsavedChanges')}</span>
               </div>

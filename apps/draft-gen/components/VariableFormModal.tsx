@@ -174,16 +174,16 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div
             ref={modalRef}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto"
+            className="bg-card rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto"
           >
             <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              <h2 className="text-xl font-semibold text-card-foreground mb-4">
                 {t('modal.title')}
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {typedVariables.length === 0 ? (
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     No variables found in this template.
                   </p>
                 ) : (
@@ -191,11 +191,11 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
                     <div key={variable.name}>
                       <label
                         htmlFor={variable.name}
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        className="block text-sm font-medium text-card-foreground mb-1"
                       >
                         {variable.label || variable.name}
                         {!variable.required && (
-                          <span className="text-gray-500 dark:text-gray-400 text-xs ml-1">
+                          <span className="text-muted-foreground text-xs ml-1">
                             (optional)
                           </span>
                         )}
@@ -209,7 +209,7 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
+                    className="flex-1 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium"
                   >
                     {t('cancel')}
                   </button>
@@ -218,7 +218,7 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
                     disabled={
                       typedVariables.length === 0 || Object.values(errors).some((e) => e !== null)
                     }
-                    className="flex-1 px-4 py-2 bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {t('submit')}
                   </button>

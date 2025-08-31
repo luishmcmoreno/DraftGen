@@ -10,10 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@draft-gen/ui';
-import { Input } from '@/components/ui/input';
+import { Button, Input, Textarea } from '@draft-gen/ui';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 
 interface SaveTemplateModalProps {
   isOpen: boolean;
