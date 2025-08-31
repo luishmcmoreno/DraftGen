@@ -95,7 +95,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           </p>
           <AuthButton />
           <p className="text-xs text-muted-foreground mt-4">
-            You can still use ConverText without signing in, but your data won't be saved.
+            You can still use ConverText without signing in, but your data won&apos;t be saved.
           </p>
         </div>
       </div>
