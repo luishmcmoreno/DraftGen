@@ -1,8 +1,15 @@
 import React from 'react';
+import { useRouter } from 'next/router';
 import { useAuth } from './AuthProvider';
 
-export function AuthButton() {
+interface AuthButtonProps {
+  onAuthClick?: () => void; // Custom handler for authenticated users
+  showConvertButton?: boolean; // Show "Convert" button for authenticated users
+}
+
+export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButtonProps = {}) {
   const { user, profile, loading, signIn, signOut } = useAuth();
+  const router = useRouter();
 
   if (loading) {
     return (
@@ -28,6 +35,22 @@ export function AuthButton() {
             {profile?.display_name || user.email}
           </span>
         </div>
+        
+        {showConvertButton && router.pathname !== '/convert' && (
+          <button
+            onClick={() => {
+              if (onAuthClick) {
+                onAuthClick();
+              } else {
+                router.push('/convert');
+              }
+            }}
+            className="px-3 py-1 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors"
+          >
+            Convert
+          </button>
+        )}
+        
         <button
           onClick={signOut}
           className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors"

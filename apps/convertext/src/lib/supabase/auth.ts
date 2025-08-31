@@ -5,8 +5,28 @@ type Profile = Database['public']['Tables']['profiles']['Row'];
 type ProfileInsert = Database['public']['Tables']['profiles']['Insert'];
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
-export async function signInWithGoogle() {
+interface PendingConversion {
+  taskDescription: string;
+  text: string;
+  exampleOutput?: string;
+}
+
+export async function signInWithGoogle(pendingConversion?: PendingConversion) {
+  console.log('=== signInWithGoogle called ===', { pendingConversion });
+  
   const supabase = createClient();
+  
+  const redirectTo = `${window.location.origin}/api/auth/callback`;
+  const options: any = { redirectTo };
+  
+  // Include pending conversion data in the state parameter
+  if (pendingConversion) {
+    options.queryParams = {
+      state: encodeURIComponent(JSON.stringify(pendingConversion))
+    };
+  }
+  
+  console.log('=== OAuth options ===', options);
   
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -14,6 +34,8 @@ export async function signInWithGoogle() {
       redirectTo: window.location.origin,
     },
   });
+
+  console.log('=== OAuth result ===', { data, error });
 
   if (error) {
     throw new Error(`Failed to sign in with Google: ${error.message}`);
