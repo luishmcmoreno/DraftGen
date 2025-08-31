@@ -1,22 +1,25 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import Topbar from '../components/Topbar';
-import WorkflowTimeline from '../components/WorkflowTimeline';
-import WorkflowLibrary from '../components/WorkflowLibrary';
-import { AuthButton, AuthGuard } from '../components/AuthButton';
-import { useAuth } from '../components/AuthProvider';
-import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, TextConversionResponse, ToolEvaluation } from '../types/conversion';
+'use client';
+
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Topbar from '../../src/components/Topbar';
+import WorkflowTimeline from '../../src/components/WorkflowTimeline';
+import WorkflowLibrary from '../../src/components/WorkflowLibrary';
+import { AuthButton, AuthGuard } from '../../src/components/AuthButton';
+import { useAuth } from '../../src/components/AuthProvider';
+import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, TextConversionResponse, ToolEvaluation } from '../../src/types/conversion';
 import { 
   createNewConversionRoutineExecution, 
   addStepToConversionRoutine, 
   updateStepStatus, 
   replayConversionRoutine,
   saveConversionRoutineToStorage
-} from '../utils/workflow-supabase';
+} from '../../src/utils/workflow-supabase';
 
-export default function Convert() {
+function ConvertContent() {
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [routine, setRoutine] = useState<ConversionRoutineExecution | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,22 +34,22 @@ export default function Convert() {
 
   // Handle URL query parameters (for pending conversions)
   useEffect(() => {
-    if (router.isReady && router.query) {
-      const { task, text, example } = router.query;
+    const task = searchParams.get('task');
+    const text = searchParams.get('text');
+    const example = searchParams.get('example');
+    
+    if (task && text) {
+      setInitialTask(task);
+      setInitialText(text);
       
-      if (typeof task === 'string' && typeof text === 'string') {
-        setInitialTask(task);
-        setInitialText(text);
-        
-        // Clear URL parameters after loading them
-        router.replace('/convert', undefined, { shallow: true });
-      }
+      // Clear URL parameters after loading them
+      router.replace('/convert');
     }
-  }, [router.isReady, router.query, router]);
+  }, [searchParams, router]);
 
   // Redirect non-authenticated users to home
   useEffect(() => {
-    if (!user && router.isReady) {
+    if (!user) {
       router.push('/');
     }
   }, [user, router]);
@@ -285,5 +288,13 @@ export default function Convert() {
         onReplayConversionRoutine={handleReplayConversionRoutine}
       />
     </div>
+  );
+}
+
+export default function Convert() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ConvertContent />
+    </Suspense>
   );
 }

@@ -1,24 +1,18 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { getProviderFromName } from '../../lib/providers';
-import { ConversionAgent } from '../../lib/agent/conversion-agent';
-import type { ToolEvaluation } from '../../types/conversion';
+import { NextRequest, NextResponse } from 'next/server';
+import { getProviderFromName } from '../../../src/lib/providers';
+import { ConversionAgent } from '../../../src/lib/agent/conversion-agent';
+import type { ToolEvaluation } from '../../../src/types/conversion';
 
 // This endpoint uses internal conversion tools for task evaluation
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ToolEvaluation | { error: string; message?: string }>
-) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+export async function POST(request: NextRequest) {
   try {
+    const body = await request.json();
     const { 
       text, 
       task_description, 
       example_output,
       provider = 'mock' 
-    } = req.body as {
+    } = body as {
       text: string;
       task_description: string;
       example_output?: string;
@@ -26,7 +20,7 @@ export default async function handler(
     };
 
     if (!text || !task_description) {
-      return res.status(400).json({ error: 'Text and task description are required' });
+      return NextResponse.json({ error: 'Text and task description are required' }, { status: 400 });
     }
 
     // Use internal conversion agent for evaluation
@@ -39,14 +33,14 @@ export default async function handler(
       example_output
     );
     
-    return res.status(200).json(evaluationData);
+    return NextResponse.json(evaluationData);
 
   } catch (error) {
     console.error('Evaluation API Error:', error);
     
-    return res.status(500).json({ 
+    return NextResponse.json({ 
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error'
-    } as any);
+    }, { status: 500 });
   }
 }

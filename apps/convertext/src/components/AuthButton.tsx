@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRouter } from 'next/router';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from './AuthProvider';
 
 interface AuthButtonProps {
@@ -10,6 +10,7 @@ interface AuthButtonProps {
 export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButtonProps = {}) {
   const { user, profile, loading, signIn, signOut } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   if (loading) {
     return (
@@ -36,7 +37,7 @@ export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButto
           </span>
         </div>
         
-        {showConvertButton && router.pathname !== '/convert' && (
+        {showConvertButton && pathname !== '/convert' && (
           <button
             onClick={() => {
               if (onAuthClick) {
@@ -63,7 +64,7 @@ export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButto
 
   return (
     <button
-      onClick={signIn}
+      onClick={() => signIn()}
       className="px-4 py-2 text-sm text-primary-foreground bg-primary hover:bg-primary/90 rounded transition-colors"
     >
       Sign in with Google

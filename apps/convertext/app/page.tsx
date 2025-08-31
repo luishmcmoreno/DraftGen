@@ -1,17 +1,19 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import Topbar from '../components/Topbar';
-import WorkflowTimeline from '../components/WorkflowTimeline';
-import WorkflowLibrary from '../components/WorkflowLibrary';
-import { useAuth } from '../components/AuthProvider';
-import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, ToolEvaluation } from '../types/conversion';
+import { useRouter } from 'next/navigation';
+import Topbar from '../src/components/Topbar';
+import WorkflowTimeline from '../src/components/WorkflowTimeline';
+import WorkflowLibrary from '../src/components/WorkflowLibrary';
+import { useAuth } from '../src/components/AuthProvider';
+import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, ToolEvaluation } from '../src/types/conversion';
 import { 
   createNewConversionRoutineExecution, 
   addStepToConversionRoutine, 
   updateStepStatus, 
   replayConversionRoutine,
   saveConversionRoutineToStorage
-} from '../utils/workflow-supabase';
+} from '../src/utils/workflow-supabase';
 
 export default function Home() {
   const { user, signIn } = useAuth();
@@ -157,8 +159,6 @@ export default function Home() {
       provider: newProvider
     }) : null);
   };
-
-
 
   const handleExampleSelect = (task: string, sampleInput?: string) => {
     setInitialTask(task);

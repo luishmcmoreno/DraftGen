@@ -1,14 +1,16 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import Topbar from '../components/Topbar';
-import RoutineCard from '../components/RoutineCard';
-import { useAuth } from '../components/AuthProvider';
-import { SavedConversionRoutine } from '../types/conversion';
+import { useRouter } from 'next/navigation';
+import Topbar from '../../src/components/Topbar';
+import RoutineCard from '../../src/components/RoutineCard';
+import { useAuth } from '../../src/components/AuthProvider';
+import { SavedConversionRoutine } from '../../src/types/conversion';
 import { 
   getStoredConversionRoutines, 
   deleteConversionRoutine,
   updateConversionRoutineUsage
-} from '../lib/supabase/conversion-routines';
+} from '../../src/lib/supabase/conversion-routines';
 
 export default function RoutinesPage() {
   const { user, signIn } = useAuth();
@@ -202,7 +204,7 @@ export default function RoutinesPage() {
                 Delete Routine
               </h2>
               <p className="text-muted-foreground mb-6">
-                Are you sure you want to delete "<strong>{routineToDelete.name}</strong>"? This action cannot be undone.
+                Are you sure you want to delete &quot;<strong>{routineToDelete.name}</strong>&quot;? This action cannot be undone.
               </p>
               <div className="flex space-x-3">
                 <button

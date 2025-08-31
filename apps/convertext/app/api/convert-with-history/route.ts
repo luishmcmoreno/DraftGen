@@ -1,27 +1,21 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { saveTextConversion } from '../../lib/supabase/text-conversions';
+import { NextRequest, NextResponse } from 'next/server';
+import { saveTextConversion } from '../../../src/lib/supabase/text-conversions';
 import { 
   createConversionStep, 
   updateConversionStep 
-} from '../../lib/supabase/conversion-steps';
-import { ConversionAgent } from '../../lib/agent/conversion-agent';
-import { getProviderFromName } from '../../lib/providers';
+} from '../../../src/lib/supabase/conversion-steps';
+import { ConversionAgent } from '../../../src/lib/agent/conversion-agent';
+import { getProviderFromName } from '../../../src/lib/providers';
 import type { 
   TextConversionResponse, 
   ConversionResult, 
   WorkflowStep 
-} from '../../types/conversion';
+} from '../../../src/types/conversion';
 
 // This endpoint uses internal conversion tools with Supabase history tracking
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<TextConversionResponse | { error: string; message?: string }>
-) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+export async function POST(request: NextRequest) {
   try {
+    const body = await request.json();
     const { 
       text, 
       task_description, 
@@ -29,7 +23,7 @@ export default async function handler(
       execution_id,
       step_number,
       example_output 
-    } = req.body as {
+    } = body as {
       text: string;
       task_description: string;
       provider?: string;
@@ -39,7 +33,7 @@ export default async function handler(
     };
 
     if (!text || !task_description) {
-      return res.status(400).json({ error: 'Text and task description are required' });
+      return NextResponse.json({ error: 'Text and task description are required' }, { status: 400 });
     }
 
     let stepId: string | undefined;
@@ -138,7 +132,7 @@ export default async function handler(
       // Don't fail the request if history saving fails
     }
 
-      return res.status(200).json(conversionData);
+      return NextResponse.json(conversionData);
 
     } catch (conversionError) {
       console.error('Conversion processing error:', conversionError);
@@ -155,18 +149,18 @@ export default async function handler(
         }
       }
       
-      return res.status(500).json({ 
+      return NextResponse.json({ 
         error: 'Conversion failed',
         message: conversionError instanceof Error ? conversionError.message : 'Unknown conversion error'
-      } as any);
+      }, { status: 500 });
     }
 
   } catch (error) {
     console.error('Conversion API Error:', error);
     
-    return res.status(500).json({ 
+    return NextResponse.json({ 
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error'
-    } as any);
+    }, { status: 500 });
   }
 }

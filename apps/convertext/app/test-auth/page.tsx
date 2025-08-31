@@ -1,5 +1,7 @@
-import { useAuth } from '../components/AuthProvider';
-import { createClient } from '../lib/supabase/client';
+'use client';
+
+import { useAuth } from '../../src/components/AuthProvider';
+import { createClient } from '../../src/lib/supabase/client';
 
 export default function TestAuth() {
   const { user, signIn, loading } = useAuth();

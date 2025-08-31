@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
+import { useRouter, usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { FileText } from 'lucide-react';
@@ -20,11 +20,12 @@ type UserProfile = {
 
 export default function Topbar({ profile }: { profile?: UserProfile | null }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { signOut } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const isActive = (path: string) => router.pathname?.includes(path);
+  const isActive = (path: string) => pathname?.includes(path);
 
   // Close dropdown when clicking outside
   useEffect(() => {

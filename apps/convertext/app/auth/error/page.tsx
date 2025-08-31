@@ -1,15 +1,19 @@
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+'use client';
 
-export default function AuthError() {
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+
+function AuthErrorContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    if (router.query.message) {
-      setError(decodeURIComponent(router.query.message as string));
+    const message = searchParams.get('message');
+    if (message) {
+      setError(decodeURIComponent(message));
     }
-  }, [router.query.message]);
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -50,5 +54,13 @@ export default function AuthError() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AuthError() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthErrorContent />
+    </Suspense>
   );
 }
