@@ -1,7 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { getProviderFromName } from '../../lib/providers';
+import { ConversionAgent } from '../../lib/agent/conversion-agent';
 import type { ToolEvaluation } from '../../types/conversion';
 
-// This endpoint integrates with the existing FastAPI backend for tool evaluation
+// This endpoint uses internal conversion tools for task evaluation
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ToolEvaluation | { error: string; message?: string }>
@@ -14,10 +16,12 @@ export default async function handler(
     const { 
       text, 
       task_description, 
+      example_output,
       provider = 'mock' 
     } = req.body as {
       text: string;
       task_description: string;
+      example_output?: string;
       provider?: string;
     };
 
@@ -25,31 +29,16 @@ export default async function handler(
       return res.status(400).json({ error: 'Text and task description are required' });
     }
 
-    // Get the existing FastAPI backend URL from environment
-    const backendUrl = process.env.CONVERTEXT_BACKEND_URL || 'http://localhost:8000';
+    // Use internal conversion agent for evaluation
+    const llmProvider = getProviderFromName(provider);
+    const conversionAgent = new ConversionAgent(llmProvider);
     
-    // Call the existing FastAPI backend
-    const response = await fetch(`${backendUrl}/evaluate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-LLM-Provider': provider,
-      },
-      body: JSON.stringify({
-        text,
-        task_description,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      return res.status(response.status).json({ 
-        error: 'Backend evaluation failed',
-        message: errorData.detail || `HTTP ${response.status}`,
-      } as any);
-    }
-
-    const evaluationData: ToolEvaluation = await response.json();
+    const evaluationData = await conversionAgent.evaluateTask(
+      text,
+      task_description,
+      example_output
+    );
+    
     return res.status(200).json(evaluationData);
 
   } catch (error) {

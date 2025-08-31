@@ -4,13 +4,15 @@ import {
   createConversionStep, 
   updateConversionStep 
 } from '../../lib/supabase/conversion-steps';
+import { ConversionAgent } from '../../lib/agent/conversion-agent';
+import { getProviderFromName } from '../../lib/providers';
 import type { 
   TextConversionResponse, 
   ConversionResult, 
   WorkflowStep 
 } from '../../types/conversion';
 
-// This endpoint integrates with the existing FastAPI backend while adding Supabase history tracking
+// This endpoint uses internal conversion tools with Supabase history tracking
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<TextConversionResponse | { error: string; message?: string }>
@@ -61,48 +63,42 @@ export default async function handler(
       }
     }
 
-    // Get the existing FastAPI backend URL from environment
-    const backendUrl = process.env.CONVERTEXT_BACKEND_URL || 'http://localhost:8000';
-    
-    // Call the existing FastAPI backend
-    const response = await fetch(`${backendUrl}/convert`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-LLM-Provider': provider,
-      },
-      body: JSON.stringify({
-        text,
-        task_description,
-        example_output,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+    // Use internal conversion agent instead of external FastAPI backend
+    try {
+      const llmProvider = getProviderFromName(provider);
+      const conversionAgent = new ConversionAgent(llmProvider);
       
-      // Update step with error if we created one
-      if (stepId) {
+      const result = await conversionAgent.processRequest({
+        text,
+        taskDescription: task_description,
+        exampleOutput: example_output,
+      });
+
+      const conversionData: TextConversionResponse = {
+        original_text: result.original_text,
+        converted_text: result.converted_text,
+        diff: result.diff,
+        tool_used: result.tool_used,
+        confidence: result.confidence,
+        render_mode: result.render_mode,
+        tool_args: result.tool_args,
+        error: result.error,
+      };
+
+      // If there was an error in conversion, update step and continue
+      if (conversionData.error && stepId) {
         try {
           await updateConversionStep(stepId, {
             status: 'error',
-            error: errorData.detail || `HTTP ${response.status}`,
+            error: conversionData.error,
           });
         } catch (updateError) {
           console.warn('Failed to update step with error:', updateError);
         }
       }
-      
-      return res.status(response.status).json({ 
-        error: 'Backend conversion failed',
-        message: errorData.detail || `HTTP ${response.status}`,
-      } as any);
-    }
 
-    const conversionData: TextConversionResponse = await response.json();
-
-    // Save to Supabase history
-    try {
+      // Save to Supabase history
+      try {
       const conversionResult: ConversionResult = {
         original_text: conversionData.original_text,
         converted_text: conversionData.converted_text,
@@ -110,9 +106,11 @@ export default async function handler(
         tool_used: conversionData.tool_used,
         confidence: conversionData.confidence,
         render_mode: conversionData.render_mode,
-        tool_args: conversionData.tool_args?.map(arg => 
-          typeof arg === 'string' ? { name: arg, value: '' } : arg
-        ),
+        tool_args: Array.isArray(conversionData.tool_args) 
+          ? conversionData.tool_args.map(arg => 
+              typeof arg === 'string' ? { name: arg, value: '' } : arg
+            )
+          : conversionData.tool_args,
         error: conversionData.error,
       };
 
@@ -140,7 +138,28 @@ export default async function handler(
       // Don't fail the request if history saving fails
     }
 
-    return res.status(200).json(conversionData);
+      return res.status(200).json(conversionData);
+
+    } catch (conversionError) {
+      console.error('Conversion processing error:', conversionError);
+      
+      // Update step with error if we created one
+      if (stepId) {
+        try {
+          await updateConversionStep(stepId, {
+            status: 'error',
+            error: conversionError instanceof Error ? conversionError.message : 'Conversion failed',
+          });
+        } catch (updateError) {
+          console.warn('Failed to update step with error:', updateError);
+        }
+      }
+      
+      return res.status(500).json({ 
+        error: 'Conversion failed',
+        message: conversionError instanceof Error ? conversionError.message : 'Unknown conversion error'
+      } as any);
+    }
 
   } catch (error) {
     console.error('Conversion API Error:', error);
