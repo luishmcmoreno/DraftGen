@@ -2,19 +2,25 @@ import { useState, useEffect } from 'react';
 import ConversationHeader from '../components/ConversationHeader';
 import WorkflowTimeline from '../components/WorkflowTimeline';
 import WorkflowLibrary from '../components/WorkflowLibrary';
+import { AuthButton, AuthGuard } from '../components/AuthButton';
+import { useAuth } from '../components/AuthProvider';
 import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, TextConversionResponse, ToolEvaluation } from '../types/conversion';
-import { createNewConversionRoutineExecution, addStepToConversionRoutine, updateStepStatus, replayConversionRoutine } from '../utils/workflow';
-import { saveConversionRoutineToStorage } from '../utils/workflow';
+import { 
+  createNewConversionRoutineExecution, 
+  addStepToConversionRoutine, 
+  updateStepStatus, 
+  replayConversionRoutine,
+  saveConversionRoutineToStorage
+} from '../utils/workflow-supabase';
 
 export default function Home() {
+  const { user } = useAuth();
   const [routine, setRoutine] = useState<ConversionRoutineExecution | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialTask, setInitialTask] = useState<string>();
   const [initialText, setInitialText] = useState<string>();
   const [showConversionRoutineLibrary, setShowConversionRoutineLibrary] = useState(false);
-
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
     setRoutine(createNewConversionRoutineExecution());
@@ -42,16 +48,15 @@ export default function Home() {
     try {
       const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
 
-      const evaluateResponse = await fetch(`${apiUrl}/evaluate`, {
+      const evaluateResponse = await fetch(`/api/evaluate-with-history`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-LLM-Provider': routine.provider,
         },
         body: JSON.stringify({
           text,
           task_description: taskDescription,
-          example_output: exampleOutput,
+          provider: routine.provider,
         }),
       });
 
@@ -66,16 +71,16 @@ export default function Home() {
         tool_args: evaluationData.tool_args || []
       };
 
-      const convertResponse = await fetch(`${apiUrl}/convert`, {
+      const convertResponse = await fetch(`/api/convert-with-history`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-LLM-Provider': routine.provider,
         },
         body: JSON.stringify({
           text,
           task_description: taskDescription,
           example_output: exampleOutput,
+          provider: routine.provider,
         }),
       });
 
@@ -223,6 +228,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Header with auth */}
+      <header className="bg-white border-b border-slate-200 px-4 py-2">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <h1 className="text-lg font-semibold text-slate-900">ConverText</h1>
+          <AuthButton />
+        </div>
+      </header>
+
       <ConversationHeader
         title={routine.name}
         provider={routine.provider}

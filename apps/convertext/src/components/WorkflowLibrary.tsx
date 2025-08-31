@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SavedConversionRoutine } from '../types/conversion';
-import { getStoredConversionRoutines, deleteConversionRoutine, updateConversionRoutineUsage } from '../utils/workflow';
+import { getStoredConversionRoutines, deleteConversionRoutine, updateConversionRoutineUsage } from '../utils/workflow-supabase';
+import { useAuth } from './AuthProvider';
 
 interface WorkflowLibraryProps {
   onReplayConversionRoutine: (routine: SavedConversionRoutine) => void;
@@ -13,15 +14,29 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
   onClose, 
   isOpen 
 }) => {
+  const { user } = useAuth();
   const [routines, setRoutines] = useState<SavedConversionRoutine[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'lastUsed' | 'usageCount'>('lastUsed');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      setRoutines(getStoredConversionRoutines());
+    if (isOpen && user) {
+      loadRoutines();
     }
-  }, [isOpen]);
+  }, [isOpen, user]);
+
+  const loadRoutines = async () => {
+    setLoading(true);
+    try {
+      const storedRoutines = await getStoredConversionRoutines();
+      setRoutines(storedRoutines);
+    } catch (error) {
+      console.error('Failed to load routines:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredRoutines = routines
     .filter(routine => 
@@ -46,16 +61,28 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
       }
     });
 
-  const handleReplayConversionRoutine = (routine: SavedConversionRoutine) => {
-    updateConversionRoutineUsage(routine.id);
-    onReplayConversionRoutine(routine);
-    onClose();
+  const handleReplayConversionRoutine = async (routine: SavedConversionRoutine) => {
+    try {
+      await updateConversionRoutineUsage(routine.id);
+      onReplayConversionRoutine(routine);
+      onClose();
+    } catch (error) {
+      console.error('Failed to update routine usage:', error);
+      // Continue with replay even if usage update fails
+      onReplayConversionRoutine(routine);
+      onClose();
+    }
   };
 
-  const handleDeleteConversionRoutine = (routineId: string) => {
+  const handleDeleteConversionRoutine = async (routineId: string) => {
     if (confirm('Are you sure you want to delete this conversion routine? This action cannot be undone.')) {
-      deleteConversionRoutine(routineId);
-      setRoutines(getStoredConversionRoutines());
+      try {
+        await deleteConversionRoutine(routineId);
+        await loadRoutines(); // Reload the list
+      } catch (error) {
+        console.error('Failed to delete routine:', error);
+        alert('Failed to delete routine. Please try again.');
+      }
     }
   };
 
@@ -75,6 +102,25 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
   };
 
   if (!isOpen) return null;
+
+  if (!user) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6 text-center">
+          <h2 className="text-2xl font-bold text-slate-800 mb-4">Sign in Required</h2>
+          <p className="text-slate-600 mb-4">
+            Please sign in to access your saved conversion routines.
+          </p>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
