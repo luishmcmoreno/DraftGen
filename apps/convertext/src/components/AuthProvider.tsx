@@ -63,42 +63,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
 
-    // Set up auth state listener
+    // Set up auth state listener and handle initial session
     const setupAuth = async () => {
-      unsubscribe = await onAuthStateChange(async (authUser) => {
-        setUser(authUser);
-        setLoading(false);
-
-        if (authUser) {
-          await refreshProfile();
-          
-          // Migrate localStorage data to Supabase on first sign-in
-          try {
-            await migrateLocalStorageToSupabase();
-          } catch (error) {
-            console.warn('Failed to migrate localStorage data:', error);
-          }
-        } else {
-          setProfile(null);
-        }
-      });
-    };
-
-    setupAuth();
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    // Handle auth session from URL (for OAuth callback)
-    const handleAuthSession = async () => {
+      // Handle auth session from URL (for OAuth callback)
       const supabase = createClient();
-      
-      // Check if there's a session in the URL hash (for implicit flow)
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       if (hashParams.get('access_token')) {
         try {
@@ -112,25 +80,66 @@ export function AuthProvider({ children }: AuthProviderProps) {
           console.error('Failed to handle auth session:', error);
         }
       }
-    };
-    
-    // Load initial user
-    const loadUser = async () => {
+
+      // Get initial session
       try {
-        await handleAuthSession();
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
-        if (currentUser) {
-          await refreshProfile();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+          // Load profile for the authenticated user
+          try {
+            const userProfile = await getUserProfile();
+            setProfile(userProfile);
+          } catch (error) {
+            console.error('Failed to load user profile:', error);
+          }
+          
+          // Migrate localStorage data to Supabase on first sign-in
+          try {
+            await migrateLocalStorageToSupabase();
+          } catch (error) {
+            console.warn('Failed to migrate localStorage data:', error);
+          }
         }
       } catch (error) {
-        console.error('Failed to get current user:', error);
-      } finally {
-        setLoading(false);
+        console.error('Failed to get initial session:', error);
+      }
+
+      // Set up auth state change listener
+      unsubscribe = await onAuthStateChange(async (authUser) => {
+        setUser(authUser);
+
+        if (authUser) {
+          // Load profile for the authenticated user
+          try {
+            const userProfile = await getUserProfile();
+            setProfile(userProfile);
+          } catch (error) {
+            console.error('Failed to load user profile:', error);
+          }
+          
+          // Migrate localStorage data to Supabase on first sign-in
+          try {
+            await migrateLocalStorageToSupabase();
+          } catch (error) {
+            console.warn('Failed to migrate localStorage data:', error);
+          }
+        } else {
+          setProfile(null);
+        }
+      });
+
+      // Set loading to false after everything is set up
+      setLoading(false);
+    };
+
+    setupAuth();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
       }
     };
-    
-    loadUser();
   }, []);
 
   const handleSignIn = async (pendingConversion?: PendingConversion) => {
