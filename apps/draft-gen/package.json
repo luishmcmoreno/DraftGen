@@ -13,10 +13,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@draft-gen/ui": "*",
     "@google/generative-ai": "^0.24.1",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.55.0",
-    "@draft-gen/ui": "*",
     "autoprefixer": "^10.4.21",
     "clsx": "^2.1.1",
     "libphonenumber-js": "^1.12.13",
@@ -27,6 +27,7 @@
     "react-dom": "19.0.0",
     "react-phone-number-input": "^3.4.12",
     "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {

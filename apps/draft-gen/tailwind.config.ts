@@ -110,8 +110,32 @@ const config: Config = {
       minHeight: {
         a4: '1123px',
       },
+      keyframes: {
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' }
+        },
+        'slide-in-from-bottom': {
+          from: { transform: 'translateY(100%)', opacity: '0' },
+          to: { transform: 'translateY(0)', opacity: '1' }
+        },
+        'slide-in-from-top': {
+          from: { transform: 'translateY(-100%)', opacity: '0' },
+          to: { transform: 'translateY(0)', opacity: '1' }
+        },
+        'zoom-in': {
+          from: { transform: 'scale(0.95)', opacity: '0' },
+          to: { transform: 'scale(1)', opacity: '1' }
+        }
+      },
+      animation: {
+        'fade-in': 'fade-in 0.3s ease-in-out',
+        'slide-in-from-bottom': 'slide-in-from-bottom 0.3s ease-out',
+        'slide-in-from-top': 'slide-in-from-top 0.3s ease-out',
+        'zoom-in': 'zoom-in 0.2s ease-out'
+      }
     },
   },
-  plugins: [],
+  plugins: [require('tailwindcss-animate')],
 };
 export default config;

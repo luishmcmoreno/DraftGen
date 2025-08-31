@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import UI package styles */
+@import '@draft-gen/ui/src/styles.css';
+
 /* Import print styles */
 @import './print.css';
 
@@ -10,130 +13,7 @@
 
 @layer base {
   :root {
-    /* Base colors - warm, professional palette from UI library */
-    --background: 251 100% 99%;
-    --foreground: 222 15% 15%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222 15% 15%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 15% 15%;
-
-    /* Primary - deep blue for trust and professionalism */
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 98%;
-    --primary-muted: 221 40% 85%;
-
-    /* Secondary - warm purple for creativity */
-    --secondary: 267 57% 78%;
-    --secondary-foreground: 222 15% 15%;
-
-    /* Muted colors for subtle backgrounds */
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
-
-    /* Accent - vibrant for highlights */
-    --accent: 262 83% 58%;
-    --accent-foreground: 0 0% 98%;
-
-    /* Document-specific colors */
-    --document: 0 0% 100%;
-    --document-border: 220 13% 91%;
-    --chat-user: 221 83% 53%;
-    --chat-assistant: 220 14% 96%;
-
-    /* Status colors */
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 98%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 98%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 221 83% 53%;
-
-    --radius: 0.75rem;
-
-    /* Gradients - key feature from UI library */
-    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(262 83% 58%));
-    --gradient-secondary: linear-gradient(135deg, hsl(267 57% 78%), hsl(221 40% 85%));
-    --gradient-subtle: linear-gradient(180deg, hsl(251 100% 99%), hsl(220 14% 96%));
-
-    /* Shadows - enhanced from UI library */
-    --shadow-sm: 0 1px 2px 0 hsl(220 13% 91% / 0.5);
-    --shadow-md: 0 4px 6px -1px hsl(220 13% 91% / 0.5), 0 2px 4px -1px hsl(220 13% 91% / 0.3);
-    --shadow-lg: 0 10px 15px -3px hsl(220 13% 91% / 0.5), 0 4px 6px -2px hsl(220 13% 91% / 0.3);
-    --shadow-glow: 0 0 0 1px hsl(221 83% 53% / 0.1), 0 4px 16px hsl(221 83% 53% / 0.15);
-
-    /* Sidebar colors */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 98%;
-    --primary-muted: 221 40% 20%;
-
-    --secondary: 267 57% 25%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 262 83% 58%;
-    --accent-foreground: 0 0% 98%;
-
-    --document: 222.2 84% 4.9%;
-    --document-border: 217.2 32.6% 17.5%;
-    --chat-user: 221 83% 53%;
-    --chat-assistant: 217.2 32.6% 17.5%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 221 83% 53%;
-
-    /* Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(262 83% 58%));
-    --gradient-secondary: linear-gradient(135deg, hsl(267 57% 25%), hsl(221 40% 20%));
-    --gradient-subtle: linear-gradient(180deg, hsl(222.2 84% 4.9%), hsl(217.2 32.6% 17.5%));
-
-    /* Dark mode shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -1px hsl(0 0% 0% / 0.2);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -2px hsl(0 0% 0% / 0.2);
-    --shadow-glow: 0 0 0 1px hsl(221 83% 53% / 0.2), 0 4px 16px hsl(221 83% 53% / 0.25);
-
-    /* Sidebar colors - dark mode */
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* App-specific custom properties that extend the base UI design system */
   }
 
   * {
