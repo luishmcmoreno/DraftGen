@@ -49,6 +49,8 @@ export default function Home() {
       return;
     }
 
+    // User is authenticated, proceed directly with conversion
+
     const startTime = Date.now();
 
     const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {

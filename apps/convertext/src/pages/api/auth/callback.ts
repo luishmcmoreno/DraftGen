@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createServerClient } from '@supabase/ssr';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   console.log('=== AUTH CALLBACK HANDLER ===');
   console.log('Method:', req.method);
   console.log('Query:', req.query);
@@ -37,20 +37,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       }
     );
 
-    supabase.auth.exchangeCodeForSession(code)
-      .then(({ data, error }) => {
-        if (error) {
-          console.error('Auth exchange error:', error);
-          return res.redirect(`/auth/error?message=${encodeURIComponent(error.message)}`);
-        }
-        
-        console.log('Auth exchange successful');
-        return res.redirect('/');
-      })
-      .catch((error) => {
-        console.error('Auth exchange exception:', error);
-        return res.redirect('/auth/error?message=Authentication%20failed');
-      });
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    
+    if (error) {
+      console.error('Auth exchange error:', error);
+      return res.redirect(`/auth/error?message=${encodeURIComponent(error.message)}`);
+    }
+    
+    console.log('Auth exchange successful');
+    return res.redirect('/');
 
   } catch (error) {
     console.error('Callback handler error:', error);
