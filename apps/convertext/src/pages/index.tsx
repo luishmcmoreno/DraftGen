@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
+import { Settings } from 'lucide-react';
 import ConversationHeader from '../components/ConversationHeader';
 import WorkflowTimeline from '../components/WorkflowTimeline';
 import WorkflowLibrary from '../components/WorkflowLibrary';
-import { AuthButton, AuthGuard } from '../components/AuthButton';
+import { AuthButton } from '../components/AuthButton';
 import { useAuth } from '../components/AuthProvider';
 import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, TextConversionResponse, ToolEvaluation } from '../types/conversion';
 import { 
@@ -304,9 +306,9 @@ export default function Home() {
 
   if (!routine) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p className="mt-2 text-slate-600">Loading...</p>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="mt-2 text-muted-foreground">Loading...</p>
       </div>
     );
   }
@@ -369,13 +371,33 @@ export default function Home() {
   }
 
   // Full conversion interface for unauthenticated users
+  const ThemeToggle = dynamic(() => import('../components/ThemeToggle'), {
+    ssr: false,
+    loading: () => null,
+  });
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Header with auth */}
-      <header className="bg-white border-b border-slate-200 px-4 py-2">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header with auth and theme */}
+      <header className="bg-card border-b border-border px-4 py-2">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <h1 className="text-lg font-semibold text-slate-900">ConverText</h1>
-          <AuthButton />
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 rounded-lg bg-gradient-primary">
+              <Settings className="h-5 w-5 text-white" />
+            </div>
+            <h1 className="text-lg font-semibold text-card-foreground">ConverText</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative group">
+              <button className="p-2 rounded-lg hover:bg-muted transition-colors">
+                <Settings className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <div className="absolute right-0 mt-2 w-48 bg-popover rounded-lg shadow-lg border border-border py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <ThemeToggle />
+              </div>
+            </div>
+            <AuthButton />
+          </div>
         </div>
       </header>
 
@@ -408,9 +430,9 @@ export default function Home() {
       />
 
       {error && (
-        <div className="px-4 py-2 bg-red-50 border-t border-red-200">
+        <div className="px-4 py-2 bg-destructive/10 border-t border-destructive/20">
           <div className="max-w-4xl mx-auto">
-            <div className="text-red-700 text-sm">{error}</div>
+            <div className="text-destructive text-sm">{error}</div>
           </div>
         </div>
       )}

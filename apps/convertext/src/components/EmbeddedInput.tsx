@@ -64,7 +64,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
   const isValid = taskDescription.trim().length > 0;
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 max-w-4xl mx-auto">
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm mb-8 max-w-4xl mx-auto">
       <form onSubmit={handleExecute}>
         <div className="space-y-4">
           {/* Task input with Send button */}
@@ -75,7 +75,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
                 onChange={(e) => setTaskDescription(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="w-full resize-none rounded-lg border-slate-300 bg-slate-50 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-3"
+                className="w-full resize-none rounded-lg border-input bg-background shadow-sm focus:border-ring focus:ring-ring text-sm px-3 py-3"
                 rows={1}
                 style={{
                   minHeight: '44px',
@@ -91,12 +91,12 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
                 className={`px-4 py-3 rounded-lg font-medium text-sm transition-all ${ 
                   isValid && !loading
                     ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
-                    : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                    : 'bg-muted text-muted-foreground cursor-not-allowed'
                 }`}
               >
                 {loading ? (
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin"></div>
                     <span>Processing</span>
                   </div>
                 ) : (
@@ -114,9 +114,9 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
 
           {/* Keyboard tip below task input */}
           {taskDescription && !loading && (
-            <div className="text-xs text-slate-500 text-center -mt-2">
-              Press <kbd className="px-1 py-0.5 bg-slate-200 rounded text-xs">⌘ Enter</kbd> or 
-              <kbd className="px-1 py-0.5 bg-slate-200 rounded text-xs">Ctrl Enter</kbd> to send
+            <div className="text-xs text-muted-foreground text-center -mt-2">
+              Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">⌘ Enter</kbd> or 
+              <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl Enter</kbd> to send
             </div>
           )}
 
@@ -126,7 +126,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Paste your content here (optional)..."
-              className="w-full resize-none rounded-lg border-slate-300 bg-slate-50 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-3"
+              className="w-full resize-none rounded-lg border-input bg-background shadow-sm focus:border-ring focus:ring-ring text-sm px-3 py-3"
               rows={3}
               disabled={loading}
             />
@@ -144,23 +144,23 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
             </button>
             
             {showAdvanced && (
-              <div className="space-y-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+              <div className="space-y-3 p-3 bg-muted/50 rounded-lg border border-border">
                 <div>
-                  <label className="text-xs font-medium text-slate-700 block mb-1">
+                  <label className="text-xs font-medium text-foreground block mb-1">
                     Example Output (optional)
                   </label>
                   <textarea
                     value={exampleOutput}
                     onChange={(e) => setExampleOutput(e.target.value)}
                     placeholder="Show an example of how you want the output to look..."
-                    className="w-full resize-none rounded-lg border-slate-300 bg-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2"
+                    className="w-full resize-none rounded-lg border-input bg-background shadow-sm focus:border-ring focus:ring-ring text-sm px-3 py-2"
                     rows={2}
                     disabled={loading}
                   />
                 </div>
                 
                 <div>
-                  <label className="text-xs font-medium text-slate-700 block mb-1">
+                  <label className="text-xs font-medium text-foreground block mb-1">
                     Upload File
                   </label>
                   <input
@@ -174,7 +174,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs rounded-lg transition-colors"
+                    className="px-3 py-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs rounded-lg transition-colors"
                     disabled={loading}
                   >
                     Choose File

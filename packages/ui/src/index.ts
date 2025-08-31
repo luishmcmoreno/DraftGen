@@ -18,8 +18,7 @@ export * from './features-grid'
 export * from './navigation-header'
 export * from './footer'
 
-// Export styles
-import './styles.css'
+// Note: Global styles should be imported directly in the app's _app file
 
 // Export utilities
 export * from './utils'

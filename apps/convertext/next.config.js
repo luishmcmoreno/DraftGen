@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  transpilePackages: ['@draft-gen/ui'],
+  experimental: {
+    externalDir: true,
+  },
 }
 
 module.exports = nextConfig 

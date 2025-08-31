@@ -16,7 +16,7 @@ const TaskInput: React.FC<TaskInputProps> = ({
       <div className="space-y-2">
         <label
           htmlFor="task-description"
-          className="block text-sm font-medium text-slate-700"
+          className="block text-sm font-medium text-foreground"
         >
           What do you want to do with the content?
         </label>
@@ -25,13 +25,13 @@ const TaskInput: React.FC<TaskInputProps> = ({
           id="task-description"
           value={taskDescription}
           onChange={(e) => setTaskDescription(e.target.value)}
-          className="block w-full rounded-lg border-slate-300 bg-slate-50 shadow-sm focus:border-teal-500 focus:ring-teal-500 sm:text-sm px-3 py-2"
+          className="block w-full rounded-lg border-input bg-background shadow-sm focus:border-ring focus:ring-ring sm:text-sm px-3 py-2"
           placeholder="e.g. Capitalize all items in column department"
         />
       </div>
       <button
         onClick={onExecute}
-        className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+        className="px-3 py-2 bg-primary text-primary-foreground text-xs rounded-lg hover:bg-primary/90 transition-colors"
       >
         Execute
       </button>

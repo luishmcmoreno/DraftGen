@@ -15,7 +15,7 @@ export default function AgentExplanation({ provider, agentReasoning, selectedToo
       </h3>
       <div className="space-y-4">
         {agentReasoning ? (
-          <div className="bg-white/90 border border-blue-300 rounded-md p-4 shadow">
+          <div className="bg-card/90 border border-blue-300 rounded-md p-4 shadow">
             <h4 className="font-medium text-blue-800 mb-2">Agent Reasoning:</h4>
             <p className="text-sm text-blue-700">{agentReasoning}</p>
             {selectedTool && (

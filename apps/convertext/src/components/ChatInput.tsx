@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Button } from '@draft-gen/ui';
+import { Textarea } from '@draft-gen/ui';
+import { Send, Upload } from 'lucide-react';
 
 interface ChatInputProps {
   onSubmit: (taskDescription: string, text: string, exampleOutput?: string) => void;
@@ -64,18 +67,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const isValid = taskDescription.trim().length > 0;
 
   return (
-    <div className="border-t border-slate-200 bg-white px-4 py-4">
+    <div className="border-t border-border bg-card px-4 py-4">
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
         <div className="space-y-4">
           {/* Task input with Send button */}
           <div className="flex space-x-3">
             <div className="flex-1">
-              <textarea
+              <Textarea
                 value={taskDescription}
                 onChange={(e) => setTaskDescription(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="w-full resize-none rounded-lg border-slate-300 bg-slate-50 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-3"
+                className="w-full resize-none text-sm"
                 rows={1}
                 style={{
                   minHeight: '44px',
@@ -85,47 +88,41 @@ const ChatInput: React.FC<ChatInputProps> = ({
               />
             </div>
             <div className="flex items-end">
-              <button
+              <Button
                 type="submit"
                 disabled={!isValid || loading}
-                className={`px-4 py-3 rounded-lg font-medium text-sm transition-all ${
-                  isValid && !loading
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
-                    : 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                }`}
+                className="px-4 py-3"
               >
                 {loading ? (
                   <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                     <span>Processing</span>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
+                    <Send className="w-4 h-4" />
                     <span>Send</span>
                   </div>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* Keyboard tip below task input */}
           {taskDescription && !loading && (
-            <div className="text-xs text-slate-500 text-center -mt-2">
-              Press <kbd className="px-1 py-0.5 bg-slate-200 rounded text-xs">⌘ Enter</kbd> or 
-              <kbd className="px-1 py-0.5 bg-slate-200 rounded text-xs">Ctrl Enter</kbd> to send
+            <div className="text-xs text-muted-foreground text-center -mt-2">
+              Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">⌘ Enter</kbd> or 
+              <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl Enter</kbd> to send
             </div>
           )}
 
           {/* Content input - always visible */}
           <div>
-            <textarea
+            <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Paste your content here (optional)..."
-              className="w-full resize-none rounded-lg border-slate-300 bg-slate-50 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-3"
+              className="w-full resize-none text-sm"
               rows={3}
               disabled={loading}
             />
@@ -137,30 +134,30 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <button
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                className="text-xs text-primary hover:text-primary/80 font-medium"
                 disabled={loading}
               >
                 {showAdvanced ? 'Hide' : 'Show'} advanced options
               </button>
               
               {showAdvanced && (
-                <div className="space-y-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="space-y-3 p-3 bg-muted/50 rounded-lg border border-border">
                   <div>
-                    <label className="text-xs font-medium text-slate-700 block mb-1">
+                    <label className="text-xs font-medium text-foreground block mb-1">
                       Example Output (optional)
                     </label>
-                    <textarea
+                    <Textarea
                       value={exampleOutput}
                       onChange={(e) => setExampleOutput(e.target.value)}
                       placeholder="Show an example of how you want the output to look..."
-                      className="w-full resize-none rounded-lg border-slate-300 bg-white shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2"
+                      className="w-full resize-none text-sm"
                       rows={2}
                       disabled={loading}
                     />
                   </div>
                   
                   <div>
-                    <label className="text-xs font-medium text-slate-700 block mb-1">
+                    <label className="text-xs font-medium text-foreground block mb-1">
                       Upload File
                     </label>
                     <input
@@ -171,14 +168,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
                       className="hidden"
                       disabled={loading}
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs rounded-lg transition-colors"
                       disabled={loading}
                     >
+                      <Upload className="h-4 w-4 mr-2" />
                       Choose File
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}

@@ -2,83 +2,189 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-slate-50 font-sans;
-}
+/* Import UI package styles */
+@import '@draft-gen/ui/src/styles.css';
 
-/* Chat-specific styles */
-.chat-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: rgb(203 213 225) transparent;
-}
-
-.chat-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chat-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chat-scroll::-webkit-scrollbar-thumb {
-  background-color: rgb(203 213 225);
-  border-radius: 3px;
-}
-
-.chat-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(148 163 184);
-}
-
-/* Smooth animations for chat elements */
-.chat-message {
-  animation: slideInUp 0.3s ease-out;
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+@layer base {
+  * {
+    @apply border-border;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  body {
+    @apply bg-background text-foreground antialiased transition-colors duration-200;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight text-foreground;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-xl;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+
+  /* Restore list styles (Tailwind resets them by default) */
+  ul {
+    list-style-type: disc;
+    padding-left: 2rem;
+  }
+
+  ol {
+    list-style-type: decimal;
+    padding-left: 2rem;
+  }
+
+  li {
+    display: list-item;
+  }
+
+  /* Nested lists */
+  ul ul {
+    list-style-type: circle;
+  }
+
+  ul ul ul {
+    list-style-type: square;
+  }
+
+  ol ol {
+    list-style-type: lower-alpha;
   }
 }
 
-/* Custom scrollbar for code blocks */
-pre::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
-}
-
-pre::-webkit-scrollbar-track {
-  background: rgb(241 245 249);
-  border-radius: 4px;
-}
-
-pre::-webkit-scrollbar-thumb {
-  background: rgb(203 213 225);
-  border-radius: 4px;
-}
-
-pre::-webkit-scrollbar-thumb:hover {
-  background: rgb(148 163 184);
-}
-
-/* Focus styles for better accessibility */
-textarea:focus,
-input:focus,
-select:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59 130 246 / 0.1);
-}
-
-/* Typing indicator animation */
-@keyframes bounce {
-  0%, 80%, 100% {
-    transform: scale(0);
+@layer components {
+  /* Chat-specific styles using design tokens */
+  .chat-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground)) transparent;
   }
-  40% {
-    transform: scale(1);
+
+  .chat-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .chat-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .chat-scroll::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground));
+    border-radius: 3px;
+  }
+
+  .chat-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.8);
+  }
+
+  /* Smooth animations for chat elements */
+  .chat-message {
+    animation: slideInUp 0.3s ease-out;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Custom scrollbar for code blocks */
+  pre::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+
+  pre::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+
+  pre::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground));
+    border-radius: 4px;
+  }
+
+  pre::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.8);
+  }
+
+  /* Focus styles for better accessibility */
+  textarea:focus,
+  input:focus,
+  select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1);
+  }
+
+  /* Typing indicator animation */
+  @keyframes bounce {
+    0%, 80%, 100% {
+      transform: scale(0);
+    }
+    40% {
+      transform: scale(1);
+    }
+  }
+
+  /* Workflow step cards */
+  .workflow-step-card {
+    @apply bg-card border border-border rounded-lg p-4 shadow-sm transition-colors;
+  }
+
+  .workflow-step-card:hover {
+    @apply shadow-md;
+  }
+
+  /* Status indicators */
+  .status-running {
+    @apply text-warning;
+  }
+
+  .status-completed {
+    @apply text-success;
+  }
+
+  .status-error {
+    @apply text-destructive;
+  }
+
+  .status-idle {
+    @apply text-muted-foreground;
+  }
+
+  .status-editing {
+    @apply text-primary;
+  }
+
+  /* Diff viewer styles */
+  .diff-viewer {
+    @apply bg-card border border-border rounded-lg overflow-hidden;
+  }
+
+  .diff-addition {
+    @apply bg-success/10 text-success;
+  }
+
+  .diff-deletion {
+    @apply bg-destructive/10 text-destructive;
+  }
+
+  .diff-neutral {
+    @apply text-muted-foreground;
   }
 }
