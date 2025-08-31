@@ -10,28 +10,28 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const origin = requestUrl.origin;
 
-  // Get the referer to check for locale and redirect
+  // Get the referer to check for locale and redirect parameter from request URL
   const referer = request.headers.get('referer');
   let callbackUrl = `${origin}/auth/callback`;
   let redirect = '';
+
+  // Check if there's a redirect parameter in the request URL
+  const redirectParam = requestUrl.searchParams.get('redirect');
+  if (redirectParam) {
+    redirect = redirectParam;
+    // Store the redirect in a cookie so we can use it after OAuth callback
+    cookieStore.set('auth_redirect', redirect, { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 300 // 5 minutes
+    });
+  }
 
   if (referer) {
     const refererUrl = new URL(referer);
     const pathSegments = refererUrl.pathname.split('/').filter(Boolean);
     const locale = pathSegments[0];
-    
-    // Check if there's a redirect parameter in the referer URL
-    const redirectParam = refererUrl.searchParams.get('redirect');
-    if (redirectParam) {
-      redirect = redirectParam;
-      // Store the redirect in a cookie so we can use it after OAuth callback
-      cookieStore.set('auth_redirect', redirect, { 
-        httpOnly: true, 
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 300 // 5 minutes
-      });
-    }
 
     // If the referer has a locale prefix, use it in the callback
     if (['en', 'pt'].includes(locale)) {
