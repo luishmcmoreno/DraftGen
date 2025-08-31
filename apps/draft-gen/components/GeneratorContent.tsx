@@ -8,7 +8,7 @@ import { Viewer } from '@/components/Viewer';
 import { createClient } from '@/lib/supabase/client';
 import { DocumentSchema } from '@/lib/dslValidator';
 import { extractVariables } from '@/utils/extractVariables';
-import { Button } from '@/components/ui/button';
+import { Button } from '@draft-gen/ui';
 import { Save } from 'lucide-react';
 import { SaveTemplateModal } from '@/components/SaveTemplateModal';
 import { useToast } from '@/hooks/use-toast';

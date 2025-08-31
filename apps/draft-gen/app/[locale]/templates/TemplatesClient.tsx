@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import TemplateCard from '@/components/TemplateCard';
+import { TemplateCard } from '@draft-gen/ui';
 import VariableFormModal from '@/components/VariableFormModal';
 import DeleteTemplateModal from '@/components/DeleteTemplateModal';
 import { Database } from '@/lib/supabase/database.types';
 import { useToast } from '@/hooks/use-toast';
+import { formatDate } from '@/utils/formatDate';
 
 type Template = Database['public']['Tables']['templates']['Row'];
 
@@ -82,8 +83,16 @@ export default function TemplatesClient({ templates: initialTemplates }: Templat
           <TemplateCard
             key={template.id}
             template={template}
+            onEdit={(templateId) => router.push(`/generator?templateId=${templateId}`)}
             onGenerate={handleGenerate}
             onDelete={handleDelete}
+            editLabel={t('card.edit')}
+            generateLabel={t('card.generate')}
+            deleteLabel={t('card.delete')}
+            createdAtLabel={t('card.createdAt')}
+            updatedAtLabel={t('card.updatedAt')}
+            moreVariablesLabel={(count) => t('card.moreVariables', { count })}
+            formatDate={formatDate}
           />
         ))}
       </div>

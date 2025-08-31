@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Button } from '@draft-gen/ui';
 import { Database } from '@/lib/supabase/database.types';
 
 type Template = Database['public']['Tables']['templates']['Row'];
