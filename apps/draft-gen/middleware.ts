@@ -10,7 +10,7 @@ const intlMiddleware = createMiddleware({
 });
 
 const publicPaths = [
-  '/login',
+  '/',  // Add root path as public for landing page
   '/auth/callback',
   '/api/auth/login',
   '/api/auth/logout',
@@ -26,12 +26,9 @@ export async function middleware(request: NextRequest) {
       pathname === path ||
       pathname.endsWith(path) ||
       pathname.includes('/auth/callback') ||
-      locales.some((locale) => pathname === `/${locale}${path}`)
+      locales.some((locale) => pathname === `/${locale}${path}`) ||
+      locales.some((locale) => pathname === `/${locale}` && path === '/') // Handle locale root paths
   );
-
-  // Check if the path is the login page
-  const isLoginPage =
-    pathname === '/login' || locales.some((locale) => pathname === `/${locale}/login`);
 
   // Update Supabase session
   const supabaseResponse = await updateSession(request);
@@ -46,20 +43,13 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect authenticated users away from login page
-  if (isLoginPage && user) {
-    const locale = locales.find((l) => pathname.startsWith(`/${l}`)) || defaultLocale;
-    const templatesPath = locale === defaultLocale ? '/templates' : `/${locale}/templates`;
-    return NextResponse.redirect(new URL(templatesPath, request.url));
-  }
-
   // Check authentication for protected routes
   if (!isPublicPath && pathname !== '/') {
     if (!user) {
-      // Get the current locale from the path
+      // Redirect to home page instead of login page
       const locale = locales.find((l) => pathname.startsWith(`/${l}`)) || defaultLocale;
-      const loginPath = locale === defaultLocale ? '/login' : `/${locale}/login`;
-      return NextResponse.redirect(new URL(loginPath, request.url));
+      const homePath = locale === defaultLocale ? '/' : `/${locale}`;
+      return NextResponse.redirect(new URL(homePath, request.url));
     }
   }
 

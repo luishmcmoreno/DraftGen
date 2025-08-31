@@ -95,7 +95,7 @@ export function ChatPanel({ messages, onSubmit, isLoading }: ChatPanelProps) {
             size="icon"
             disabled={!input.trim() || isLoading}
             className="absolute bottom-2 right-2 h-8 w-8 z-10"
-            variant="ghost"
+            variant="default"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />

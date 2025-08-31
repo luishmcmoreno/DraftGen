@@ -13,6 +13,10 @@ export * from './chat-interface'
 export * from './document-preview'
 export * from './routines-sidebar'
 export * from './document-header'
+export * from './hero-section'
+export * from './features-grid'
+export * from './navigation-header'
+export * from './footer'
 
 // Export styles
 import './styles.css'

@@ -4,6 +4,7 @@
     "tagline": "Gerador de modelos de documentos com IA",
     "getStarted": "Começar",
     "viewTemplates": "Ver Modelos",
+    "loginGoogle": "Entrar com Google",
     "nav": {
       "generator": "Gerador",
       "templates": "Modelos",
@@ -107,5 +108,75 @@
     "variable": "Variável",
     "noContent": "Nenhum conteúdo para exibir",
     "emptyState": "A visualização do seu documento aparecerá aqui"
+  },
+  "landing": {
+    "appName": "DraftGen",
+    "nav": {
+      "generator": "Gerador",
+      "templates": "Modelos",
+      "dashboard": "Painel",
+      "login": "Entrar"
+    },
+    "hero": {
+      "titlePrefix": "O Futuro da",
+      "titleHighlight": "Criação de Documentos",
+      "titleSuffix": "",
+      "subtitle": "Crie modelos, transforme dados e gere documentos com IA. De faturas a contratos, automatize seu fluxo de trabalho de documentos em minutos.",
+      "badge": "Transforme documentos com IA",
+      "placeholder": "Descreva o modelo de documento que você precisa... (ex: 'Criar um modelo de fatura para minha consultoria')",
+      "cta": "Começar Agora"
+    },
+    "features": {
+      "title": "Tudo que você precisa para automação de documentos",
+      "subtitle": "Recursos poderosos que tornam a criação, transformação e geração de documentos sem esforço.",
+      "templates": {
+        "title": "Modelos Inteligentes",
+        "description": "Crie modelos de documentos com assistência de IA. Apenas descreva o que você precisa e nós construímos."
+      },
+      "automation": {
+        "title": "Geração Instantânea",
+        "description": "Gere documentos instantaneamente com IA. Preencha as variáveis e obtenha PDFs profissionais em segundos."
+      },
+      "workflow": {
+        "title": "Automação de Fluxo",
+        "description": "Automatize tarefas repetitivas de documentos. Configure uma vez, use para sempre com substituição inteligente de variáveis."
+      },
+      "multilingual": {
+        "title": "Suporte Multilíngue",
+        "description": "Crie documentos em vários idiomas. Suporte completo para inglês e português com mais em breve."
+      },
+      "collaboration": {
+        "title": "Colaboração em Equipe",
+        "description": "Compartilhe modelos com sua equipe. Colabore na criação de documentos e mantenha a consistência."
+      },
+      "security": {
+        "title": "Seguro e Privado",
+        "description": "Seus dados estão seguros conosco. Segurança de nível empresarial com autenticação Google e armazenamento criptografado."
+      }
+    },
+    "useCases": {
+      "title": "Perfeito para Cada Caso de Uso",
+      "subtitle": "Seja você uma empresa ou indivíduo, o DraftGen se adapta às suas necessidades",
+      "business": {
+        "title": "Para Empresas",
+        "item1": "Gere faturas, contratos e propostas",
+        "item2": "Crie documentos e acordos de funcionários",
+        "item3": "Automatize comunicações e relatórios de clientes"
+      },
+      "personal": {
+        "title": "Para Indivíduos",
+        "item1": "Crie currículos e cartas de apresentação",
+        "item2": "Gere contratos de aluguel e acordos",
+        "item3": "Construa modelos de documentos pessoais"
+      }
+    },
+    "cta": {
+      "title": "Pronto para Transformar seu Fluxo de Documentos?",
+      "subtitle": "Junte-se a milhares de usuários que já estão economizando horas na criação de documentos",
+      "button": "Comece Gratuitamente"
+    },
+    "footer": {
+      "copyright": "Todos os direitos reservados. Construído com automação de documentos alimentada por IA."
+    }
   }
 }

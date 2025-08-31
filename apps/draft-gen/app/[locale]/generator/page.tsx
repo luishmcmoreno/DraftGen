@@ -1,7 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import Topbar from '@/components/Topbar';
 import { requireAuth, getProfile } from '@/lib/supabase/auth';
-import { GeneratorContent } from '@/components/GeneratorContent';
+import { GeneratorPageClient } from '@/components/GeneratorPageClient';
 
 export default async function GeneratorPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -14,7 +14,7 @@ export default async function GeneratorPage({ params }: { params: Promise<{ loca
   return (
     <>
       <Topbar profile={profile} />
-      <GeneratorContent />
+      <GeneratorPageClient />
     </>
   );
 }

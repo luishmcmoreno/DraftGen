@@ -1,21 +1,37 @@
 import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 import { NextResponse, NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
+  const cookieStore = await cookies();
 
   // Get the origin from the request URL
   const requestUrl = new URL(request.url);
   const origin = requestUrl.origin;
 
-  // Get the referer to check for locale
+  // Get the referer to check for locale and redirect
   const referer = request.headers.get('referer');
   let callbackUrl = `${origin}/auth/callback`;
+  let redirect = '';
 
   if (referer) {
     const refererUrl = new URL(referer);
     const pathSegments = refererUrl.pathname.split('/').filter(Boolean);
     const locale = pathSegments[0];
+    
+    // Check if there's a redirect parameter in the referer URL
+    const redirectParam = refererUrl.searchParams.get('redirect');
+    if (redirectParam) {
+      redirect = redirectParam;
+      // Store the redirect in a cookie so we can use it after OAuth callback
+      cookieStore.set('auth_redirect', redirect, { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 300 // 5 minutes
+      });
+    }
 
     // If the referer has a locale prefix, use it in the callback
     if (['en', 'pt'].includes(locale)) {
@@ -36,12 +52,12 @@ export async function GET(request: NextRequest) {
   });
 
   if (error) {
-    return NextResponse.redirect(`${origin}/login?error=oauth_error`);
+    return NextResponse.redirect(`${origin}/?error=oauth_error`);
   }
 
   if (data?.url) {
     return NextResponse.redirect(data.url);
   }
 
-  return NextResponse.redirect(`${origin}/login?error=no_url`);
+  return NextResponse.redirect(`${origin}/?error=no_url`);
 }

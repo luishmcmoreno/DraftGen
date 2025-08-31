@@ -4,6 +4,7 @@
     "tagline": "AI-powered document template generator",
     "getStarted": "Get Started",
     "viewTemplates": "View Templates",
+    "loginGoogle": "Sign in with Google",
     "nav": {
       "generator": "Generator",
       "templates": "Templates",
@@ -107,5 +108,75 @@
     "variable": "Variable",
     "noContent": "No content to display",
     "emptyState": "Your document preview will appear here"
+  },
+  "landing": {
+    "appName": "DraftGen",
+    "nav": {
+      "generator": "Generator",
+      "templates": "Templates",
+      "dashboard": "Dashboard",
+      "login": "Sign In"
+    },
+    "hero": {
+      "titlePrefix": "The Future of",
+      "titleHighlight": "Document",
+      "titleSuffix": "Creation",
+      "subtitle": "Create templates, transform data, and generate documents with AI. From invoices to contracts, automate your document workflow in minutes.",
+      "badge": "Transform documents with AI",
+      "placeholder": "Describe the document template you need... (e.g., 'Create an invoice template for my consulting business')",
+      "cta": "Start Building Now"
+    },
+    "features": {
+      "title": "Everything you need for document automation",
+      "subtitle": "Powerful features that make document creation, transformation, and generation effortless.",
+      "templates": {
+        "title": "Smart Templates",
+        "description": "Create document templates with AI assistance. Just describe what you need and we'll build it."
+      },
+      "automation": {
+        "title": "Instant Generation",
+        "description": "Generate documents instantly with AI. Fill in the variables and get professional PDFs in seconds."
+      },
+      "workflow": {
+        "title": "Workflow Automation",
+        "description": "Automate repetitive document tasks. Set up once, use forever with smart variable substitution."
+      },
+      "multilingual": {
+        "title": "Multilingual Support",
+        "description": "Create documents in multiple languages. Full support for English and Portuguese with more coming soon."
+      },
+      "collaboration": {
+        "title": "Team Collaboration",
+        "description": "Share templates with your team. Collaborate on document creation and maintain consistency."
+      },
+      "security": {
+        "title": "Secure & Private",
+        "description": "Your data is safe with us. Enterprise-grade security with Google authentication and encrypted storage."
+      }
+    },
+    "useCases": {
+      "title": "Perfect for Every Use Case",
+      "subtitle": "Whether you're a business or individual, DraftGen adapts to your needs",
+      "business": {
+        "title": "For Businesses",
+        "item1": "Generate invoices, contracts, and proposals",
+        "item2": "Create employee documents and agreements",
+        "item3": "Automate client communications and reports"
+      },
+      "personal": {
+        "title": "For Individuals",
+        "item1": "Create resumes and cover letters",
+        "item2": "Generate rental agreements and contracts",
+        "item3": "Build personal document templates"
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your Document Workflow?",
+      "subtitle": "Join thousands of users who are already saving hours on document creation",
+      "button": "Get Started Free"
+    },
+    "footer": {
+      "copyright": "All rights reserved. Built with AI-powered document automation."
+    }
   }
 }

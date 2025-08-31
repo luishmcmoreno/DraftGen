@@ -32,6 +32,23 @@ export function GeneratorContent() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const loadedTemplateIdRef = useRef<string | null>(null);
 
+  // Listen for initial prompt event from landing page
+  useEffect(() => {
+    const handleInitialPrompt = (event: CustomEvent<string>) => {
+      const prompt = event.detail;
+      if (prompt) {
+        // Automatically submit the prompt
+        handlePromptSubmit(prompt);
+      }
+    };
+
+    window.addEventListener('initialPrompt', handleInitialPrompt as EventListener);
+    return () => {
+      window.removeEventListener('initialPrompt', handleInitialPrompt as EventListener);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!templateId) {
       // If no template, we're not in initial load mode
