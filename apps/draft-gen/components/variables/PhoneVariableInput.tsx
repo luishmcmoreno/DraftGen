@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PhoneInput, { isValidPhoneNumber, Country } from 'react-phone-number-input';
 import { ExtractedVariable } from '@/utils/extractVariablesTyped';
 import type { E164Number } from 'libphonenumber-js';
@@ -24,11 +24,17 @@ export default function PhoneVariableInput({
   const [phoneValue, setPhoneValue] = useState<E164Number | undefined>(
     (value as E164Number) || undefined
   );
+  const onErrorRef = useRef(onError);
 
   const validation = variable.validation || {};
   const defaultCountry = validation.defaultCountry || 'US';
   const placeholder = variable.placeholder || 'Enter phone number';
   const helpText = variable.helpText || 'Enter phone number with country code';
+
+  // Keep onError ref up to date
+  useEffect(() => {
+    onErrorRef.current = onError;
+  });
 
   useEffect(() => {
     if (touched && phoneValue) {
@@ -47,16 +53,16 @@ export default function PhoneVariableInput({
       }
 
       setError(errorMsg);
-      onError?.(errorMsg);
+      onErrorRef.current?.(errorMsg);
     } else if (touched && variable.required && !phoneValue) {
       const errorMsg = 'Phone number is required';
       setError(errorMsg);
-      onError?.(errorMsg);
+      onErrorRef.current?.(errorMsg);
     } else {
       setError(null);
-      onError?.(null);
+      onErrorRef.current?.(null);
     }
-  }, [phoneValue, variable, touched, onError]);
+  }, [phoneValue, variable.required, touched]);
 
   const handlePhoneChange = (value: E164Number | undefined) => {
     setPhoneValue(value);

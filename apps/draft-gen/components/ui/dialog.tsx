@@ -63,10 +63,14 @@ const DialogTrigger = React.forwardRef<HTMLButtonElement, DialogTriggerProps>(
 
     if (asChild) {
       return React.cloneElement(children as React.ReactElement, {
-        onClick: handleClick,
+        ...props,
+        onClick: (e: React.MouseEvent) => {
+          handleClick();
+          const childProps = (children as React.ReactElement<{ onClick?: (e: React.MouseEvent) => void }>).props;
+          childProps.onClick?.(e);
+        },
         ref,
-        ...props
-      });
+      } as any);
     }
 
     return (
@@ -93,19 +97,19 @@ const DialogPortal = ({ children, container }: DialogPortalProps) => {
 
   React.useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
   }, []);
 
   if (!mounted) {
     return null;
   }
 
-  if (typeof document !== 'undefined') {
-    const root = container || document.body;
-    return createPortal(children, root);
+  const root = container || (typeof document !== 'undefined' ? document.body : null);
+  
+  if (!root) {
+    return null;
   }
 
-  return null;
+  return createPortal(children, root);
 };
 
 const DialogOverlay = React.forwardRef<
@@ -140,10 +144,14 @@ const DialogClose = React.forwardRef<
 
   if (asChild) {
     return React.cloneElement(children as React.ReactElement, {
-      onClick: handleClick,
+      ...props,
+      onClick: (e: React.MouseEvent) => {
+        handleClick();
+        const childProps = (children as React.ReactElement<{ onClick?: (e: React.MouseEvent) => void }>).props;
+        childProps.onClick?.(e);
+      },
       ref,
-      ...props
-    });
+    } as any);
   }
 
   return (
