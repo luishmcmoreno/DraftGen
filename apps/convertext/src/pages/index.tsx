@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
-import { Settings } from 'lucide-react';
-import ConversationHeader from '../components/ConversationHeader';
+import Topbar from '../components/Topbar';
 import WorkflowTimeline from '../components/WorkflowTimeline';
 import WorkflowLibrary from '../components/WorkflowLibrary';
-import { AuthButton } from '../components/AuthButton';
 import { useAuth } from '../components/AuthProvider';
-import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, TextConversionResponse, ToolEvaluation } from '../types/conversion';
+import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, ToolEvaluation } from '../types/conversion';
 import { 
   createNewConversionRoutineExecution, 
   addStepToConversionRoutine, 
@@ -161,24 +158,7 @@ export default function Home() {
     }) : null);
   };
 
-  const handleNewConversionRoutine = () => {
-    if (!routine) return;
-    setRoutine(createNewConversionRoutineExecution(routine.provider));
-    setError(null);
-  };
 
-  const handleClearConversionRoutine = () => {
-    if (!routine) return;
-    setRoutine(prev => prev ? ({
-      ...prev,
-      steps: [],
-      name: 'ConverText',
-      currentStepIndex: 0,
-      status: 'idle',
-      lastUpdated: new Date()
-    }) : null);
-    setError(null);
-  };
 
   const handleExampleSelect = (task: string, sampleInput?: string) => {
     setInitialTask(task);
@@ -317,13 +297,7 @@ export default function Home() {
   if (user) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        {/* Header with auth */}
-        <header className="bg-card border-b border-border px-4 py-2">
-          <div className="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 className="text-lg font-semibold text-foreground">ConverText</h1>
-            <AuthButton showConvertButton />
-          </div>
-        </header>
+        <Topbar profile={{ display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null }} />
 
         {/* Main content for authenticated users */}
         <div className="flex-1 flex items-center justify-center">
@@ -361,7 +335,7 @@ export default function Home() {
           isOpen={showConversionRoutineLibrary}
           onClose={() => setShowConversionRoutineLibrary(false)}
           onReplayConversionRoutine={(savedRoutine) => {
-            const replayedRoutine = replayConversionRoutine(savedRoutine, 'mock');
+            replayConversionRoutine(savedRoutine, 'mock');
             // Navigate to convert page with the routine
             router.push('/convert');
           }}
@@ -371,47 +345,10 @@ export default function Home() {
   }
 
   // Full conversion interface for unauthenticated users
-  const ThemeToggle = dynamic(() => import('../components/ThemeToggle'), {
-    ssr: false,
-    loading: () => null,
-  });
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header with auth and theme */}
-      <header className="bg-card border-b border-border px-4 py-2">
-        <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 rounded-lg bg-gradient-primary">
-              <Settings className="h-5 w-5 text-white" />
-            </div>
-            <h1 className="text-lg font-semibold text-card-foreground">ConverText</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="relative group">
-              <button className="p-2 rounded-lg hover:bg-muted transition-colors">
-                <Settings className="h-4 w-4 text-muted-foreground" />
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-popover rounded-lg shadow-lg border border-border py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <ThemeToggle />
-              </div>
-            </div>
-            <AuthButton />
-          </div>
-        </div>
-      </header>
-
-      <ConversationHeader
-        title={routine.name}
-        provider={routine.provider}
-        onProviderChange={handleProviderChange}
-        onNewConversation={handleNewConversionRoutine}
-        onClearConversation={handleClearConversionRoutine}
-        onSaveWorkflow={handleSaveConversionRoutine}
-        hasEntries={routine.steps.length > 0}
-        loading={loading}
-        onOpenWorkflowLibrary={() => setShowConversionRoutineLibrary(true)}
-      />
+      <Topbar profile={null} />
 
       <WorkflowTimeline
         steps={routine.steps}

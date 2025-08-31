@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import ConversationHeader from '../components/ConversationHeader';
+import Topbar from '../components/Topbar';
 import WorkflowTimeline from '../components/WorkflowTimeline';
 import WorkflowLibrary from '../components/WorkflowLibrary';
 import { AuthButton, AuthGuard } from '../components/AuthButton';
@@ -253,33 +253,7 @@ export default function Convert() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header with auth */}
-      <header className="bg-card border-b border-border px-4 py-2">
-        <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => router.push('/')}
-              className="text-lg font-semibold text-foreground hover:text-primary transition-colors"
-            >
-              ConverText
-            </button>
-            <span className="text-sm text-muted-foreground">Convert</span>
-          </div>
-          <AuthButton />
-        </div>
-      </header>
-
-      <ConversationHeader
-        title={routine.name}
-        provider={routine.provider}
-        onProviderChange={handleProviderChange}
-        onNewConversation={handleNewConversionRoutine}
-        onClearConversation={handleClearConversionRoutine}
-        onSaveWorkflow={handleSaveConversionRoutine}
-        hasEntries={routine.steps.length > 0}
-        loading={loading}
-        onOpenWorkflowLibrary={() => setShowConversionRoutineLibrary(true)}
-      />
+      <Topbar profile={{ display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null }} />
 
       <WorkflowTimeline
         steps={routine.steps}
