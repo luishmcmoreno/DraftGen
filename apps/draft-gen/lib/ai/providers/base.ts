@@ -142,22 +142,37 @@ AVAILABLE NODE TYPES:
    - NUMBER: { "min": 0, "decimals": 2 }
    - PHONE: { "format": "INTERNATIONAL" } or { "format": "US" }
 
-RULES:
-1. Output ONLY valid JSON, nothing else - no markdown, no explanations
-2. The root must have type "document" with "children" array AND "variables" array
-3. Variables must use format \${VARIABLE_NAME} in UPPERCASE_SNAKE_CASE
-4. ALWAYS define all variables in the "variables" array with appropriate types
-5. DO NOT add empty text nodes { "type": "text", "content": "" } between elements - spacing is handled automatically
-6. Use \n for line breaks within text content to create multi-line paragraphs or sections
-7. Use appropriate node types based on content structure:
-   - Use lists for enumerations, bullet points, or numbered items
-   - Use tables for tabular data, comparisons, or structured information
-   - Use grids for side-by-side content or multi-column layouts
-   - Use page-break to separate logical sections
-8. List items and table columns can contain any valid node types as children
-9. Maintain professional document structure and formatting
-10. When updating existing templates, preserve structure while incorporating changes
-11. Infer variable types based on their names and context
+CRITICAL JSON FORMATTING RULES:
+1. Output ONLY valid JSON, nothing else - no markdown, no explanations, no code blocks
+2. ALL string values MUST properly escape special characters:
+   - Use \\n for newlines (not literal newlines)
+   - Use \\t for tabs 
+   - Use \\" for quotes inside strings
+   - Use \\\\ for literal backslashes
+3. Multi-line text content MUST use \\n escape sequences, NOT literal line breaks
+4. Example of CORRECT JSON string formatting:
+   "content": "Line 1\\nLine 2\\nLine 3"
+   NOT: "content": "Line 1
+   Line 2  
+   Line 3"
+
+DOCUMENT STRUCTURE RULES:
+5. The root must have type "document" with "children" array AND "variables" array
+6. Variables must use format \${VARIABLE_NAME} in UPPERCASE_SNAKE_CASE
+7. ALWAYS define all variables in the "variables" array with appropriate types
+8. DO NOT add empty text nodes { "type": "text", "content": "" } between elements - spacing is handled automatically
+9. Use \\n for line breaks within text content to create multi-line paragraphs or sections
+10. Use appropriate node types based on content structure:
+    - Use lists for enumerations, bullet points, or numbered items
+    - Use tables for tabular data, comparisons, or structured information
+    - Use grids for side-by-side content or multi-column layouts
+    - Use page-break to separate logical sections
+11. List items and table columns can contain any valid node types as children
+12. Maintain professional document structure and formatting
+13. When updating existing templates, preserve structure while incorporating changes
+14. Infer variable types based on their names and context
+
+IMPORTANT: Your response will be parsed with JSON.parse() - ensure perfect JSON syntax with proper escaping!
 
 COMPLEX EXAMPLE:
 {
@@ -187,13 +202,13 @@ COMPLEX EXAMPLE:
         {
           "type": "column",
           "children": [
-            { "type": "text", "content": "**Client Information:**\n\${CLIENT_NAME}\n\${CLIENT_ADDRESS}\nEmail: \${CLIENT_EMAIL}" }
+            { "type": "text", "content": "**Client Information:**\\n\${CLIENT_NAME}\\n\${CLIENT_ADDRESS}\\nEmail: \${CLIENT_EMAIL}" }
           ]
         },
         {
           "type": "column",
           "children": [
-            { "type": "text", "content": "**Provider Information:**\n\${PROVIDER_NAME}\nDate: \${AGREEMENT_DATE}\nPhone: \${CONTACT_PHONE}" }
+            { "type": "text", "content": "**Provider Information:**\\n\${PROVIDER_NAME}\\nDate: \${AGREEMENT_DATE}\\nPhone: \${CONTACT_PHONE}" }
           ]
         }
       ]
@@ -277,22 +292,12 @@ COMPLEX EXAMPLE:
       !Array.isArray(responseObj.variables) ||
       responseObj.variables.length === 0
     ) {
-      // console.log('AI response missing variables, adding them automatically');
       response = migrateTemplateVariables(response as DocumentSchema);
     }
 
     const validation = validateDsl(response);
 
     if (!validation.success) {
-      // eslint-disable-next-line no-console
-      console.error('Validation error details:', validation.error);
-      // eslint-disable-next-line no-console
-      const responseWithChildren = response as { children?: unknown[] };
-      // eslint-disable-next-line no-console
-      console.error(
-        'Invalid node at position:',
-        JSON.stringify(responseWithChildren?.children?.[19], null, 2)
-      );
       throw new Error(`Invalid AI response: ${validation.error}`);
     }
 

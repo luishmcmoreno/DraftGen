@@ -42,8 +42,6 @@ export class GeminiProvider extends BaseAIProvider {
       try {
         jsonResponse = JSON.parse(text);
       } catch {
-        // console.error('Failed to parse Gemini response:', text);
-
         // Check if the response was truncated
         if (text && text.length > 1000 && !text.trim().endsWith('}')) {
           throw new AIError(
