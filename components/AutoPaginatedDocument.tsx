@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { documentStyles } from '@/utils/documentStyles';
 import { renderNode } from '@/utils/documentRenderer';
 import { splitNodeAtHeight } from '@/utils/nodeSplitter';
-import { DocumentSchema, NodeType } from '@/lib/dslValidator';
+import { DocumentSchema, NodeType, NodeTypeEnum, ListNodeType } from '@/lib/dslValidator';
 import { EditProvider } from '@/contexts/EditContext';
 
 interface AutoPaginatedDocumentProps {
@@ -61,7 +61,7 @@ function AutoPaginatedDocumentBase({
                 return content.children[nodeIndex++];
               }
               // This shouldn't happen, but return a text node as fallback
-              return { type: 'text', content: '' };
+              return { type: NodeTypeEnum.TEXT, content: '' } as NodeType;
             });
           });
           return updatedPages;
@@ -108,7 +108,7 @@ function AutoPaginatedDocumentBase({
       document.body.appendChild(measuringContainer);
 
       // Process nodes with the ability to split them
-      const remainingNodes = [...content.children];
+      const remainingNodes: NodeType[] = [...content.children];
       const MAX_CONTENT_HEIGHT = AVAILABLE_HEIGHT; // Use full available height
 
       // Map to track original DSL indices
@@ -205,6 +205,18 @@ function AutoPaginatedDocumentBase({
 
         // Handle overflow
         if (splitResult.overflow) {
+          // Store overflow with proper type normalization for list nodes
+          let overflowNode = splitResult.overflow as NodeType;
+          
+          // Ensure list nodes have the ordered property set
+          if (overflowNode.type === NodeTypeEnum.LIST) {
+            const listNode = overflowNode as ListNodeType;
+            overflowNode = {
+              ...listNode,
+              ordered: listNode.ordered ?? false
+            } as NodeType;
+          }
+          
           // If nothing fit on this page, and page isn't empty, start a new page
           const originalIndex = nodeToOriginalIndex.get(node);
           if (!splitResult.fitsOnPage && currentPage.length > 0) {
@@ -212,20 +224,20 @@ function AutoPaginatedDocumentBase({
             currentPage = [];
             currentPageHeight = 0;
             // Add the overflow back to process on the new page
-            remainingNodes.unshift(splitResult.overflow);
+            remainingNodes.unshift(overflowNode);
             // Keep the same original index for split content
             if (originalIndex !== undefined) {
-              nodeToOriginalIndex.set(splitResult.overflow, originalIndex);
+              nodeToOriginalIndex.set(overflowNode, originalIndex);
             }
           } else if (splitResult.fitsOnPage) {
             // Part of the node fit, start new page for overflow
             newPages.push(currentPage);
             currentPage = [];
             currentPageHeight = 0;
-            remainingNodes.unshift(splitResult.overflow);
+            remainingNodes.unshift(overflowNode);
             // Keep the same original index for split content
             if (originalIndex !== undefined) {
-              nodeToOriginalIndex.set(splitResult.overflow, originalIndex);
+              nodeToOriginalIndex.set(overflowNode, originalIndex);
             }
           } else {
             // Nothing fit and page is empty - this node is too big for a page

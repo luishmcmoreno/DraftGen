@@ -107,29 +107,29 @@ export const PageBreakNode = z.object({
 
 // Forward declare the types to handle recursion
 // These need to match the actual inferred types exactly
-type ListNodeType = {
+export type ListNodeType = {
   type: NodeTypeEnum.LIST;
   ordered?: boolean;
   children: ListItemNodeType[];
 };
 
-type ListItemNodeType = {
+export type ListItemNodeType = {
   type: NodeTypeEnum.LIST_ITEM;
   children: NodeType[];
 };
 
-type TableColumnNodeType = {
+export type TableColumnNodeType = {
   type: NodeTypeEnum.TABLE_COLUMN;
   children: NodeType[];
 };
 
-type GridNodeType = {
+export type GridNodeType = {
   type: NodeTypeEnum.GRID;
   columns?: number;
   children: ColumnNodeType[];
 };
 
-type ColumnNodeType = {
+export type ColumnNodeType = {
   type: NodeTypeEnum.COLUMN;
   width?: number;
   children: NodeType[];

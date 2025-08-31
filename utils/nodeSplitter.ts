@@ -394,6 +394,11 @@ export async function splitNodeAtHeight(
     if (node.type === 'table' && tableHeader) {
       (fitsNode as any).head = tableHeader;
     }
+
+    // For lists, ensure ordered property is set with default
+    if (node.type === 'list') {
+      (fitsNode as any).ordered = (node as any).ordered ?? false;
+    }
   }
 
   if (overflowChildren.length > 0) {
@@ -409,8 +414,13 @@ export async function splitNodeAtHeight(
 
     // For ordered lists, we need to continue numbering
     // This will be handled by the renderer detecting a 'startFrom' property
-    if (node.type === 'list' && (node as any).ordered) {
-      (overflowNode as any).startFrom = fittingChildren.length + 1;
+    if (node.type === 'list') {
+      const listNode = node as any;
+      const isOrdered = listNode.ordered ?? false;
+      (overflowNode as any).ordered = isOrdered;
+      if (isOrdered) {
+        (overflowNode as any).startFrom = fittingChildren.length + 1;
+      }
     }
   }
 
