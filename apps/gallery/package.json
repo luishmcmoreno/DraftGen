@@ -1,5 +1,5 @@
 {
-  "name": "@draft-gen/ui-gallery",
+  "name": "gallery",
   "version": "0.0.1",
   "private": true,
   "scripts": {
