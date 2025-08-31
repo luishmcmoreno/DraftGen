@@ -14,13 +14,14 @@ import {
 } from '../utils/workflow-supabase';
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, signIn } = useAuth();
   const [routine, setRoutine] = useState<ConversionRoutineExecution | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialTask, setInitialTask] = useState<string>();
   const [initialText, setInitialText] = useState<string>();
   const [showConversionRoutineLibrary, setShowConversionRoutineLibrary] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   useEffect(() => {
     setRoutine(createNewConversionRoutineExecution());
@@ -28,6 +29,25 @@ export default function Home() {
 
   const handleSubmit = async (taskDescription: string, text: string, exampleOutput?: string) => {
     if (!taskDescription.trim() || !routine) return;
+
+    // Check if user is authenticated before proceeding with the conversion
+    if (!user) {
+      // Store pending conversion in sessionStorage for post-auth retry
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('pendingConversion', JSON.stringify({
+          taskDescription,
+          text,
+          exampleOutput,
+          timestamp: Date.now()
+        }));
+      }
+      
+      // Show login dialog instead of proceeding
+      setShowLoginDialog(true);
+      setInitialTask(taskDescription);
+      setInitialText(text);
+      return;
+    }
 
     const startTime = Date.now();
 
@@ -207,6 +227,61 @@ export default function Home() {
     setInitialText(previousResult);
   };
 
+  const handleLoginAndContinue = async () => {
+    try {
+      setLoading(true);
+      await signIn();
+      
+      // Login will trigger a redirect, so we store the pending task in state
+      // The task will be automatically retried after successful login
+      setShowLoginDialog(false);
+      
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError('Login failed. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  // Effect to retry pending conversion after login
+  useEffect(() => {
+    if (user && typeof window !== 'undefined') {
+      // Check for pending conversion in sessionStorage
+      const pendingConversionStr = sessionStorage.getItem('pendingConversion');
+      if (pendingConversionStr) {
+        try {
+          const pendingConversion = JSON.parse(pendingConversionStr);
+          const { taskDescription, text, exampleOutput, timestamp } = pendingConversion;
+          
+          // Only retry if the pending conversion is recent (within 10 minutes)
+          const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
+          
+          if (isRecent && taskDescription && text) {
+            console.log('Retrying pending conversion after authentication:', { taskDescription: taskDescription.substring(0, 50) + '...', textLength: text.length });
+            
+            // Clear the pending conversion
+            sessionStorage.removeItem('pendingConversion');
+            
+            // Close the login dialog if it's open
+            setShowLoginDialog(false);
+            
+            // Retry the conversion
+            setTimeout(() => {
+              handleSubmit(taskDescription, text, exampleOutput);
+            }, 500); // Give a bit more time for auth to settle
+          } else {
+            // Clear expired pending conversion
+            sessionStorage.removeItem('pendingConversion');
+          }
+        } catch (error) {
+          console.error('Failed to parse pending conversion:', error);
+          sessionStorage.removeItem('pendingConversion');
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   useEffect(() => {
     if (initialTask || initialText) {
       const timer = setTimeout(() => {
@@ -277,6 +352,53 @@ export default function Home() {
         onClose={() => setShowConversionRoutineLibrary(false)}
         onReplayConversionRoutine={handleReplayConversionRoutine}
       />
+
+      {/* Login Dialog */}
+      {showLoginDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Sign in to Continue
+              </h2>
+              <p className="text-gray-600 mb-6">
+                To start your text conversion, please sign in with Google. This will save your conversion history and allow you to reuse workflows.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowLoginDialog(false);
+                    setInitialTask(undefined);
+                    setInitialText(undefined);
+                    // Clear any pending conversion
+                    if (typeof window !== 'undefined') {
+                      sessionStorage.removeItem('pendingConversion');
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLoginAndContinue}
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors disabled:opacity-50"
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Signing in...
+                    </div>
+                  ) : (
+                    'Sign in with Google'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

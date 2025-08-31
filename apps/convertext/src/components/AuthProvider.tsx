@@ -6,6 +6,7 @@ import {
   getUserProfile,
   onAuthStateChange 
 } from '../lib/supabase/auth';
+import { createClient } from '../lib/supabase/client';
 import { migrateLocalStorageToSupabase } from '../utils/workflow-supabase';
 import type { Database } from '../lib/supabase/database.types';
 
@@ -87,20 +88,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   useEffect(() => {
+    // Handle auth session from URL (for OAuth callback)
+    const handleAuthSession = async () => {
+      const supabase = createClient();
+      
+      // Check if there's a session in the URL hash (for implicit flow)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      if (hashParams.get('access_token')) {
+        try {
+          const { error } = await supabase.auth.getSession();
+          if (error) {
+            console.error('Failed to get session:', error);
+          }
+          // Clear the hash from URL
+          window.history.replaceState(null, '', window.location.pathname);
+        } catch (error) {
+          console.error('Failed to handle auth session:', error);
+        }
+      }
+    };
+    
     // Load initial user
-    getCurrentUser()
-      .then((currentUser) => {
+    const loadUser = async () => {
+      try {
+        await handleAuthSession();
+        const currentUser = await getCurrentUser();
         setUser(currentUser);
         if (currentUser) {
-          refreshProfile();
+          await refreshProfile();
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Failed to get current user:', error);
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    
+    loadUser();
   }, []);
 
   const handleSignIn = async () => {
