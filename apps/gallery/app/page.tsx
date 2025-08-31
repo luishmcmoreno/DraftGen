@@ -160,22 +160,89 @@ export default function Gallery() {
               <CardTitle>Color System</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <div className="h-16 bg-gray-50 border rounded-md"></div>
-                  <p className="text-xs font-medium">Gray 50</p>
+              <div className="space-y-6">
+                {/* Primary Colors */}
+                <div>
+                  <h4 className="text-sm font-medium text-foreground mb-3">Primary Colors</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <div className="h-16 bg-primary rounded-md"></div>
+                      <p className="text-xs font-medium">Primary</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-16 bg-primary-muted rounded-md"></div>
+                      <p className="text-xs font-medium">Primary Muted</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-16 bg-secondary rounded-md"></div>
+                      <p className="text-xs font-medium">Secondary</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="h-16 bg-gray-100 rounded-md"></div>
-                  <p className="text-xs font-medium">Gray 100</p>
+
+                {/* Status Colors */}
+                <div>
+                  <h4 className="text-sm font-medium text-foreground mb-3">Status Colors</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                      <div className="h-16 bg-accent rounded-md"></div>
+                      <p className="text-xs font-medium">Accent</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-16 bg-success rounded-md"></div>
+                      <p className="text-xs font-medium">Success</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-16 bg-warning rounded-md"></div>
+                      <p className="text-xs font-medium">Warning</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-16 bg-destructive rounded-md"></div>
+                      <p className="text-xs font-medium">Destructive</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="h-16 bg-gray-900 rounded-md"></div>
-                  <p className="text-xs font-medium">Gray 900</p>
+
+                {/* Surface Colors */}
+                <div>
+                  <h4 className="text-sm font-medium text-foreground mb-3">Surface Colors</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                      <div className="h-16 bg-background border rounded-md"></div>
+                      <p className="text-xs font-medium">Background</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-16 bg-card border rounded-md"></div>
+                      <p className="text-xs font-medium">Card</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-16 bg-muted rounded-md"></div>
+                      <p className="text-xs font-medium">Muted</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-16 bg-popover border rounded-md shadow-sm"></div>
+                      <p className="text-xs font-medium">Popover</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="h-16 bg-white border rounded-md shadow-sm"></div>
-                  <p className="text-xs font-medium">White</p>
+
+                {/* Gradients */}
+                <div>
+                  <h4 className="text-sm font-medium text-foreground mb-3">Gradients</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <div className="h-16 bg-gradient-primary rounded-md"></div>
+                      <p className="text-xs font-medium">Primary Gradient</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-16 bg-gradient-secondary rounded-md"></div>
+                      <p className="text-xs font-medium">Secondary Gradient</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-16 bg-gradient-subtle rounded-md"></div>
+                      <p className="text-xs font-medium">Subtle Gradient</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
