@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -10,8 +10,9 @@
 /coverage
 
 # next.js
-/.next/
-/out/
+.next/
+out/
+dist/
 
 # production
 /build
@@ -52,3 +53,6 @@ Thumbs.db
 # Supabase
 supabase/.branches
 supabase/.temp
+
+# turbo
+.turbo
