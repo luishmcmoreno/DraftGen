@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@radix-ui/react-dialog": "^1.1.15",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.55.0",
     "@draft-gen/ui": "*",
