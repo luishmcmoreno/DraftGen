@@ -7,7 +7,6 @@ import type {
 import type { SavedConversionRoutine, ConversionRoutineExecution, WorkflowStep } from '../../types/conversion';
 
 type ConversionRoutineRow = Database['public']['Tables']['conversion_routines']['Row'];
-type ConversionRoutineInsert = Database['public']['Tables']['conversion_routines']['Insert'];
 
 type RoutineExecutionRow = Database['public']['Tables']['routine_executions']['Row'];
 type RoutineExecutionInsert = Database['public']['Tables']['routine_executions']['Insert'];
@@ -52,23 +51,50 @@ export async function saveConversionRoutine(routine: SavedConversionRoutine): Pr
     throw new Error('User must be authenticated to save conversion routine');
   }
 
-  const routineData: ConversionRoutineInsert = {
-    id: routine.id,
-    owner_id: user.user.id,
-    name: routine.name,
-    description: routine.description || null,
-    steps: routine.steps as unknown as Json,
-    usage_count: routine.usageCount,
-    created_at: routine.createdAt.toISOString(),
-    last_used: routine.lastUsed?.toISOString() || null,
-    updated_at: new Date().toISOString(),
-  };
-
-  const { data, error } = await supabase
+  // Check if routine already exists (for updates)
+  const { data: existing } = await supabase
     .from('conversion_routines')
-    .upsert(routineData)
-    .select()
+    .select('id')
+    .eq('id', routine.id)
+    .eq('owner_id', user.user.id)
     .single();
+
+  let data, error;
+  
+  if (existing) {
+    // Update existing routine
+    ({ data, error } = await supabase
+      .from('conversion_routines')
+      .update({
+        name: routine.name,
+        description: routine.description || null,
+        steps: routine.steps as unknown as Json,
+        usage_count: routine.usageCount,
+        last_used: routine.lastUsed?.toISOString() || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', routine.id)
+      .eq('owner_id', user.user.id)
+      .select()
+      .single());
+  } else {
+    // Insert new routine with provided ID
+    ({ data, error } = await supabase
+      .from('conversion_routines')
+      .insert({
+        id: routine.id,
+        owner_id: user.user.id,
+        name: routine.name,
+        description: routine.description || null,
+        steps: routine.steps as unknown as Json,
+        usage_count: routine.usageCount,
+        created_at: routine.createdAt.toISOString(),
+        last_used: routine.lastUsed?.toISOString() || null,
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .single());
+  }
 
   if (error) {
     throw new Error(`Failed to save conversion routine: ${error.message}`);

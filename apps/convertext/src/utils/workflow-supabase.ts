@@ -13,12 +13,11 @@ import {
 import type { 
   SavedConversionRoutine, 
   WorkflowStep, 
-  ConversionRoutineExecution,
-  ConversionRoutineStepTemplate
+  ConversionRoutineExecution
 } from '../types/conversion';
 
 export const generateId = () => {
-  return Math.random().toString(36).substr(2, 9);
+  return crypto.randomUUID();
 };
 
 export const createNewConversionRoutineExecution = (provider: string = 'mock'): ConversionRoutineExecution => {

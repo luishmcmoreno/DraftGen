@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { WorkflowStep as WorkflowStepType, SavedConversionRoutine, ConversionRoutineStepTemplate } from '../types/conversion';
+import { generateId } from '../utils/workflow-supabase';
 import WorkflowStep from './WorkflowStep';
 import EmbeddedInput from './EmbeddedInput';
 
@@ -145,7 +146,7 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
     }));
 
     const savedRoutine: SavedConversionRoutine = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       name: routineName.trim(),
       description: routineDescription.trim() || undefined,
       steps: routineTemplates,
