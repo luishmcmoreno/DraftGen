@@ -456,44 +456,54 @@ export default function Home() {
         <Topbar profile={user ? { display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null } : null} />
 
         {/* Hero Section */}
-        <section className="py-20 px-6">
+        <section className="py-24 px-6">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
                 <Sparkles className="h-4 w-4" />
-                AI-Powered Text Conversion
+                Efficient and fast AI-powered conversion
               </div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-                Transform Your Text with{' '}
-                <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-                  AI Precision
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+                Transform documents accurately with{' '}
+                <span style={{
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}>
+                  AI Agents
                 </span>
               </h1>
               
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-12">
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-16 leading-relaxed">
                 Convert, rewrite, and transform any text with powerful AI tools. 
                 From casual notes to professional documents, get instant, intelligent text transformations.
               </p>
 
               {/* Try It Now Section */}
-              <div className="bg-card border border-border rounded-xl p-6 mb-8 text-left max-w-4xl mx-auto shadow-lg">
-                <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">
-                  Try ConverText Now
-                </h2>
-                
+              <div className="bg-card border border-border rounded-xl p-8 mb-12 text-left max-w-4xl mx-auto shadow-lg">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
                       What do you want to do?
                     </label>
-                    <input
-                      type="text"
-                      value={taskDescription}
-                      onChange={(e) => setTaskDescription(e.target.value)}
-                      placeholder="e.g., Make this more professional, Convert to bullet points, Summarize this text..."
-                      className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        value={taskDescription}
+                        onChange={(e) => setTaskDescription(e.target.value)}
+                        placeholder="e.g., Remove duplicate rows from CSV, Capitalize all words, Extract email addresses, Format phone numbers..."
+                        className="flex-1 px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                      <button
+                        onClick={handleTryNow}
+                        disabled={!taskDescription.trim() || !text.trim()}
+                        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                      >
+                        Transform Text
+                      </button>
+                    </div>
                   </div>
                   
                   <div>
@@ -507,22 +517,6 @@ export default function Home() {
                       rows={4}
                       className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                     />
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <button
-                      onClick={handleTryNow}
-                      disabled={!taskDescription.trim() || !text.trim()}
-                      className="flex-1 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      Transform Text
-                    </button>
-                    <button
-                      onClick={handleGetStarted}
-                      className="px-6 py-3 rounded-lg border border-input text-foreground hover:bg-muted/50 transition-colors"
-                    >
-                      {user ? 'View My Routines' : 'Sign In for More'}
-                    </button>
                   </div>
                 </div>
               </div>
