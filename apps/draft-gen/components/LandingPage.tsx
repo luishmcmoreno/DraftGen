@@ -143,7 +143,7 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
       {/* Use Cases Section */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
+          <div className="mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-foreground mb-4">
                 {t('useCases.title')}

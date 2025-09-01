@@ -49,7 +49,7 @@ export const FeaturesGrid = React.forwardRef<HTMLElement, FeaturesGridProps>(
         {...props}
       >
         <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
+          <div className="mx-auto">
             {/* Section Header */}
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-foreground mb-4">
