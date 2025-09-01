@@ -494,14 +494,30 @@ export default function Home() {
                         value={taskDescription}
                         onChange={(e) => setTaskDescription(e.target.value)}
                         placeholder="e.g., Remove duplicate rows from CSV, Capitalize all words, Extract email addresses, Format phone numbers..."
-                        className="flex-1 px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="flex-1 px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                       />
                       <button
                         onClick={handleTryNow}
                         disabled={!taskDescription.trim() || !text.trim()}
-                        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                        className="px-6 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap shadow-sm"
+                        style={{
+                          background: !taskDescription.trim() || !text.trim() 
+                            ? 'hsl(var(--muted))' 
+                            : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                          color: 'white'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (taskDescription.trim() && text.trim()) {
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (taskDescription.trim() && text.trim()) {
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)';
+                          }
+                        }}
                       >
-                        Transform Text
+                        Convert
                       </button>
                     </div>
                   </div>
@@ -515,7 +531,7 @@ export default function Home() {
                       onChange={(e) => setText(e.target.value)}
                       placeholder="Paste or type your text here..."
                       rows={4}
-                      className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                      className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none shadow-sm"
                     />
                   </div>
                 </div>
