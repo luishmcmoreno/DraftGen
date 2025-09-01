@@ -58,11 +58,11 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
 
   return (
     <header className="border-b border-border bg-card">
-      <div className="px-4">
+      <div className="px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2 text-xl font-bold text-card-foreground">
-              <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
                 <FileText className="h-5 w-5 text-white" />
               </div>
               ConverText

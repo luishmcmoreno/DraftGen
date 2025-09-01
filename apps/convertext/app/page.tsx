@@ -455,8 +455,8 @@ export default function Home() {
       <div className="min-h-screen bg-background">
         <Topbar profile={user ? { display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null } : null} />
 
-        {/* Hero Section */}
-        <section className="pt-32 pb-24 px-6">
+        {/* Hero Section with Background Gradient */}
+        <section className="bg-gradient-subtle py-20 px-6">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
@@ -533,11 +533,16 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
 
-              {/* Examples Section - Separate from input container */}
-              <div className="max-w-6xl mx-auto">
-                <h3 className="text-lg font-semibold text-foreground mb-6 text-center">Not sure how to start? Try these examples:</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {/* Examples Section - Outside gradient background */}
+        <section className="py-16 px-6 bg-background">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-foreground mb-6">Not sure how to start? Try these examples:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {examples.map((example, index) => (
                     <div
                       key={index}
@@ -568,8 +573,7 @@ export default function Home() {
                         </svg>
                       </div>
                     </div>
-                  ))}
-                </div>
+                ))}
               </div>
             </div>
           </div>
@@ -662,7 +666,7 @@ export default function Home() {
                   Perfect for Every Use Case
                 </h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Whether you're writing for business or personal use, ConverText adapts to your needs.
+                  Whether you&apos;re writing for business or personal use, ConverText adapts to your needs.
                 </p>
               </div>
 
