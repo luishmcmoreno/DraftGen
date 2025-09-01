@@ -16,7 +16,15 @@ import {
   Globe, 
   Workflow,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Trash2,
+  Type,
+  Columns,
+  Calculator,
+  Code,
+  Mail,
+  AlignLeft,
+  Phone
 } from 'lucide-react';
 import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, ToolEvaluation } from '../src/types/conversion';
 import { 
@@ -48,9 +56,11 @@ export default function Home() {
 
   const handleTryNow = () => {
     if (!taskDescription.trim() || !text.trim()) return;
-    setInitialTask(taskDescription);
-    setInitialText(text);
     setShowWorkflow(true);
+    // Trigger the conversion immediately
+    setTimeout(() => {
+      handleSubmit(taskDescription, text);
+    }, 100);
   };
 
   const handleGetStarted = () => {
@@ -62,10 +72,81 @@ export default function Home() {
   };
 
   const examples = [
-    { task: "Rewrite this text to be more professional", sample: "hey whats up, can we meet tomorrow?" },
-    { task: "Convert this to bullet points", sample: "Our company provides excellent customer service with 24/7 support, multiple contact methods including phone, email, and chat, and we guarantee response within 2 hours." },
-    { task: "Make this more concise", sample: "I would like to inform you that we are currently experiencing some technical difficulties with our system, and as a result, we may experience some delays in processing your request." }
+    {
+      title: "Remove Duplicate Rows",
+      description: "Clean up CSV files by removing duplicate entries",
+      task: "Remove duplicate rows from this CSV data",
+      sampleInput: "name,email,age\nJohn,john@email.com,25\nJane,jane@email.com,30\nJohn,john@email.com,25",
+      icon: Trash2,
+      category: "CSV"
+    },
+    {
+      title: "Capitalize All Words",
+      description: "Transform text to title case formatting",
+      task: "Capitalize all words in this text",
+      sampleInput: "the quick brown fox jumps over the lazy dog",
+      icon: Type,
+      category: "Text"
+    },
+    {
+      title: "Remove CSV Columns",
+      description: "Delete specific columns from CSV data",
+      task: "Remove the 'age' column from this CSV data",
+      sampleInput: "name,email,age,city\nJohn,john@email.com,25,NYC\nJane,jane@email.com,30,LA",
+      icon: Columns,
+      category: "CSV"
+    },
+    {
+      title: "Convert European Numbers",
+      description: "Change European decimal format to American",
+      task: "Convert European number format to American format",
+      sampleInput: "Price: 1.234,56 €\nQuantity: 2.500,00\nDiscount: 15,5%",
+      icon: Calculator,
+      category: "Format"
+    },
+    {
+      title: "CSV to JSON",
+      description: "Convert CSV data into JSON format",
+      task: "Convert this CSV data to JSON format",
+      sampleInput: "name,age,city\nAlice,28,Boston\nBob,35,Seattle",
+      icon: Code,
+      category: "Data"
+    },
+    {
+      title: "Extract Email Addresses",
+      description: "Find and extract all email addresses from text",
+      task: "Extract all email addresses from this text",
+      sampleInput: "Contact us at support@example.com or sales@company.org. For urgent matters, reach admin@site.net.",
+      icon: Mail,
+      category: "Text"
+    },
+    {
+      title: "Split Text by Lines",
+      description: "Convert paragraph text into separate lines",
+      task: "Split this text into separate lines by sentences",
+      sampleInput: "This is the first sentence. This is the second sentence. Here's a third one!",
+      icon: AlignLeft,
+      category: "Text"
+    },
+    {
+      title: "Format Phone Numbers",
+      description: "Standardize phone number formatting",
+      task: "Format these phone numbers to (XXX) XXX-XXXX format",
+      sampleInput: "1234567890\n555.123.4567\n(555) 987-6543\n+1-800-555-0199",
+      icon: Phone,
+      category: "Format"
+    }
   ];
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'CSV': return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-300 dark:border-blue-800';
+      case 'Text': return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800';
+      case 'Format': return 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-300 dark:border-purple-800';
+      case 'Data': return 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/20 dark:text-orange-300 dark:border-orange-800';
+      default: return 'bg-muted/50 text-muted-foreground border-border';
+    }
+  };
 
   const handleSubmit = async (taskDescription: string, text: string, exampleOutput?: string) => {
     if (!taskDescription.trim() || !routine) return;
@@ -447,25 +528,39 @@ export default function Home() {
               </div>
 
               {/* Examples Section - Separate from input container */}
-              <div className="max-w-4xl mx-auto">
-                <h3 className="text-lg font-medium text-foreground mb-4">Not sure where to start? Try these</h3>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="max-w-6xl mx-auto">
+                <h3 className="text-lg font-semibold text-foreground mb-6 text-center">Not sure how to start? Try these examples:</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {examples.map((example, index) => (
-                    <button
+                    <div
                       key={index}
                       onClick={() => {
                         setTaskDescription(example.task);
-                        setText(example.sample);
+                        setText(example.sampleInput);
                       }}
-                      className="p-3 text-left rounded-lg border border-input hover:bg-muted/50 transition-colors"
+                      className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
                     >
-                      <div className="text-sm font-medium text-foreground mb-1">
-                        {example.task}
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10">
+                          <example.icon className="w-5 h-5 text-primary" />
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded-full border ${getCategoryColor(example.category)}`}>
+                          {example.category}
+                        </span>
                       </div>
-                      <div className="text-xs text-muted-foreground line-clamp-2">
-                        {example.sample}
+                      <h5 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                        {example.title}
+                      </h5>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {example.description}
+                      </p>
+                      <div className="mt-3 flex items-center text-xs text-blue-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        Try this example
+                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </div>
-                    </button>
+                    </div>
                   ))}
                 </div>
               </div>
