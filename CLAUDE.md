@@ -160,6 +160,20 @@ Each app can be deployed independently:
 4. **Consistent Formatting**: Run `npm run format` before commits
 5. **Type Safety**: Each app extends shared TypeScript configs
 
+## 📝 TypeScript Guidelines
+
+### Strong Typing Requirements
+- **NEVER use `any` type**: Always define proper types for all variables, parameters, and return values
+- **NEVER use `unknown` without type guards**: If you must use `unknown`, immediately narrow it with proper type guards
+- **Always define explicit types** for:
+  - Function parameters and return types
+  - Component props and state
+  - API responses and request payloads
+  - Database schemas and models
+- **Prefer interfaces over type aliases** for object shapes
+- **Use union types and type guards** instead of `any` for multiple possible types
+- **Enable strict mode** in tsconfig.json for all apps
+
 ---
 
 For app-specific implementation details, database schemas, and detailed technical guidance, see the individual CLAUDE.md files in each app directory.
