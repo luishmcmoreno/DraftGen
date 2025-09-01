@@ -24,7 +24,7 @@ DraftGen/
 **Main MVP Application**: Document generation system with AI-powered template creation
 - **Framework**: Next.js 15 (App Router), TypeScript, React 19
 - **Features**: Google Auth, Supabase, PDF generation, i18n support
-- **Key Dependencies**: Supabase, next-intl, Gemini AI, Radix UI
+- **Key Dependencies**: Supabase, next-intl, Gemini AI
 - **Documentation**: `apps/draft-gen/CLAUDE.md` (comprehensive implementation guide)
 
 ### 🔄 Convertext (`apps/convertext/`)
