@@ -35,6 +35,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       <textarea
         className={cn(textareaVariants({ resize, variant, className }))}
         ref={ref}
+        suppressHydrationWarning={true}
         {...props}
       />
     )

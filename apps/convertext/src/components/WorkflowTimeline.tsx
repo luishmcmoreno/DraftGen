@@ -261,6 +261,7 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
                 placeholder="Add a description..."
                 className="text-sm text-muted-foreground bg-transparent mt-1 w-full border-none focus:ring-0 p-0 resize-none"
                 rows={1}
+                suppressHydrationWarning={true}
               />
             </div>
             {steps.length > 0 && (
@@ -338,6 +339,7 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
                   placeholder="Describe what this routine does..."
                   rows={3}
                   className="w-full px-4 py-2 border border-input bg-background text-foreground rounded-lg focus:border-ring focus:ring-ring"
+                  suppressHydrationWarning={true}
                 />
               </div>
             </div>

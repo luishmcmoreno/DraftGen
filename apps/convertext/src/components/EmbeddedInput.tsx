@@ -82,6 +82,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
                   height: Math.min(120, Math.max(44, taskDescription.split('\n').length * 20 + 24))
                 }}
                 disabled={loading}
+                suppressHydrationWarning={true}
               />
             </div>
             <div className="flex items-end">
@@ -129,6 +130,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
               className="w-full resize-none rounded-lg border-input bg-background shadow-sm focus:border-ring focus:ring-ring text-sm px-3 py-3"
               rows={3}
               disabled={loading}
+              suppressHydrationWarning={true}
             />
           </div>
 
@@ -156,6 +158,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
                     className="w-full resize-none rounded-lg border-input bg-background shadow-sm focus:border-ring focus:ring-ring text-sm px-3 py-2"
                     rows={2}
                     disabled={loading}
+                    suppressHydrationWarning={true}
                   />
                 </div>
                 

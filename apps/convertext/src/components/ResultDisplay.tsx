@@ -81,6 +81,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result }) => {
                 value={editableText}
                 onChange={e => setEditableText(e.target.value)}
                 rows={Math.max(3, Math.min(20, editableText.split('\n').length))}
+                suppressHydrationWarning={true}
               />
             </div>
           </div>
