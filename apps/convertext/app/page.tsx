@@ -456,7 +456,7 @@ export default function Home() {
         <Topbar profile={user ? { display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null } : null} />
 
         {/* Hero Section */}
-        <section className="py-24 px-6">
+        <section className="pt-32 pb-24 px-6">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
@@ -523,9 +523,6 @@ export default function Home() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Your text
-                    </label>
                     <textarea
                       value={text}
                       onChange={(e) => setText(e.target.value)}
