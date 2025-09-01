@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import UI package styles */
-@import '@draft-gen/ui/src/styles.css';
-
 @layer base {
   * {
     @apply border-border;

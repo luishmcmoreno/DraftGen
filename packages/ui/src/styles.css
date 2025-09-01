@@ -107,6 +107,10 @@
     --chat-user: 221 83% 53%;
     --chat-assistant: 217.2 32.6% 17.5%;
 
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
