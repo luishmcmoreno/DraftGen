@@ -456,15 +456,15 @@ export default function Home() {
         <Topbar profile={user ? { display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null } : null} />
 
         {/* Hero Section with Background Gradient */}
-        <section className="bg-gradient-subtle py-20 px-6">
+        <section className="bg-gradient-subtle py-24 px-6">
           <div className="container mx-auto max-w-6xl">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
                 <Sparkles className="h-4 w-4" />
                 Efficient and fast AI-powered conversion
               </div>
               
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-4 leading-tight">
                 Transform documents accurately with{' '}
                 <span style={{
                   background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
@@ -476,7 +476,7 @@ export default function Home() {
                 </span>
               </h1>
               
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-16 leading-relaxed">
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
                 Convert, rewrite, and transform any text with powerful AI tools. 
                 From casual notes to professional documents, get instant, intelligent text transformations.
               </p>

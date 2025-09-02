@@ -60,7 +60,7 @@ export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-primary-muted/50 text-primary px-4 py-2 rounded-full text-sm font-medium mb-8">
+            <div className="inline-flex items-center gap-2 bg-primary-muted/50 text-primary px-4 py-2 rounded-full text-sm font-medium mb-8 mt-8">
               <Sparkles className="h-4 w-4" />
               {badgeText}
             </div>
@@ -76,7 +76,7 @@ export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
             </p>
 
             {/* Interactive Chat Input */}
-            <div className="max-w-2xl mx-auto mb-16">
+            <div className="max-w-2xl mx-auto mb-16 mt-4">
               <Card shadow="glow" className="p-6 border-border">
                 <div className="flex gap-3">
                   <Textarea
