@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@draft-gen/logger';
 import {
   getConversionHistory,
   searchConversionHistory,
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ error: 'Invalid type parameter' }, { status: 400 });
   } catch (error) {
-    console.error('History API Error:', error);
+    logger.error('History API Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

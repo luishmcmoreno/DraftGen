@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { logger } from '@draft-gen/logger';
 import { SavedConversionRoutine } from '../types/conversion';
 import {
   getStoredConversionRoutines,
@@ -38,7 +39,7 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
       const storedRoutines = await getStoredConversionRoutines();
       setRoutines(storedRoutines);
     } catch (error) {
-      console.error('Failed to load routines:', error);
+      logger.error('Failed to load routines:', error);
     } finally {
       setLoading(false);
     }
@@ -75,7 +76,7 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
       onReplayConversionRoutine(routine);
       onClose();
     } catch (error) {
-      console.error('Failed to update routine usage:', error);
+      logger.error('Failed to update routine usage:', error);
       // Continue with replay even if usage update fails
       onReplayConversionRoutine(routine);
       onClose();
@@ -92,7 +93,7 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
         await deleteConversionRoutine(routineId);
         await loadRoutines(); // Reload the list
       } catch (error) {
-        console.error('Failed to delete routine:', error);
+        logger.error('Failed to delete routine:', error);
         alert('Failed to delete routine. Please try again.');
       }
     }
@@ -171,7 +172,9 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
             </div>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'name' | 'createdAt' | 'lastUsed' | 'usageCount')}
+              onChange={(e) =>
+                setSortBy(e.target.value as 'name' | 'createdAt' | 'lastUsed' | 'usageCount')
+              }
               className="px-4 py-2 border border-input bg-background text-foreground rounded-lg focus:border-ring focus:ring-ring"
             >
               <option value="lastUsed">Last Used</option>

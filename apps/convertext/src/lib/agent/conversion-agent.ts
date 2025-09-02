@@ -1,6 +1,7 @@
 import { BaseLLMProvider } from '../providers/base';
 import { TextTools } from '../text-tools';
 import type { ToolEvaluation } from '../../types/conversion';
+import { logger } from '@draft-gen/logger';
 
 export interface ProcessRequestParams {
   text: string;
@@ -86,7 +87,7 @@ export class ConversionAgent {
         confidence: error ? 0 : 1, // Simple confidence: 0 if error, 1 if success
       };
     } catch (error) {
-      console.error('Error during agent processing:', error);
+      logger.error('Error during agent processing:', error);
       return {
         original_text: text,
         converted_text: text,

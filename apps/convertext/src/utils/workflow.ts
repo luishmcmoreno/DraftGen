@@ -1,3 +1,4 @@
+import { logger } from '@draft-gen/logger';
 import {
   SavedConversionRoutine,
   WorkflowStep,
@@ -121,7 +122,7 @@ export const saveConversionRoutineToStorage = (routine: SavedConversionRoutine) 
       })
     );
   } catch (error) {
-    console.error('Failed to save conversion routine:', error);
+    logger.error('Failed to save conversion routine:', error);
   }
 };
 
@@ -135,11 +136,11 @@ export const getStoredConversionRoutines = (): SavedConversionRoutine[] => {
     const routines = JSON.parse(stored);
     return routines.map((routine: Record<string, unknown>) => ({
       ...routine,
-      createdAt: new Date(routine.createdAt),
-      lastUsed: routine.lastUsed ? new Date(routine.lastUsed) : undefined,
+      createdAt: new Date(routine.createdAt as string),
+      lastUsed: routine.lastUsed ? new Date(routine.lastUsed as string) : undefined,
     }));
   } catch (error) {
-    console.error('Failed to load conversion routines:', error);
+    logger.error('Failed to load conversion routines:', error);
     return [];
   }
 };
@@ -158,7 +159,7 @@ export const deleteConversionRoutine = (routineId: string) => {
       })
     );
   } catch (error) {
-    console.error('Failed to delete conversion routine:', error);
+    logger.error('Failed to delete conversion routine:', error);
   }
 };
 
@@ -185,6 +186,6 @@ export const updateConversionRoutineUsage = (routineId: string) => {
       );
     }
   } catch (error) {
-    console.error('Failed to update conversion routine usage:', error);
+    logger.error('Failed to update conversion routine usage:', error);
   }
 };

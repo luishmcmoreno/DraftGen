@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@draft-gen/logger';
 import {
   deleteConversionRoutine,
   updateConversionRoutineUsage,
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const execution = await getRoutineExecution(id);
     return NextResponse.json({ execution });
   } catch (error) {
-    console.error('API Error:', error);
+    logger.error('API Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',
@@ -35,7 +36,7 @@ export async function DELETE(
     await deleteConversionRoutine(id);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('API Error:', error);
+    logger.error('API Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',
@@ -69,7 +70,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json({ error: 'Invalid action or missing updates' }, { status: 400 });
   } catch (error) {
-    console.error('API Error:', error);
+    logger.error('API Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

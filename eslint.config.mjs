@@ -1,4 +1,3 @@
-import { defineConfig } from "eslint/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
@@ -12,18 +11,22 @@ const compat = new FlatCompat({
     allConfig: js.configs.all
 });
 
-export default defineConfig([{
-    extends: compat.extends("next/core-web-vitals", "next/typescript"),
-
-    rules: {
-        "no-console": "warn",
-        "no-unused-vars": "off",
-
-        "@typescript-eslint/no-unused-vars": ["warn", {
-            argsIgnorePattern: "^_",
-        }],
-
-        "@typescript-eslint/no-explicit-any": "warn",
-        "@next/next/no-html-link-for-pages": "off",
-    },
-}]);
+export default [
+    ...compat.extends("next/core-web-vitals", "next/typescript"),
+    {
+        rules: {
+            "no-console": "warn",
+            "no-unused-vars": "off",
+            "@typescript-eslint/no-unused-vars": ["warn", {
+                argsIgnorePattern: "^_",
+            }],
+            "@typescript-eslint/no-explicit-any": "warn",
+            "@typescript-eslint/no-unused-expressions": ["error", {
+                allowShortCircuit: true,
+                allowTernary: true,
+                allowTaggedTemplates: true
+            }],
+            "@next/next/no-html-link-for-pages": "off",
+        },
+    }
+];

@@ -1,11 +1,12 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GenerativeModel, GoogleGenerativeAI } from '@google/generative-ai';
 import { BaseLLMProvider, GenerateResponse } from './base';
 import { TextTools } from '../text-tools';
 import type { ToolEvaluation } from '../../types/conversion';
+import { logger } from '@draft-gen/logger';
 
 export class GeminiProvider extends BaseLLMProvider {
   private genAI: GoogleGenerativeAI;
-  private model: unknown;
+  private model: GenerativeModel;
 
   constructor() {
     super();
@@ -89,12 +90,12 @@ REASONING: <reasoning>`;
   ): Promise<ToolEvaluation> {
     try {
       const prompt = this.createPrompt(text, taskDescription, exampleOutput);
-      console.log('[GeminiProvider] Final prompt to Gemini:\n', prompt);
+      logger.log('[GeminiProvider] Final prompt to Gemini:\n', prompt);
 
       const result = await this.model.generateContent(prompt);
       const response = result.response.text();
 
-      console.log('[GeminiProvider] LLM RESPONSE:\n', response);
+      logger.log('[GeminiProvider] LLM RESPONSE:\n', response);
 
       // Extract tool, arguments, and reasoning
       const toolMatch = response.match(/TOOL:\s*(\w+)/);
@@ -132,7 +133,7 @@ REASONING: <reasoning>`;
         tool_args: toolArgs,
       };
     } catch (error) {
-      console.error('[GeminiProvider] Error during evaluation:', error);
+      logger.error('[GeminiProvider] Error during evaluation:', error);
       return {
         reasoning: `Error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`,
         tool: 'custom',

@@ -13,7 +13,6 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result }) => {
     setEditableText(result.converted_text);
   }, [result.converted_text]);
 
-
   const handleCopy = async () => {
     await navigator.clipboard.writeText(editableText);
     setCopied(true);

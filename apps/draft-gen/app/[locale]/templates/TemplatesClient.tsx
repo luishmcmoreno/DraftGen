@@ -24,16 +24,16 @@ export default function TemplatesClient({ templates: initialTemplates }: Templat
   const { toast } = useToast();
   const t = useTranslations('templates');
 
-  const handleGenerate = (template: Template) => {
-    setSelectedTemplate(template);
+  const handleGenerate = (template: Record<string, unknown>) => {
+    setSelectedTemplate(template as Template);
   };
 
   const handleCloseModal = () => {
     setSelectedTemplate(null);
   };
 
-  const handleDelete = (template: Template) => {
-    setTemplateToDelete(template);
+  const handleDelete = (template: Record<string, unknown>) => {
+    setTemplateToDelete(template as Template);
   };
 
   const handleCloseDeleteModal = () => {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { logger } from '@draft-gen/logger';
 import Topbar from '../src/components/Topbar';
 import WorkflowTimeline from '../src/components/WorkflowTimeline';
 import WorkflowLibrary from '../src/components/WorkflowLibrary';
@@ -370,7 +371,7 @@ export default function Home() {
 
       setShowLoginDialog(false);
     } catch (error) {
-      console.error('Login failed:', error);
+      logger.error('Login failed:', error);
       setError('Login failed. Please try again.');
       setLoading(false);
     }
@@ -390,7 +391,7 @@ export default function Home() {
           const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
 
           if (isRecent && routine && nextStepText) {
-            console.log('Redirecting to routine creation after authentication');
+            logger.log('Redirecting to routine creation after authentication');
 
             // Store the routine for the creation page
             sessionStorage.setItem(
@@ -415,7 +416,7 @@ export default function Home() {
             sessionStorage.removeItem('pendingRoutineCreation');
           }
         } catch (error) {
-          console.error('Failed to parse pending routine creation:', error);
+          logger.error('Failed to parse pending routine creation:', error);
           sessionStorage.removeItem('pendingRoutineCreation');
         }
       }
@@ -431,7 +432,7 @@ export default function Home() {
           const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
 
           if (isRecent && taskDescription && text) {
-            console.log('Retrying pending conversion after authentication:', {
+            logger.log('Retrying pending conversion after authentication:', {
               taskDescription: taskDescription.substring(0, 50) + '...',
               textLength: text.length,
             });
@@ -451,7 +452,7 @@ export default function Home() {
             sessionStorage.removeItem('pendingConversion');
           }
         } catch (error) {
-          console.error('Failed to parse pending conversion:', error);
+          logger.error('Failed to parse pending conversion:', error);
           sessionStorage.removeItem('pendingConversion');
         }
       }

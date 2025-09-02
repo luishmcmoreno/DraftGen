@@ -2,6 +2,7 @@
 
 import { useAuth } from '../../src/components/AuthProvider';
 import { createClient } from '../../src/lib/supabase/client';
+import { logger } from '@draft-gen/logger';
 
 export default function TestAuth() {
   const { user, signIn, loading } = useAuth();
@@ -9,22 +10,22 @@ export default function TestAuth() {
   const testSupabaseConnection = async () => {
     try {
       const supabase = createClient();
-      console.log('Supabase client created:', supabase);
-      console.log('Environment vars:', {
+      logger.log('Supabase client created:', supabase);
+      logger.log('Environment vars:', {
         url: process.env.NEXT_PUBLIC_SUPABASE_URL,
         key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(0, 20) + '...',
       });
     } catch (error) {
-      console.error('Supabase connection test failed:', error);
+      logger.error('Supabase connection test failed:', error);
     }
   };
 
   const testSignIn = async () => {
     try {
-      console.log('Testing sign in...');
+      logger.log('Testing sign in...');
       await signIn();
     } catch (error) {
-      console.error('Sign in test failed:', error);
+      logger.error('Sign in test failed:', error);
     }
   };
 

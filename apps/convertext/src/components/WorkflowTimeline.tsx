@@ -227,7 +227,7 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
               {examples.map((example, index) => (
                 <div
                   key={index}
-                  onClick={() => onExampleSelect?.(example.task, example.sampleInput)}
+                  onClick={() => _onExampleSelect?.(example.task, example.sampleInput)}
                   className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
                 >
                   <div className="flex items-start justify-between mb-3">

@@ -983,7 +983,7 @@ export class TextTools {
   }
 
   static executeTool(toolName: string, args: string[]): string {
-    const method = (this as Record<string, unknown>)[toolName];
+    const method = (this as unknown as Record<string, unknown>)[toolName];
     if (typeof method === 'function') {
       return method.apply(this, args);
     }

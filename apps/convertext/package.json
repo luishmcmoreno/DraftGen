@@ -13,6 +13,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@draft-gen/logger": "*",
     "@draft-gen/ui": "*",
     "@google/generative-ai": "^0.21.0",
     "@supabase/ssr": "^0.7.0",

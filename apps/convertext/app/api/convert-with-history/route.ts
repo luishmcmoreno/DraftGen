@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@draft-gen/logger';
 import { saveTextConversion } from '../../../src/lib/supabase/text-conversions';
 import {
   createConversionStep,
@@ -6,10 +7,7 @@ import {
 } from '../../../src/lib/supabase/conversion-steps';
 import { ConversionAgent } from '../../../src/lib/agent/conversion-agent';
 import { getProviderFromName } from '../../../src/lib/providers';
-import type {
-  TextConversionResponse,
-  ConversionResult,
-} from '../../../src/types/conversion';
+import type { TextConversionResponse, ConversionResult } from '../../../src/types/conversion';
 
 // This endpoint uses internal conversion tools with Supabase history tracking
 export async function POST(request: NextRequest) {
@@ -54,7 +52,7 @@ export async function POST(request: NextRequest) {
         });
         stepId = step.id;
       } catch (stepError) {
-        console.warn('Failed to create conversion step:', stepError);
+        logger.warn('Failed to create conversion step:', stepError);
         // Continue without step tracking
       }
     }
@@ -77,7 +75,7 @@ export async function POST(request: NextRequest) {
         tool_used: result.tool_used,
         confidence: result.confidence,
         render_mode: result.render_mode,
-        tool_args: result.tool_args as Record<string, unknown>,
+        tool_args: result.tool_args.map((arg) => arg.name),
         error: result.error,
       };
 
@@ -89,7 +87,7 @@ export async function POST(request: NextRequest) {
             error: conversionData.error,
           });
         } catch (updateError) {
-          console.warn('Failed to update step with error:', updateError);
+          logger.warn('Failed to update step with error:', updateError);
         }
       }
 
@@ -124,13 +122,13 @@ export async function POST(request: NextRequest) {
           });
         }
       } catch (historyError) {
-        console.warn('Failed to save conversion history:', historyError);
+        logger.warn('Failed to save conversion history:', historyError);
         // Don't fail the request if history saving fails
       }
 
       return NextResponse.json(conversionData);
     } catch (conversionError) {
-      console.error('Conversion processing error:', conversionError);
+      logger.error('Conversion processing error:', conversionError);
 
       // Update step with error if we created one
       if (stepId) {
@@ -140,7 +138,7 @@ export async function POST(request: NextRequest) {
             error: conversionError instanceof Error ? conversionError.message : 'Conversion failed',
           });
         } catch (updateError) {
-          console.warn('Failed to update step with error:', updateError);
+          logger.warn('Failed to update step with error:', updateError);
         }
       }
 
@@ -154,7 +152,7 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error) {
-    console.error('Conversion API Error:', error);
+    logger.error('Conversion API Error:', error);
 
     return NextResponse.json(
       {

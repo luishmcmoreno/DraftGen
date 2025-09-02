@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { logger } from '@draft-gen/logger';
 import Topbar from '../../src/components/Topbar';
 import RoutineCard from '../../src/components/RoutineCard';
 import { useAuth } from '../../src/components/AuthProvider';
@@ -38,7 +39,7 @@ export default function RoutinesPage() {
       const storedRoutines = await getStoredConversionRoutines();
       setRoutines(storedRoutines || []);
     } catch (err) {
-      console.error('Error loading routines:', err);
+      logger.error('Error loading routines:', err);
       // If it's a Supabase "no rows" error, just set empty array
       if (
         err instanceof Error &&
@@ -61,7 +62,7 @@ export default function RoutinesPage() {
       // Navigate to convert page with routine loaded and auto-run
       router.push(`/convert?routineId=${routine.id}&run=true`);
     } catch (err) {
-      console.error('Failed to update routine usage:', err);
+      logger.error('Failed to update routine usage:', err);
       // Still navigate even if usage update fails
       router.push(`/convert?routineId=${routine.id}&run=true`);
     }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@draft-gen/logger';
 import { getProviderFromName } from '../../../src/lib/providers';
 import { ConversionAgent } from '../../../src/lib/agent/conversion-agent';
 
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(evaluationData);
   } catch (error) {
-    console.error('Evaluation API Error:', error);
+    logger.error('Evaluation API Error:', error);
 
     return NextResponse.json(
       {

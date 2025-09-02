@@ -1,5 +1,6 @@
 import { createClient } from './client';
 import type { Database } from './database.types';
+import { logger } from '@draft-gen/logger';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type ProfileInsert = Database['public']['Tables']['profiles']['Insert'];
@@ -12,7 +13,7 @@ interface PendingConversion {
 }
 
 export async function signInWithGoogle(pendingConversion?: PendingConversion) {
-  console.log('=== signInWithGoogle called ===', { pendingConversion });
+  logger.log('=== signInWithGoogle called ===', { pendingConversion });
 
   const supabase = createClient();
 
@@ -35,11 +36,11 @@ export async function signInWithGoogle(pendingConversion?: PendingConversion) {
         state: encodeURIComponent(JSON.stringify(sanitizedConversion)),
       };
     } catch (jsonError) {
-      console.warn('Failed to stringify pending conversion, proceeding without state:', jsonError);
+      logger.warn('Failed to stringify pending conversion, proceeding without state:', jsonError);
     }
   }
 
-  console.log('=== OAuth options ===', options);
+  logger.log('=== OAuth options ===', options);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -48,7 +49,7 @@ export async function signInWithGoogle(pendingConversion?: PendingConversion) {
     },
   });
 
-  console.log('=== OAuth result ===', { data, error });
+  logger.log('=== OAuth result ===', { data, error });
 
   if (error) {
     throw new Error(`Failed to sign in with Google: ${error.message}`);
@@ -155,7 +156,9 @@ export async function updateUserProfile(updates: ProfileUpdate): Promise<Profile
   return data;
 }
 
-export async function onAuthStateChange(callback: (user: import('@supabase/supabase-js').User | null) => void) {
+export async function onAuthStateChange(
+  callback: (user: import('@supabase/supabase-js').User | null) => void
+) {
   const supabase = createClient();
 
   const {

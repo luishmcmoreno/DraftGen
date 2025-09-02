@@ -93,7 +93,9 @@ export function MediaToolbarButton({
     onFilesSelected: (data: {plainFiles?: File[]}) => {
       // Type guard to check if plainFiles exists
       if ('plainFiles' in data && data.plainFiles) {
-        editor.getTransforms(PlaceholderPlugin).insert.media(data.plainFiles);
+        // Convert File[] to FileList-like object
+        const fileList = data.plainFiles as unknown as FileList;
+        editor.getTransforms(PlaceholderPlugin).insert.media(fileList);
       }
     },
   });

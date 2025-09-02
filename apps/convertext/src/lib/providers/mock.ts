@@ -1,6 +1,7 @@
 import { BaseLLMProvider, GenerateResponse } from './base';
 import { TextTools } from '../text-tools';
 import type { ToolEvaluation } from '../../types/conversion';
+import { logger } from '@draft-gen/logger';
 
 export class MockProvider extends BaseLLMProvider {
   async generateResponse(
@@ -10,7 +11,7 @@ export class MockProvider extends BaseLLMProvider {
     toolUsed?: string,
     toolArgs?: string[]
   ): Promise<GenerateResponse> {
-    console.log('[MockProvider] generate_response called with:', {
+    logger.log('[MockProvider] generate_response called with:', {
       text: text.substring(0, 100) + '...',
       taskDescription,
       toolUsed,
@@ -50,7 +51,7 @@ export class MockProvider extends BaseLLMProvider {
     taskDescription: string,
     exampleOutput?: string
   ): Promise<ToolEvaluation> {
-    console.log('[MockProvider] evaluate_task called with:', {
+    logger.log('[MockProvider] evaluate_task called with:', {
       text: text.substring(0, 100) + '...',
       taskDescription,
       exampleOutput,

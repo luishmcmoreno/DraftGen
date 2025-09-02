@@ -1,12 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import {
-  signInWithGoogle,
-  signOut,
-  getUserProfile,
-  onAuthStateChange,
-} from '../lib/supabase/auth';
+import { logger } from '@draft-gen/logger';
+import { signInWithGoogle, signOut, getUserProfile, onAuthStateChange } from '../lib/supabase/auth';
 import { createClient } from '../lib/supabase/client';
 import { migrateLocalStorageToSupabase } from '../utils/workflow-supabase';
 import type { Database } from '../lib/supabase/database.types';
@@ -54,7 +50,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const userProfile = await getUserProfile();
         setProfile(userProfile);
       } catch (error) {
-        console.error('Failed to load user profile:', error);
+        logger.error('Failed to load user profile:', error);
       }
     } else {
       setProfile(null);
@@ -73,12 +69,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
           const { error } = await supabase.auth.getSession();
           if (error) {
-            console.error('Failed to get session:', error);
+            logger.error('Failed to get session:', error);
           }
           // Clear the hash from URL
           window.history.replaceState(null, '', window.location.pathname);
         } catch (error) {
-          console.error('Failed to handle auth session:', error);
+          logger.error('Failed to handle auth session:', error);
         }
       }
 
@@ -94,18 +90,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const userProfile = await getUserProfile();
             setProfile(userProfile);
           } catch (error) {
-            console.error('Failed to load user profile:', error);
+            logger.error('Failed to load user profile:', error);
           }
 
           // Migrate localStorage data to Supabase on first sign-in
           try {
             await migrateLocalStorageToSupabase();
           } catch (error) {
-            console.warn('Failed to migrate localStorage data:', error);
+            logger.warn('Failed to migrate localStorage data:', error);
           }
         }
       } catch (error) {
-        console.error('Failed to get initial session:', error);
+        logger.error('Failed to get initial session:', error);
       }
 
       // Set up auth state change listener
@@ -118,14 +114,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const userProfile = await getUserProfile();
             setProfile(userProfile);
           } catch (error) {
-            console.error('Failed to load user profile:', error);
+            logger.error('Failed to load user profile:', error);
           }
 
           // Migrate localStorage data to Supabase on first sign-in
           try {
             await migrateLocalStorageToSupabase();
           } catch (error) {
-            console.warn('Failed to migrate localStorage data:', error);
+            logger.warn('Failed to migrate localStorage data:', error);
           }
         } else {
           setProfile(null);
@@ -146,11 +142,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const handleSignIn = async (pendingConversion?: PendingConversion) => {
-    console.log('=== handleSignIn called ===', { pendingConversion });
+    logger.log('=== handleSignIn called ===', { pendingConversion });
     try {
       await signInWithGoogle(pendingConversion);
     } catch (error) {
-      console.error('Sign in failed:', error);
+      logger.error('Sign in failed:', error);
       throw error;
     }
   };
@@ -159,7 +155,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await signOut();
     } catch (error) {
-      console.error('Sign out failed:', error);
+      logger.error('Sign out failed:', error);
       throw error;
     }
   };

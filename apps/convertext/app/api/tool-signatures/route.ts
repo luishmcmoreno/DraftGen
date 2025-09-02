@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logger } from '@draft-gen/logger';
 import { TextTools } from '../../../src/lib/text-tools';
 
 export async function GET() {
@@ -6,7 +7,7 @@ export async function GET() {
     const signatures = TextTools.getToolSignatures();
     return NextResponse.json(signatures);
   } catch (error) {
-    console.error('Tool signatures API Error:', error);
+    logger.error('Tool signatures API Error:', error);
 
     return NextResponse.json(
       {

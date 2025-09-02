@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { logger } from '@draft-gen/logger';
 import Topbar from '../../../src/components/Topbar';
 import WorkflowTimeline from '../../../src/components/WorkflowTimeline';
 import WorkflowLibrary from '../../../src/components/WorkflowLibrary';
@@ -58,7 +59,7 @@ function CreateRoutineContent() {
           setInitialTask('');
           return;
         } catch (error) {
-          console.error('Failed to parse routine in progress:', error);
+          logger.error('Failed to parse routine in progress:', error);
         }
       }
     }

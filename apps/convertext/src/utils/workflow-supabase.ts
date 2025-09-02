@@ -1,3 +1,4 @@
+import { logger } from '@draft-gen/logger';
 import {
   saveConversionRoutine as saveRoutineToSupabase,
   getStoredConversionRoutines as getRoutinesFromSupabase,
@@ -116,7 +117,7 @@ export const saveConversionRoutineToStorage = async (
   try {
     await saveRoutineToSupabase(routine);
   } catch (error) {
-    console.error('Failed to save conversion routine to Supabase:', error);
+    logger.error('Failed to save conversion routine to Supabase:', error);
     throw error;
   }
 };
@@ -125,7 +126,7 @@ export const getStoredConversionRoutines = async (): Promise<SavedConversionRout
   try {
     return await getRoutinesFromSupabase();
   } catch (error) {
-    console.error('Failed to load conversion routines from Supabase:', error);
+    logger.error('Failed to load conversion routines from Supabase:', error);
     return [];
   }
 };
@@ -134,7 +135,7 @@ export const deleteConversionRoutine = async (routineId: string): Promise<void> 
   try {
     await deleteRoutineFromSupabase(routineId);
   } catch (error) {
-    console.error('Failed to delete conversion routine from Supabase:', error);
+    logger.error('Failed to delete conversion routine from Supabase:', error);
     throw error;
   }
 };
@@ -143,7 +144,7 @@ export const updateConversionRoutineUsage = async (routineId: string): Promise<v
   try {
     await updateUsageInSupabase(routineId);
   } catch (error) {
-    console.error('Failed to update conversion routine usage in Supabase:', error);
+    logger.error('Failed to update conversion routine usage in Supabase:', error);
     throw error;
   }
 };
@@ -155,7 +156,7 @@ export const createAndSaveRoutineExecution = async (
   try {
     return await createRoutineExecution(execution);
   } catch (error) {
-    console.error('Failed to create routine execution in Supabase:', error);
+    logger.error('Failed to create routine execution in Supabase:', error);
     throw error;
   }
 };
@@ -167,7 +168,7 @@ export const updateAndSaveRoutineExecution = async (
   try {
     return await updateRoutineExecution(executionId, updates);
   } catch (error) {
-    console.error('Failed to update routine execution in Supabase:', error);
+    logger.error('Failed to update routine execution in Supabase:', error);
     throw error;
   }
 };
@@ -179,7 +180,7 @@ export const createAndSaveConversionStep = async (
   try {
     return await createConversionStep(executionId, step);
   } catch (error) {
-    console.error('Failed to create conversion step in Supabase:', error);
+    logger.error('Failed to create conversion step in Supabase:', error);
     throw error;
   }
 };
@@ -196,12 +197,13 @@ export const updateAndSaveConversionStep = async (
   try {
     return await updateConversionStep(stepId, updates);
   } catch (error) {
-    console.error('Failed to update conversion step in Supabase:', error);
+    logger.error('Failed to update conversion step in Supabase:', error);
     throw error;
   }
 };
 
 // Utility to migrate from localStorage to Supabase (one-time operation)
+// @TODO: Do we still need this function?
 export const migrateLocalStorageToSupabase = async (): Promise<void> => {
   if (typeof window === 'undefined') return;
 
@@ -211,27 +213,29 @@ export const migrateLocalStorageToSupabase = async (): Promise<void> => {
     if (!stored) return;
 
     const routines = JSON.parse(stored);
-    const migratedRoutines: SavedConversionRoutine[] = routines.map((routine: Record<string, unknown>) => ({
-      ...routine,
-      createdAt: new Date(routine.createdAt),
-      lastUsed: routine.lastUsed ? new Date(routine.lastUsed) : undefined,
-    }));
+    const migratedRoutines: SavedConversionRoutine[] = routines.map(
+      (routine: Record<string, unknown>) => ({
+        ...routine,
+        createdAt: new Date(routine.createdAt as string),
+        lastUsed: routine.lastUsed ? new Date(routine.lastUsed as string) : undefined,
+      })
+    );
 
     // Save each routine to Supabase
     for (const routine of migratedRoutines) {
       try {
         await saveRoutineToSupabase(routine);
       } catch (error) {
-        console.warn(`Failed to migrate routine ${routine.id}:`, error);
+        logger.warn(`Failed to migrate routine ${routine.id}:`, error);
       }
     }
 
     // Clear localStorage after successful migration
     localStorage.removeItem('convertext_conversion_routines');
-    console.log(
+    logger.log(
       `Successfully migrated ${migratedRoutines.length} routines from localStorage to Supabase`
     );
   } catch (error) {
-    console.error('Failed to migrate localStorage data to Supabase:', error);
+    logger.error('Failed to migrate localStorage data to Supabase:', error);
   }
 };
