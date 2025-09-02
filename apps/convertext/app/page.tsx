@@ -129,7 +129,6 @@ export default function Home() {
   };
 
 
-  // Always show the landing page
   return (
     <div className="min-h-screen bg-background">
         <Topbar profile={user ? { display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null } : null} />
@@ -226,16 +225,8 @@ export default function Home() {
                     <div
                       key={index}
                       onClick={() => {
-                        // Store the example data for the convert page
-                        if (typeof window !== 'undefined') {
-                          sessionStorage.setItem('pendingConversion', JSON.stringify({
-                            taskDescription: example.task,
-                            text: example.sampleInput,
-                            timestamp: Date.now()
-                          }));
-                        }
-                        // Redirect to convert page
-                        router.push('/convert');
+                        setTaskDescription(example.task);
+                        setText(example.sampleInput);
                       }}
                       className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
                     >
