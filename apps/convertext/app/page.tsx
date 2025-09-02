@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { logger } from '@draft-gen/logger';
 import Topbar from '../src/components/Topbar';
-import WorkflowTimeline from '../src/components/WorkflowTimeline';
-import WorkflowLibrary from '../src/components/WorkflowLibrary';
 import { useAuth } from '../src/components/AuthProvider';
 import { useTheme } from '../src/components/ThemeProvider';
 import { GoogleSignInButton } from '@draft-gen/ui';
@@ -27,46 +25,50 @@ import {
   AlignLeft,
   Phone,
 } from 'lucide-react';
-import {
-  ConversionRoutineExecution,
-  WorkflowStep,
-  SavedConversionRoutine,
-  ToolEvaluation,
-} from '../src/types/conversion';
-import {
-  createNewConversionRoutineExecution,
-  addStepToConversionRoutine,
-  updateStepStatus,
-  replayConversionRoutine,
-  saveConversionRoutineToStorage,
-} from '../src/utils/workflow-supabase';
 
 export default function Home() {
   const { user, signIn } = useAuth();
   const { resolvedTheme } = useTheme();
   const router = useRouter();
-  const [routine, setRoutine] = useState<ConversionRoutineExecution | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [initialTask, setInitialTask] = useState<string>();
-  const [initialText, setInitialText] = useState<string>();
-  const [showConversionRoutineLibrary, setShowConversionRoutineLibrary] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
-  const [showWorkflow, setShowWorkflow] = useState(false);
   const [taskDescription, setTaskDescription] = useState('');
   const [text, setText] = useState('');
 
-  useEffect(() => {
-    setRoutine(createNewConversionRoutineExecution());
-  }, []);
-
   const handleTryNow = () => {
     if (!taskDescription.trim() || !text.trim()) return;
-    setShowWorkflow(true);
-    // Trigger the conversion immediately
-    setTimeout(() => {
-      handleSubmit(taskDescription, text);
-    }, 100);
+    
+    // Check if user is authenticated
+    if (!user) {
+      // Store pending conversion in sessionStorage for post-auth
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(
+          'pendingConversion',
+          JSON.stringify({
+            taskDescription,
+            text,
+            timestamp: Date.now(),
+          })
+        );
+      }
+      
+      // Show login dialog
+      setShowLoginDialog(true);
+      return;
+    }
+    
+    // User is authenticated, redirect to create page with data
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(
+        'pendingConversion',
+        JSON.stringify({
+          taskDescription,
+          text,
+          timestamp: Date.now(),
+        })
+      );
+    }
+    router.push('/routines/create');
   };
 
   const handleGetStarted = () => {
@@ -161,206 +163,6 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = async (taskDescription: string, text: string, exampleOutput?: string) => {
-    if (!taskDescription.trim() || !routine) return;
-
-    // Check if user is authenticated before proceeding with the conversion
-    if (!user) {
-      // Store pending conversion in sessionStorage for post-auth retry
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(
-          'pendingConversion',
-          JSON.stringify({
-            taskDescription,
-            text,
-            exampleOutput,
-            timestamp: Date.now(),
-          })
-        );
-      }
-
-      // Show login dialog instead of proceeding
-      setShowLoginDialog(true);
-      setInitialTask(taskDescription);
-      setInitialText(text);
-      return;
-    }
-
-    // User is authenticated, proceed directly with conversion
-
-    const startTime = Date.now();
-
-    const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
-      status: 'running',
-      input: {
-        text,
-        taskDescription,
-        exampleOutput,
-      },
-    };
-
-    let updatedRoutine = addStepToConversionRoutine(routine, newStep);
-    setRoutine(updatedRoutine);
-    setLoading(true);
-    setError(null);
-
-    try {
-      const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
-
-      const evaluateResponse = await fetch(`/api/evaluate-with-history`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text,
-          task_description: taskDescription,
-          provider: routine.provider,
-        }),
-      });
-
-      if (!evaluateResponse.ok) {
-        throw new Error('Evaluation failed');
-      }
-
-      const evaluationData = await evaluateResponse.json();
-      const evaluation: ToolEvaluation = {
-        reasoning: evaluationData.reasoning || '',
-        tool: evaluationData.tool || '',
-        tool_args: evaluationData.tool_args || [],
-      };
-
-      const convertResponse = await fetch(`/api/convert-with-history`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text,
-          task_description: taskDescription,
-          example_output: exampleOutput,
-          provider: routine.provider,
-        }),
-      });
-
-      if (!convertResponse.ok) {
-        throw new Error('Conversion failed');
-      }
-
-      const conversionData = await convertResponse.json();
-      const duration = Date.now() - startTime;
-
-      updatedRoutine = updateStepStatus(
-        updatedRoutine,
-        stepId,
-        'completed',
-        {
-          result: conversionData,
-          evaluation,
-        },
-        undefined,
-        duration
-      );
-
-      setRoutine(updatedRoutine);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setError(errorMessage);
-
-      const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
-      const duration = Date.now() - startTime;
-
-      updatedRoutine = updateStepStatus(
-        updatedRoutine,
-        stepId,
-        'error',
-        undefined,
-        errorMessage,
-        duration
-      );
-
-      setRoutine(updatedRoutine);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleProviderChange = (newProvider: string) => {
-    if (!routine) return;
-    setRoutine((prev) =>
-      prev
-        ? {
-            ...prev,
-            provider: newProvider,
-          }
-        : null
-    );
-  };
-
-  const handleExampleSelect = (task: string, sampleInput?: string) => {
-    setInitialTask(task);
-    setInitialText(sampleInput || '');
-  };
-
-  const handleUseAsInput = (text: string) => {
-    setInitialText(text);
-  };
-
-  const handleSaveConversionRoutine = () => {
-    if (!routine) return;
-    const savedRoutine: SavedConversionRoutine = {
-      id: routine.id,
-      name: routine.name,
-      steps: routine.steps.map((step) => ({
-        id: step.id,
-        stepNumber: step.stepNumber,
-        taskDescription: step.input.taskDescription,
-        exampleOutput: step.input.exampleOutput,
-      })),
-      createdAt: new Date(),
-      usageCount: 0,
-    };
-    saveConversionRoutineToStorage(savedRoutine);
-  };
-
-  const handleReplayConversionRoutine = (savedRoutine: SavedConversionRoutine) => {
-    const replayedRoutine = replayConversionRoutine(savedRoutine, routine?.provider || 'mock');
-    setRoutine(replayedRoutine);
-    setError(null);
-  };
-
-  const handleAddNewStep = (previousResult: string) => {
-    if (!routine) return;
-
-    // For multi-step routine creation, redirect to the routine creation page
-    if (user) {
-      // Store the current routine in sessionStorage to continue in the routine creation page
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(
-          'routineInProgress',
-          JSON.stringify({
-            routine,
-            nextStepText: previousResult,
-          })
-        );
-      }
-      router.push('/routines/create');
-    } else {
-      // Show login dialog for unauthenticated users
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(
-          'pendingRoutineCreation',
-          JSON.stringify({
-            routine,
-            nextStepText: previousResult,
-            timestamp: Date.now(),
-          })
-        );
-      }
-      setShowLoginDialog(true);
-    }
-  };
-
   const handleLoginAndContinue = async () => {
     try {
       setLoading(true);
@@ -372,81 +174,47 @@ export default function Home() {
       setShowLoginDialog(false);
     } catch (error) {
       logger.error('Login failed:', error);
-      setError('Login failed. Please try again.');
       setLoading(false);
     }
   };
 
-  // Effect to retry pending conversion or redirect for routine creation after login
+  // Effect to redirect to create page after login with pending conversion
   useEffect(() => {
     if (user && typeof window !== 'undefined') {
-      // Check for pending routine creation first
-      const pendingRoutineStr = sessionStorage.getItem('pendingRoutineCreation');
-      if (pendingRoutineStr) {
-        try {
-          const pendingRoutine = JSON.parse(pendingRoutineStr);
-          const { routine, nextStepText, timestamp } = pendingRoutine;
-
-          // Only process if recent (within 10 minutes)
-          const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
-
-          if (isRecent && routine && nextStepText) {
-            logger.log('Redirecting to routine creation after authentication');
-
-            // Store the routine for the creation page
-            sessionStorage.setItem(
-              'routineInProgress',
-              JSON.stringify({
-                routine,
-                nextStepText,
-              })
-            );
-
-            // Clear the pending routine creation
-            sessionStorage.removeItem('pendingRoutineCreation');
-
-            // Close the login dialog if it's open
-            setShowLoginDialog(false);
-
-            // Redirect to routine creation page
-            router.push('/routines/create');
-            return;
-          } else {
-            // Clear expired pending routine
-            sessionStorage.removeItem('pendingRoutineCreation');
-          }
-        } catch (error) {
-          logger.error('Failed to parse pending routine creation:', error);
-          sessionStorage.removeItem('pendingRoutineCreation');
-        }
-      }
-
-      // Check for pending conversion
+      // Check for pending conversion - redirect to create page
       const pendingConversionStr = sessionStorage.getItem('pendingConversion');
       if (pendingConversionStr) {
         try {
           const pendingConversion = JSON.parse(pendingConversionStr);
-          const { taskDescription, text, exampleOutput, timestamp } = pendingConversion;
+          const { timestamp, redirected } = pendingConversion;
 
-          // Only retry if the pending conversion is recent (within 10 minutes)
+          // Skip if already redirected
+          if (redirected) {
+            return;
+          }
+
+          // Only process if the pending conversion is recent (within 10 minutes)
           const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
 
-          if (isRecent && taskDescription && text) {
-            logger.log('Retrying pending conversion after authentication:', {
-              taskDescription: taskDescription.substring(0, 50) + '...',
-              textLength: text.length,
-            });
-
-            // Clear the pending conversion
-            sessionStorage.removeItem('pendingConversion');
+          if (isRecent) {
+            logger.log('Redirecting to create page with pending conversion after authentication');
 
             // Close the login dialog if it's open
             setShowLoginDialog(false);
 
-            // Retry the conversion
-            setTimeout(() => {
-              handleSubmit(taskDescription, text, exampleOutput);
-            }, 500); // Give a bit more time for auth to settle
+            // Keep the pending conversion in sessionStorage for the create page to use
+            // But mark it as being processed to avoid infinite redirects
+            sessionStorage.setItem(
+              'pendingConversion',
+              JSON.stringify({
+                ...pendingConversion,
+                redirected: true
+              })
+            );
+            
+            // Redirect to routine creation page
+            router.push('/routines/create');
+            return;
           } else {
             // Clear expired pending conversion
             sessionStorage.removeItem('pendingConversion');
@@ -460,28 +228,9 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  useEffect(() => {
-    if (initialTask || initialText) {
-      const timer = setTimeout(() => {
-        setInitialTask(undefined);
-        setInitialText(undefined);
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [initialTask, initialText]);
 
-  if (!routine) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <p className="mt-2 text-muted-foreground">Loading...</p>
-      </div>
-    );
-  }
-
-  // Show landing page by default, workflow interface when user tries the feature
-  if (!showWorkflow) {
-    return (
+  // Return landing page
+  return (
       <div className="min-h-screen bg-background">
         <Topbar
           profile={
@@ -818,54 +567,6 @@ export default function Home() {
             </div>
           </div>
         </footer>
-      </div>
-    );
-  }
-
-  // Main conversion interface for all users
-
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Topbar
-        profile={
-          user
-            ? {
-                display_name: user?.user_metadata?.full_name || null,
-                avatar_url: user?.user_metadata?.avatar_url || null,
-              }
-            : null
-        }
-      />
-
-      <WorkflowTimeline
-        steps={routine.steps}
-        provider={routine.provider}
-        onProviderChange={handleProviderChange}
-        onContinue={handleSubmit}
-        onExampleSelect={handleExampleSelect}
-        onUseAsInput={handleUseAsInput}
-        onSaveWorkflow={handleSaveConversionRoutine}
-        onSaveConversionRoutine={handleSaveConversionRoutine}
-        onOpenWorkflowLibrary={() => setShowConversionRoutineLibrary(true)}
-        initialTask={initialTask}
-        initialText={initialText}
-        loading={loading}
-        onAddNewStep={handleAddNewStep}
-      />
-
-      {error && (
-        <div className="px-4 py-2 bg-destructive/10 border-t border-destructive/20">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-destructive text-sm">{error}</div>
-          </div>
-        </div>
-      )}
-
-      <WorkflowLibrary
-        isOpen={showConversionRoutineLibrary}
-        onClose={() => setShowConversionRoutineLibrary(false)}
-        onReplayConversionRoutine={handleReplayConversionRoutine}
-      />
 
       {/* Login Dialog */}
       {showLoginDialog && (
@@ -881,9 +582,7 @@ export default function Home() {
                 <button
                   onClick={() => {
                     setShowLoginDialog(false);
-                    setInitialTask(undefined);
-                    setInitialText(undefined);
-                    // Clear any pending conversion
+                    // Clear any pending conversion if user cancels
                     if (typeof window !== 'undefined') {
                       sessionStorage.removeItem('pendingConversion');
                     }

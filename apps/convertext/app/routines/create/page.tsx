@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { logger } from '@draft-gen/logger';
 
 import Topbar from '@/components/Topbar';
+import WorkflowTimeline from '@/components/WorkflowTimeline';
 import WorkflowLibrary from '@/components/WorkflowLibrary';
 import { useAuth } from '@/components/AuthProvider';
 import {
@@ -20,78 +21,131 @@ import {
   ToolEvaluation,
   WorkflowStep,
 } from '@/types/conversion';
-import WorkflowTimeline from '@/components/WorkflowTimeline';
 
-function CreateRoutineContent() {
+export default function CreateRoutinePage() {
   const { user } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [routine, setRoutine] = useState<ConversionRoutineExecution | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialTask, setInitialTask] = useState<string>();
   const [initialText, setInitialText] = useState<string>();
   const [showConversionRoutineLibrary, setShowConversionRoutineLibrary] = useState(false);
+  const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
-  // Initialize routine - check for in-progress routine from home page
+  // Initialize routine and check for pending conversion from landing page
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const routineInProgressStr = sessionStorage.getItem('routineInProgress');
-      if (routineInProgressStr) {
-        try {
-          const { routine: inProgressRoutine, nextStepText } = JSON.parse(routineInProgressStr);
+    // Initialize routine if not already initialized
+    if (!routine) {
+      const newRoutine = createNewConversionRoutineExecution();
+      let shouldAddEmptyStep = true;
+      let routineToSet = newRoutine;
 
-          // Clear the session storage
-          sessionStorage.removeItem('routineInProgress');
+      // Check for pending conversion from landing page
+      if (typeof window !== 'undefined') {
+        const pendingConversionStr = sessionStorage.getItem('pendingConversion');
+        if (pendingConversionStr) {
+          try {
+            const pendingConversion = JSON.parse(pendingConversionStr);
+            const { taskDescription, text, timestamp } = pendingConversion;
 
-          // Create a new step with the text from the previous conversion
-          const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
+            // Only use if recent (within 10 minutes)
+            const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
+
+            if (isRecent && taskDescription && text) {
+              logger.log('Loading pending conversion from landing page:', {
+                taskDescription: taskDescription.substring(0, 50) + '...',
+                textLength: text.length,
+              });
+
+              // Set initial values
+              setInitialTask(taskDescription);
+              setInitialText(text);
+
+              // Clear the pending conversion
+              sessionStorage.removeItem('pendingConversion');
+
+              // Set flag to auto-start conversion after component mounts
+              setShouldAutoSubmit(true);
+              
+              // Don't add empty step since we have pending data
+              shouldAddEmptyStep = false;
+            } else {
+              // Clear expired pending conversion
+              sessionStorage.removeItem('pendingConversion');
+            }
+          } catch (error) {
+            logger.error('Failed to parse pending conversion:', error);
+            sessionStorage.removeItem('pendingConversion');
+          }
+        }
+
+        // Check for in-progress routine (from multi-step creation)
+        const routineInProgressStr = sessionStorage.getItem('routineInProgress');
+        if (routineInProgressStr) {
+          try {
+            const { routine: inProgressRoutine, nextStepText } = JSON.parse(routineInProgressStr);
+
+            // Clear the session storage
+            sessionStorage.removeItem('routineInProgress');
+
+            // Create a new step with the text from the previous conversion
+            const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
+              status: 'editing',
+              input: {
+                text: nextStepText,
+                taskDescription: '',
+                exampleOutput: undefined,
+              },
+            };
+
+            routineToSet = addStepToConversionRoutine(inProgressRoutine, newStep);
+            setInitialText(nextStepText);
+            setInitialTask('');
+            
+            // Don't add empty step since we have in-progress routine
+            shouldAddEmptyStep = false;
+          } catch (error) {
+            logger.error('Failed to parse routine in progress:', error);
+            sessionStorage.removeItem('routineInProgress');
+          }
+        }
+
+        // If no pending data, add an empty step so users can start creating
+        if (shouldAddEmptyStep) {
+          const emptyStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
             status: 'editing',
             input: {
-              text: nextStepText,
+              text: '',
               taskDescription: '',
               exampleOutput: undefined,
             },
           };
-
-          const updatedRoutine = addStepToConversionRoutine(inProgressRoutine, newStep);
-          setRoutine(updatedRoutine);
-          setInitialText(nextStepText);
-          setInitialTask('');
-          return;
-        } catch (error) {
-          logger.error('Failed to parse routine in progress:', error);
+          routineToSet = addStepToConversionRoutine(newRoutine, emptyStep);
         }
       }
+
+      setRoutine(routineToSet);
     }
+  }, [routine]);
 
-    // Default: create new routine
-    setRoutine(createNewConversionRoutineExecution());
-  }, []);
-
-  // Handle URL query parameters (for pending conversions)
+  // Separate effect for authentication check
   useEffect(() => {
-    const task = searchParams.get('task');
-    const text = searchParams.get('text');
+    // Check auth status after a short delay to allow auth to load
+    const timer = setTimeout(() => {
+      setAuthChecked(true);
+      if (!user) {
+        // If still no user after check, redirect to home
+        router.push('/');
+      }
+    }, 1000); // Give auth 1 second to load
 
-    if (task && text) {
-      setInitialTask(task);
-      setInitialText(text);
-
-      // Clear URL parameters after loading them
-      router.replace('/routines/create');
-    }
-  }, [searchParams, router]);
-
-  // Redirect non-authenticated users to home with login prompt
-  useEffect(() => {
-    if (!user) {
-      router.push('/');
-    }
+    return () => clearTimeout(timer);
   }, [user, router]);
 
-  const handleSubmit = async (taskDescription: string, text: string, exampleOutput?: string) => {
-    if (!taskDescription.trim() || !routine || !user) return;
+  const handleSubmit = useCallback(async (taskDescription: string, text: string, exampleOutput?: string) => {
+    if (!taskDescription.trim() || !routine) return;
 
     const startTime = Date.now();
 
@@ -188,7 +242,7 @@ function CreateRoutineContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [routine]);
 
   const handleProviderChange = (newProvider: string) => {
     if (!routine) return;
@@ -253,6 +307,14 @@ function CreateRoutineContent() {
     setInitialText(previousResult);
   };
 
+  // Handle auto-submit for pending conversions
+  useEffect(() => {
+    if (shouldAutoSubmit && initialTask && initialText && handleSubmit) {
+      setShouldAutoSubmit(false);
+      handleSubmit(initialTask, initialText);
+    }
+  }, [shouldAutoSubmit, initialTask, initialText, handleSubmit]);
+
   // Clear initial values after they are used
   useEffect(() => {
     if (initialTask || initialText) {
@@ -264,12 +326,24 @@ function CreateRoutineContent() {
     }
   }, [initialTask, initialText]);
 
-  // Show loading while waiting for user auth or routine initialization
-  if (!user || !routine) {
+  // Show loading while checking auth or initializing routine
+  if (!authChecked || !routine) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p className="mt-2 text-muted-foreground">Loading...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="mt-2 text-muted-foreground">
+          {!authChecked ? 'Checking authentication...' : 'Loading routine...'}
+        </p>
+      </div>
+    );
+  }
+
+  // If auth checked and no user, will redirect (handled in useEffect)
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="mt-2 text-muted-foreground">Redirecting to login...</p>
       </div>
     );
   }
@@ -310,9 +384,9 @@ function CreateRoutineContent() {
       />
 
       {error && (
-        <div className="px-4 py-2 bg-red-50 border-t border-red-200">
+        <div className="px-4 py-2 bg-destructive/10 border-t border-destructive/20">
           <div className="max-w-4xl mx-auto">
-            <div className="text-red-700 text-sm">{error}</div>
+            <div className="text-destructive text-sm">{error}</div>
           </div>
         </div>
       )}
@@ -323,13 +397,5 @@ function CreateRoutineContent() {
         onReplayConversionRoutine={handleReplayConversionRoutine}
       />
     </div>
-  );
-}
-
-export default function CreateRoutinePage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <CreateRoutineContent />
-    </Suspense>
   );
 }
