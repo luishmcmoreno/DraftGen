@@ -19,7 +19,7 @@ export const aiChatPlugin = AIChatPlugin.extend({
     chatOptions: {
       api: '/api/ai/command',
       body: {},
-    } as UseChatOptions<any>,
+    } as UseChatOptions<Record<string, unknown>>,
     promptTemplate: ({ isBlockSelecting, isSelecting }) => {
       return isBlockSelecting
         ? PROMPT_TEMPLATES.userBlockSelecting

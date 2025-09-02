@@ -90,7 +90,7 @@ export function MediaToolbarButton({
   const { openFilePicker } = useFilePicker({
     accept: currentConfig.accept,
     multiple: true,
-    onFilesSelected: (data: any) => {
+    onFilesSelected: (data: {plainFiles?: File[]}) => {
       // Type guard to check if plainFiles exists
       if ('plainFiles' in data && data.plainFiles) {
         editor.getTransforms(PlaceholderPlugin).insert.media(data.plainFiles);

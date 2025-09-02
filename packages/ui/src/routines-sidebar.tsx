@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Plus, FileText, Zap, Clock, ChevronRight, Search } from 'lucide-react'
+import { Plus, FileText, Clock, ChevronRight, Search } from 'lucide-react'
 import { Button } from './button'
 import { Input } from './input'
 import { ScrollArea } from './scroll-area'

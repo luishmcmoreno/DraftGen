@@ -15,9 +15,9 @@ export const uploadRouter = {
       // Mock middleware - in production this would check auth
       return { userId: 'mock-user' };
     })
-    .onUploadComplete(async ({ metadata, file }) => {
-      console.log('Upload complete for userId:', metadata.userId);
-      console.log('file url', file.url);
+    .onUploadComplete(async ({ metadata }) => {
+      // Upload complete for userId: metadata.userId
+      // File url: file.url
       return { uploadedBy: metadata.userId };
     }),
 } satisfies FileRouter;

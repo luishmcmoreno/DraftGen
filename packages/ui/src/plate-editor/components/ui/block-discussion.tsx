@@ -75,7 +75,7 @@ export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
     return;
   }
 
-  return (props) => (
+  const BlockDiscussionWrapper = (props: PlateElementProps) => (
     <BlockCommentContent
       blockPath={blockPath}
       commentNodes={commentNodes}
@@ -84,6 +84,8 @@ export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
       {...props}
     />
   );
+  BlockDiscussionWrapper.displayName = 'BlockDiscussionWrapper';
+  return BlockDiscussionWrapper;
 };
 
 const BlockCommentContent = ({

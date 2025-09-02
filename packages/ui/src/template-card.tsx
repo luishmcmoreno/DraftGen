@@ -13,8 +13,8 @@ export interface TemplateCardProps extends React.HTMLAttributes<HTMLDivElement> 
     updated_at: string
   }
   onEdit?: (templateId: string) => void
-  onGenerate?: (template: any) => void
-  onDelete?: (template: any) => void
+  onGenerate?: (template: Record<string, unknown>) => void
+  onDelete?: (template: Record<string, unknown>) => void
   editLabel?: string
   generateLabel?: string
   deleteLabel?: string

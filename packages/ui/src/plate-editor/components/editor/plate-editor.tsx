@@ -34,7 +34,7 @@ export function PlateEditor({
       // Call onChange with current value whenever it changes
       onChange(editor.children);
     }
-  }, [editor?.children, onChange]);
+  }, [editor, editor?.children, onChange]);
 
   return (
     <Plate editor={editor}>

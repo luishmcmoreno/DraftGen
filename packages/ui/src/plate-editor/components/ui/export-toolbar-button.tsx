@@ -32,30 +32,30 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
 
     // Try multiple methods to get the editor DOM node
     let editorDOMNode = editor.api.toDOMNode(editor);
-    console.log('Try 1 - editor.api.toDOMNode:', editorDOMNode);
+    // Try 1 - editor.api.toDOMNode
     
     // Fallback: try to find the editor element by its contenteditable attribute
     if (!editorDOMNode) {
       editorDOMNode = document.querySelector('[data-plate-editor]') as HTMLElement;
-      console.log('Try 2 - data-plate-editor:', editorDOMNode);
+      // Try 2 - data-plate-editor
     }
     
     // Another fallback: try to find by the slate-editor class or role
     if (!editorDOMNode) {
       editorDOMNode = document.querySelector('[role="textbox"][contenteditable="true"]') as HTMLElement;
-      console.log('Try 3 - role=textbox:', editorDOMNode);
+      // Try 3 - role=textbox
     }
     
     // Yet another fallback: try to find any contenteditable element
     if (!editorDOMNode) {
       editorDOMNode = document.querySelector('[contenteditable="true"]') as HTMLElement;
-      console.log('Try 4 - contenteditable:', editorDOMNode);
+      // Try 4 - contenteditable
     }
     
     // Log all available elements for debugging
     if (!editorDOMNode) {
-      console.log('Available contenteditable elements:', document.querySelectorAll('[contenteditable]'));
-      console.log('Editor object:', editor);
+      // Available contenteditable elements: document.querySelectorAll('[contenteditable]')
+      // Editor object: editor
       throw new Error('Editor DOM node not found. Please try again.');
     }
 
@@ -119,7 +119,7 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
 
       await downloadFile(pdfBase64, 'plate.pdf');
     } catch (error) {
-      console.error('Failed to export PDF:', error);
+      // Failed to export PDF: error
       alert('Failed to export PDF. Please make sure the editor content is loaded and try again.');
     }
   };
@@ -129,7 +129,7 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
       const canvas = await getCanvas();
       await downloadFile(canvas.toDataURL('image/png'), 'plate.png');
     } catch (error) {
-      console.error('Failed to export image:', error);
+      // Failed to export image: error
       alert('Failed to export image. Please make sure the editor content is loaded and try again.');
     }
   };

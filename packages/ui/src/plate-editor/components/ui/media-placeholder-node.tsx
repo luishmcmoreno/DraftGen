@@ -69,7 +69,7 @@ export const PlaceholderElement = withHOC(
     const { openFilePicker } = useFilePicker({
       accept: currentContent.accept,
       multiple: true,
-      onFilesSelected: (data: any) => {
+      onFilesSelected: (data: {plainFiles?: File[]}) => {
         // Type guard to check if plainFiles exists
         if ('plainFiles' in data && data.plainFiles && data.plainFiles.length > 0) {
           const firstFile = data.plainFiles[0];
@@ -213,6 +213,7 @@ export function ImageProgress({
 
   return (
     <div className={cn('relative', className)} contentEditable={false}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={imageRef}
         className="h-auto w-full rounded-sm object-cover"

@@ -10,6 +10,7 @@ import type {
 import { NodeApi, SlateElement } from 'platejs';
 
 import { cn } from '../../lib/utils';
+import Image from 'next/image';
 
 export function ImageElementStatic(
   props: SlateElementProps<TImageElement & TCaptionProps & TResizableProps>
@@ -23,13 +24,15 @@ export function ImageElementStatic(
           className="relative max-w-full min-w-[92px]"
           style={{ textAlign: align }}
         >
-          <img
+          <Image
             className={cn(
               'w-full max-w-full cursor-default object-cover px-0',
               'rounded-sm'
             )}
-            alt={(props.attributes as any).alt}
+            alt={(props.attributes as { alt?: string }).alt || ''}
             src={url}
+            width={typeof width === 'number' ? width : 500}
+            height={300}
           />
           {caption && (
             <figcaption className="mx-auto mt-2 h-[24px] max-w-full">

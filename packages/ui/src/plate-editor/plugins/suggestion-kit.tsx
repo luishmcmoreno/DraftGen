@@ -83,7 +83,7 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
     },
   },
   render: {
-    belowNodes: SuggestionLineBreak as any,
+    belowNodes: SuggestionLineBreak as React.ComponentType,
     node: SuggestionLeaf,
     belowRootNodes: ({ api, element }) => {
       if (!api.suggestion!.isBlockSuggestion(element)) {

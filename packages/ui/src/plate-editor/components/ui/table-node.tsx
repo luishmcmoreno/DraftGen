@@ -474,7 +474,7 @@ export function TableRowElement(props: PlateElementProps<TTableRowElement>) {
   );
 }
 
-function RowDragHandle({ dragRef }: { dragRef: React.Ref<any> }) {
+function RowDragHandle({ dragRef }: { dragRef: React.Ref<HTMLDivElement> }) {
   const editor = useEditorRef();
   const element = useElement();
 
@@ -606,7 +606,7 @@ export function TableCellElement({
                 className={cn(
                   'absolute top-0 z-30 hidden h-full w-1 bg-ring',
                   'right-[-1.5px]',
-                  columnResizeVariants({ colIndex: colIndex as any })
+                  columnResizeVariants({ colIndex: colIndex as number })
                 )}
               />
               {colIndex === 0 && (

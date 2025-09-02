@@ -3,7 +3,6 @@ import { Send, Sparkles } from 'lucide-react'
 import { Button } from './button'
 import { Textarea } from './textarea'
 import { Card } from './card'
-import { Badge } from './badge'
 import { cn } from './utils'
 
 export interface HeroSectionProps {
