@@ -23,3 +23,6 @@ export * from './footer'
 
 // Export utilities
 export * from './utils'
+
+// Export Plate Editor
+export * from './plate-editor'

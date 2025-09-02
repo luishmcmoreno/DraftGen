@@ -24,6 +24,14 @@ export default function Gallery() {
           <p className="text-lg text-muted-foreground">
             Visual showcase of all available UI components
           </p>
+          <div className="mt-6">
+            <a
+              href="/plate-editor"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Test Plate.js Editor →
+            </a>
+          </div>
         </header>
 
         {/* Button Component */}
