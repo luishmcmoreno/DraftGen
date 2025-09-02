@@ -1,16 +1,16 @@
 // Simple test script to verify frontend-backend integration
 async function testIntegration() {
   console.log('🧪 Testing Frontend-Backend Integration...\n');
-  
+
   const apiUrl = 'http://localhost:8000';
-  
+
   try {
     // Test 1: Backend health check
     console.log('1️⃣ Testing backend health...');
     const healthResponse = await fetch(`${apiUrl}/`);
     const healthData = await healthResponse.json();
     console.log(`   ✅ Backend is running: ${healthData.message}\n`);
-    
+
     // Test 2: Test Gemini provider evaluation
     console.log('2️⃣ Testing Gemini provider evaluation...');
     const evaluateResponse = await fetch(`${apiUrl}/evaluate`, {
@@ -20,12 +20,12 @@ async function testIntegration() {
         'X-LLM-Provider': 'gemini',
       },
       body: JSON.stringify({
-        text: "Hello world",
-        task_description: "Count the words in this text",
-        example_output: "2 words"
+        text: 'Hello world',
+        task_description: 'Count the words in this text',
+        example_output: '2 words',
       }),
     });
-    
+
     if (evaluateResponse.ok) {
       const evaluateData = await evaluateResponse.json();
       console.log(`   ✅ Gemini evaluation successful:`);
@@ -34,7 +34,7 @@ async function testIntegration() {
     } else {
       console.log(`   ❌ Gemini evaluation failed: ${evaluateResponse.status}`);
     }
-    
+
     // Test 3: Test Gemini provider conversion
     console.log('3️⃣ Testing Gemini provider conversion...');
     const convertResponse = await fetch(`${apiUrl}/convert`, {
@@ -44,12 +44,12 @@ async function testIntegration() {
         'X-LLM-Provider': 'gemini',
       },
       body: JSON.stringify({
-        text: "Hello world",
-        task_description: "Count the words in this text",
-        example_output: "2 words"
+        text: 'Hello world',
+        task_description: 'Count the words in this text',
+        example_output: '2 words',
       }),
     });
-    
+
     if (convertResponse.ok) {
       const convertData = await convertResponse.json();
       console.log(`   ✅ Gemini conversion successful:`);
@@ -59,7 +59,7 @@ async function testIntegration() {
     } else {
       console.log(`   ❌ Gemini conversion failed: ${convertResponse.status}`);
     }
-    
+
     // Test 4: Test Mock provider
     console.log('4️⃣ Testing Mock provider...');
     const mockResponse = await fetch(`${apiUrl}/evaluate`, {
@@ -69,24 +69,23 @@ async function testIntegration() {
         'X-LLM-Provider': 'mock',
       },
       body: JSON.stringify({
-        text: "Test text",
-        task_description: "Count words",
-        example_output: "2 words"
+        text: 'Test text',
+        task_description: 'Count words',
+        example_output: '2 words',
       }),
     });
-    
+
     if (mockResponse.ok) {
       const mockData = await mockResponse.json();
       console.log(`   ✅ Mock provider working: ${mockData.tool}\n`);
     } else {
       console.log(`   ❌ Mock provider failed: ${mockResponse.status}`);
     }
-    
+
     console.log('🎉 Integration test completed successfully!');
     console.log('\n📱 Frontend is running at: http://localhost:3000');
     console.log('🔧 Backend is running at: http://localhost:8000');
     console.log('\n💡 You can now test the full application in your browser!');
-    
   } catch (error) {
     console.error('❌ Integration test failed:', error.message);
     console.log('\n🔍 Troubleshooting tips:');

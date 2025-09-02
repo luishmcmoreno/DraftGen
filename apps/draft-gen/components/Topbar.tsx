@@ -57,7 +57,10 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
       <div className="px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2 text-xl font-bold text-card-foreground">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-xl font-bold text-card-foreground"
+            >
               <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
                 <FileText className="h-5 w-5 text-white" />
               </div>

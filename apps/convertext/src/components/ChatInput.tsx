@@ -11,12 +11,12 @@ interface ChatInputProps {
   initialText?: string;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ 
-  onSubmit, 
-  loading = false, 
-  placeholder = "Describe what you want to do with your text...",
+const ChatInput: React.FC<ChatInputProps> = ({
+  onSubmit,
+  loading = false,
+  placeholder = 'Describe what you want to do with your text...',
   initialTask,
-  initialText
+  initialText,
 }) => {
   const [taskDescription, setTaskDescription] = useState('');
   const [text, setText] = useState('');
@@ -37,7 +37,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!taskDescription.trim()) return;
-    
+
     onSubmit(taskDescription.trim(), text.trim(), exampleOutput.trim() || undefined);
     setTaskDescription('');
     setText('');
@@ -82,17 +82,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 rows={1}
                 style={{
                   minHeight: '44px',
-                  height: Math.min(120, Math.max(44, taskDescription.split('\n').length * 20 + 24))
+                  height: Math.min(120, Math.max(44, taskDescription.split('\n').length * 20 + 24)),
                 }}
                 disabled={loading}
               />
             </div>
             <div className="flex items-end">
-              <Button
-                type="submit"
-                disabled={!isValid || loading}
-                className="px-4 py-3"
-              >
+              <Button type="submit" disabled={!isValid || loading} className="px-4 py-3">
                 {loading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
@@ -111,7 +107,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           {/* Keyboard tip below task input */}
           {taskDescription && !loading && (
             <div className="text-xs text-muted-foreground text-center -mt-2">
-              Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">⌘ Enter</kbd> or 
+              Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">⌘ Enter</kbd> or
               <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl Enter</kbd> to send
             </div>
           )}
@@ -139,7 +135,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               >
                 {showAdvanced ? 'Hide' : 'Show'} advanced options
               </button>
-              
+
               {showAdvanced && (
                 <div className="space-y-3 p-3 bg-muted/50 rounded-lg border border-border">
                   <div>
@@ -155,7 +151,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                       disabled={loading}
                     />
                   </div>
-                  
+
                   <div>
                     <label className="text-xs font-medium text-foreground block mb-1">
                       Upload File

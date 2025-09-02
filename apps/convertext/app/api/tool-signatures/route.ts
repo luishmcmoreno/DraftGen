@@ -7,10 +7,13 @@ export async function GET() {
     return NextResponse.json(signatures);
   } catch (error) {
     console.error('Tool signatures API Error:', error);
-    
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }

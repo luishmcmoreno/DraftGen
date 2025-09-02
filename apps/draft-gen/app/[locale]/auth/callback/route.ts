@@ -36,11 +36,11 @@ export async function GET(request: NextRequest, context: { params: Promise<{ loc
 
     // Check if there's a redirect stored in the cookie
     const authRedirect = cookieStore.get('auth_redirect');
-    
+
     if (authRedirect?.value === 'generator') {
       // Delete the cookie after reading it
       cookieStore.delete('auth_redirect');
-      
+
       // Check for a pending prompt in the browser's sessionStorage
       // This will be handled client-side in the generator page
       return NextResponse.redirect(`${origin}${localePrefix}/generator?fromAuth=true`);

@@ -195,9 +195,7 @@ export default function VariableFormModal({ template, onClose }: VariableFormMod
                       >
                         {variable.label || variable.name}
                         {!variable.required && (
-                          <span className="text-muted-foreground text-xs ml-1">
-                            (optional)
-                          </span>
+                          <span className="text-muted-foreground text-xs ml-1">(optional)</span>
                         )}
                       </label>
                       {renderVariableInput(variable)}

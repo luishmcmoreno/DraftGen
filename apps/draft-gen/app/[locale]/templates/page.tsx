@@ -33,13 +33,9 @@ export default async function TemplatesPage({ params }: { params: Promise<{ loca
       <main className="container mx-auto px-4 py-8">
         <div className="mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground">
-              {t('list.title')}
-            </h1>
+            <h1 className="text-3xl font-bold text-foreground">{t('list.title')}</h1>
             <Button asChild>
-              <Link href="/generator">
-                {t('list.createCta')}
-              </Link>
+              <Link href="/generator">{t('list.createCta')}</Link>
             </Button>
           </div>
 
@@ -52,9 +48,7 @@ export default async function TemplatesPage({ params }: { params: Promise<{ loca
               </h3>
               <p className="text-muted-foreground mb-4">{t('empty.subtitle')}</p>
               <Button size="lg" asChild>
-                <Link href="/generator">
-                  {t('empty.cta')}
-                </Link>
+                <Link href="/generator">{t('empty.cta')}</Link>
               </Button>
             </div>
           )}

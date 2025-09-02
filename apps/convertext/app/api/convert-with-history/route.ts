@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveTextConversion } from '../../../src/lib/supabase/text-conversions';
-import { 
-  createConversionStep, 
-  updateConversionStep 
+import {
+  createConversionStep,
+  updateConversionStep,
 } from '../../../src/lib/supabase/conversion-steps';
 import { ConversionAgent } from '../../../src/lib/agent/conversion-agent';
 import { getProviderFromName } from '../../../src/lib/providers';
-import type { 
-  TextConversionResponse, 
-  ConversionResult, 
-  WorkflowStep 
+import type {
+  TextConversionResponse,
+  ConversionResult,
+  WorkflowStep,
 } from '../../../src/types/conversion';
 
 // This endpoint uses internal conversion tools with Supabase history tracking
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
-      text, 
-      task_description, 
+    const {
+      text,
+      task_description,
       provider = 'mock',
       execution_id,
       step_number,
-      example_output 
+      example_output,
     } = body as {
       text: string;
       task_description: string;
@@ -33,7 +33,10 @@ export async function POST(request: NextRequest) {
     };
 
     if (!text || !task_description) {
-      return NextResponse.json({ error: 'Text and task description are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Text and task description are required' },
+        { status: 400 }
+      );
     }
 
     let stepId: string | undefined;
@@ -61,7 +64,7 @@ export async function POST(request: NextRequest) {
     try {
       const llmProvider = getProviderFromName(provider);
       const conversionAgent = new ConversionAgent(llmProvider);
-      
+
       const result = await conversionAgent.processRequest({
         text,
         taskDescription: task_description,
@@ -93,50 +96,43 @@ export async function POST(request: NextRequest) {
 
       // Save to Supabase history
       try {
-      const conversionResult: ConversionResult = {
-        original_text: conversionData.original_text,
-        converted_text: conversionData.converted_text,
-        diff: conversionData.diff,
-        tool_used: conversionData.tool_used,
-        confidence: conversionData.confidence,
-        render_mode: conversionData.render_mode,
-        tool_args: Array.isArray(conversionData.tool_args) 
-          ? conversionData.tool_args.map(arg => 
-              typeof arg === 'string' ? { name: arg, value: '' } : arg
-            )
-          : conversionData.tool_args,
-        error: conversionData.error,
-      };
-
-      // Save to text conversions history
-      await saveTextConversion(
-        conversionResult,
-        task_description,
-        provider,
-        stepId
-      );
-
-      // Update conversion step if we created one
-      if (stepId) {
-        await updateConversionStep(stepId, {
-          status: conversionData.error ? 'error' : 'completed',
-          output: {
-            result: conversionResult,
-          },
+        const conversionResult: ConversionResult = {
+          original_text: conversionData.original_text,
+          converted_text: conversionData.converted_text,
+          diff: conversionData.diff,
+          tool_used: conversionData.tool_used,
+          confidence: conversionData.confidence,
+          render_mode: conversionData.render_mode,
+          tool_args: Array.isArray(conversionData.tool_args)
+            ? conversionData.tool_args.map((arg) =>
+                typeof arg === 'string' ? { name: arg, value: '' } : arg
+              )
+            : conversionData.tool_args,
           error: conversionData.error,
-        });
+        };
+
+        // Save to text conversions history
+        await saveTextConversion(conversionResult, task_description, provider, stepId);
+
+        // Update conversion step if we created one
+        if (stepId) {
+          await updateConversionStep(stepId, {
+            status: conversionData.error ? 'error' : 'completed',
+            output: {
+              result: conversionResult,
+            },
+            error: conversionData.error,
+          });
+        }
+      } catch (historyError) {
+        console.warn('Failed to save conversion history:', historyError);
+        // Don't fail the request if history saving fails
       }
 
-    } catch (historyError) {
-      console.warn('Failed to save conversion history:', historyError);
-      // Don't fail the request if history saving fails
-    }
-
       return NextResponse.json(conversionData);
-
     } catch (conversionError) {
       console.error('Conversion processing error:', conversionError);
-      
+
       // Update step with error if we created one
       if (stepId) {
         try {
@@ -148,19 +144,25 @@ export async function POST(request: NextRequest) {
           console.warn('Failed to update step with error:', updateError);
         }
       }
-      
-      return NextResponse.json({ 
-        error: 'Conversion failed',
-        message: conversionError instanceof Error ? conversionError.message : 'Unknown conversion error'
-      }, { status: 500 });
-    }
 
+      return NextResponse.json(
+        {
+          error: 'Conversion failed',
+          message:
+            conversionError instanceof Error ? conversionError.message : 'Unknown conversion error',
+        },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error('Conversion API Error:', error);
-    
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }

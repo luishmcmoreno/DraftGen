@@ -10,7 +10,7 @@ const intlMiddleware = createMiddleware({
 });
 
 const publicPaths = [
-  '/',  // Add root path as public for landing page
+  '/', // Add root path as public for landing page
   '/auth/callback',
   '/api/auth/login',
   '/api/auth/logout',

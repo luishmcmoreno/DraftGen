@@ -207,16 +207,16 @@ function AutoPaginatedDocumentBase({
         if (splitResult.overflow) {
           // Store overflow with proper type normalization for list nodes
           let overflowNode = splitResult.overflow as NodeType;
-          
+
           // Ensure list nodes have the ordered property set
           if (overflowNode.type === NodeTypeEnum.LIST) {
             const listNode = overflowNode as ListNodeType;
             overflowNode = {
               ...listNode,
-              ordered: listNode.ordered ?? false
+              ordered: listNode.ordered ?? false,
             } as NodeType;
           }
-          
+
           // If nothing fit on this page, and page isn't empty, start a new page
           const originalIndex = nodeToOriginalIndex.get(node);
           if (!splitResult.fitsOnPage && currentPage.length > 0) {

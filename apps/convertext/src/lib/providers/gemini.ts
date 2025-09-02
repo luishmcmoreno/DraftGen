@@ -13,19 +13,18 @@ export class GeminiProvider extends BaseLLMProvider {
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY environment variable is required');
     }
-    
+
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
   }
 
   private createPrompt(text: string, taskDescription: string, exampleOutput?: string): string {
     const tools = TextTools.getAvailableTools()
-      .map(tool => `- ${tool.name}: ${tool.description}`)
+      .map((tool) => `- ${tool.name}: ${tool.description}`)
       .join('\n');
 
-    const exampleOutputSection = exampleOutput && exampleOutput.trim()
-      ? `Example output (if provided): ${exampleOutput}`
-      : '';
+    const exampleOutputSection =
+      exampleOutput && exampleOutput.trim() ? `Example output (if provided): ${exampleOutput}` : '';
 
     return `You are an AI agent specialized in text conversion tasks. Your goal is to understand the user's request based on the description of the conversion needed to the text and a small sample of the text.
 You should then select from the list of available tools, which tool to use to perform the conversion.
@@ -55,7 +54,7 @@ REASONING: <reasoning>`;
     toolUsed?: string,
     toolArgs?: string[]
   ): Promise<GenerateResponse> {
-    if (toolUsed && TextTools.getAvailableTools().find(t => t.name === toolUsed)) {
+    if (toolUsed && TextTools.getAvailableTools().find((t) => t.name === toolUsed)) {
       try {
         const args = [text, ...(toolArgs || [])];
         const converted = TextTools.executeTool(toolUsed, args);
@@ -63,14 +62,14 @@ REASONING: <reasoning>`;
           converted_text: converted,
           tool_used: toolUsed,
           tool_args: toolArgs || [],
-          error: undefined
+          error: undefined,
         };
       } catch (error) {
         return {
           converted_text: text,
           tool_used: 'error',
           tool_args: toolArgs || [],
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         };
       }
     } else {
@@ -78,7 +77,7 @@ REASONING: <reasoning>`;
         converted_text: text,
         tool_used: 'error',
         tool_args: toolArgs || [],
-        error: `Tool '${toolUsed}' is not available.`
+        error: `Tool '${toolUsed}' is not available.`,
       };
     }
   }
@@ -91,16 +90,16 @@ REASONING: <reasoning>`;
     try {
       const prompt = this.createPrompt(text, taskDescription, exampleOutput);
       console.log('[GeminiProvider] Final prompt to Gemini:\n', prompt);
-      
+
       const result = await this.model.generateContent(prompt);
       const response = result.response.text();
-      
+
       console.log('[GeminiProvider] LLM RESPONSE:\n', response);
-      
+
       // Extract tool, arguments, and reasoning
       const toolMatch = response.match(/TOOL:\s*(\w+)/);
       const tool = toolMatch ? toolMatch[1] : 'custom';
-      
+
       // Extract arguments (arg_name::<value>)
       const argPattern = /(\w+)::(.*)/g;
       const toolInput: string[] = [];
@@ -110,33 +109,34 @@ REASONING: <reasoning>`;
           toolInput.push(match[2].trim());
         }
       }
-      
-      const reasoningMatch = response.match(/REASONING:\s*([\s\S]*?)$/);  
+
+      const reasoningMatch = response.match(/REASONING:\s*([\s\S]*?)$/);
       const reasoning = reasoningMatch ? reasoningMatch[1].trim() : response.trim();
-      
+
       // Pair argument names with values
       const toolSignature = TextTools.getToolSignatures()[tool] || [];
       const toolArgs: { name: string; value: string }[] = [];
-      
+
       for (let i = 0; i < toolSignature.length; i++) {
         const name = toolSignature[i];
         const value = i < toolInput.length ? toolInput[i] : '';
-        if (name !== 'text') { // Skip the text parameter as it's provided separately
+        if (name !== 'text') {
+          // Skip the text parameter as it's provided separately
           toolArgs.push({ name, value });
         }
       }
-      
+
       return {
         reasoning,
         tool,
-        tool_args: toolArgs
+        tool_args: toolArgs,
       };
     } catch (error) {
       console.error('[GeminiProvider] Error during evaluation:', error);
       return {
         reasoning: `Error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`,
         tool: 'custom',
-        tool_args: []
+        tool_args: [],
       };
     }
   }

@@ -39,7 +39,7 @@ export async function saveTextConversion(
   stepId?: string
 ): Promise<ConversionHistoryEntry> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     throw new Error('User must be authenticated to save text conversion');
@@ -75,7 +75,7 @@ export async function saveTextConversion(
 
 export async function getConversionHistory(limit = 50): Promise<ConversionHistoryEntry[]> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     return [];
@@ -95,9 +95,11 @@ export async function getConversionHistory(limit = 50): Promise<ConversionHistor
   return (data || []).map(dbRowToConversionHistory);
 }
 
-export async function getConversionHistoryByStep(stepId: string): Promise<ConversionHistoryEntry[]> {
+export async function getConversionHistoryByStep(
+  stepId: string
+): Promise<ConversionHistoryEntry[]> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     return [];
@@ -122,7 +124,7 @@ export async function searchConversionHistory(
   limit = 20
 ): Promise<ConversionHistoryEntry[]> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     return [];
@@ -132,7 +134,9 @@ export async function searchConversionHistory(
     .from('text_conversions')
     .select('*')
     .eq('owner_id', user.user.id)
-    .or(`original_text.ilike.%${query}%,converted_text.ilike.%${query}%,task_description.ilike.%${query}%`)
+    .or(
+      `original_text.ilike.%${query}%,converted_text.ilike.%${query}%,task_description.ilike.%${query}%`
+    )
     .order('created_at', { ascending: false })
     .limit(limit);
 
@@ -145,7 +149,7 @@ export async function searchConversionHistory(
 
 export async function deleteTextConversion(conversionId: string): Promise<void> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     throw new Error('User must be authenticated to delete text conversion');
@@ -164,7 +168,7 @@ export async function deleteTextConversion(conversionId: string): Promise<void> 
 
 export async function getConversionStatsByTool(): Promise<{ tool: string; count: number }[]> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     return [];
@@ -181,11 +185,14 @@ export async function getConversionStatsByTool(): Promise<{ tool: string; count:
   }
 
   // Count tools usage
-  const toolCounts = (data || []).reduce((acc, item) => {
-    const tool = item.tool_used as string;
-    acc[tool] = (acc[tool] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const toolCounts = (data || []).reduce(
+    (acc, item) => {
+      const tool = item.tool_used as string;
+      acc[tool] = (acc[tool] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
   return Object.entries(toolCounts)
     .map(([tool, count]) => ({ tool, count }))

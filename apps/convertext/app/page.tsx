@@ -1,15 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Topbar from '../src/components/Topbar';
+import WorkflowTimeline from '../src/components/WorkflowTimeline';
+import WorkflowLibrary from '../src/components/WorkflowLibrary';
 import { useAuth } from '../src/components/AuthProvider';
-import { 
-  FileText, 
-  Zap, 
-  Users, 
-  Shield, 
-  Globe, 
+import { useTheme } from '../src/components/ThemeProvider';
+import { GoogleSignInButton } from '@draft-gen/ui';
+import {
+  FileText,
+  Zap,
+  Users,
+  Shield,
+  Globe,
   Workflow,
   ArrowRight,
   Sparkles,
@@ -20,27 +24,48 @@ import {
   Code,
   Mail,
   AlignLeft,
-  Phone
+  Phone,
 } from 'lucide-react';
+import {
+  ConversionRoutineExecution,
+  WorkflowStep,
+  SavedConversionRoutine,
+  ToolEvaluation,
+} from '../src/types/conversion';
+import {
+  createNewConversionRoutineExecution,
+  addStepToConversionRoutine,
+  updateStepStatus,
+  replayConversionRoutine,
+  saveConversionRoutineToStorage,
+} from '../src/utils/workflow-supabase';
 
 export default function Home() {
   const { user, signIn } = useAuth();
+  const { resolvedTheme } = useTheme();
   const router = useRouter();
+  const [routine, setRoutine] = useState<ConversionRoutineExecution | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [initialTask, setInitialTask] = useState<string>();
+  const [initialText, setInitialText] = useState<string>();
+  const [showConversionRoutineLibrary, setShowConversionRoutineLibrary] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showWorkflow, setShowWorkflow] = useState(false);
   const [taskDescription, setTaskDescription] = useState('');
   const [text, setText] = useState('');
 
+  useEffect(() => {
+    setRoutine(createNewConversionRoutineExecution());
+  }, []);
+
   const handleTryNow = () => {
     if (!taskDescription.trim() || !text.trim()) return;
-    // Store the task and text for the convert page
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('pendingConversion', JSON.stringify({
-        taskDescription,
-        text,
-        timestamp: Date.now()
-      }));
-    }
-    // Redirect to convert page
-    router.push('/convert');
+    setShowWorkflow(true);
+    // Trigger the conversion immediately
+    setTimeout(() => {
+      handleSubmit(taskDescription, text);
+    }, 100);
   };
 
   const handleGetStarted = () => {
@@ -53,110 +78,447 @@ export default function Home() {
 
   const examples = [
     {
-      title: "Remove Duplicate Rows",
-      description: "Clean up CSV files by removing duplicate entries",
-      task: "Remove duplicate rows from this CSV data",
-      sampleInput: "name,email,age\nJohn,john@email.com,25\nJane,jane@email.com,30\nJohn,john@email.com,25",
+      title: 'Remove Duplicate Rows',
+      description: 'Clean up CSV files by removing duplicate entries',
+      task: 'Remove duplicate rows from this CSV data',
+      sampleInput:
+        'name,email,age\nJohn,john@email.com,25\nJane,jane@email.com,30\nJohn,john@email.com,25',
       icon: Trash2,
-      category: "CSV"
+      category: 'CSV',
     },
     {
-      title: "Capitalize All Words",
-      description: "Transform text to title case formatting",
-      task: "Capitalize all words in this text",
-      sampleInput: "the quick brown fox jumps over the lazy dog",
+      title: 'Capitalize All Words',
+      description: 'Transform text to title case formatting',
+      task: 'Capitalize all words in this text',
+      sampleInput: 'the quick brown fox jumps over the lazy dog',
       icon: Type,
-      category: "Text"
+      category: 'Text',
     },
     {
-      title: "Remove CSV Columns",
-      description: "Delete specific columns from CSV data",
+      title: 'Remove CSV Columns',
+      description: 'Delete specific columns from CSV data',
       task: "Remove the 'age' column from this CSV data",
-      sampleInput: "name,email,age,city\nJohn,john@email.com,25,NYC\nJane,jane@email.com,30,LA",
+      sampleInput: 'name,email,age,city\nJohn,john@email.com,25,NYC\nJane,jane@email.com,30,LA',
       icon: Columns,
-      category: "CSV"
+      category: 'CSV',
     },
     {
-      title: "Convert European Numbers",
-      description: "Change European decimal format to American",
-      task: "Convert European number format to American format",
-      sampleInput: "Price: 1.234,56 €\nQuantity: 2.500,00\nDiscount: 15,5%",
+      title: 'Convert European Numbers',
+      description: 'Change European decimal format to American',
+      task: 'Convert European number format to American format',
+      sampleInput: 'Price: 1.234,56 €\nQuantity: 2.500,00\nDiscount: 15,5%',
       icon: Calculator,
-      category: "Format"
+      category: 'Format',
     },
     {
-      title: "CSV to JSON",
-      description: "Convert CSV data into JSON format",
-      task: "Convert this CSV data to JSON format",
-      sampleInput: "name,age,city\nAlice,28,Boston\nBob,35,Seattle",
+      title: 'CSV to JSON',
+      description: 'Convert CSV data into JSON format',
+      task: 'Convert this CSV data to JSON format',
+      sampleInput: 'name,age,city\nAlice,28,Boston\nBob,35,Seattle',
       icon: Code,
-      category: "Data"
+      category: 'Data',
     },
     {
-      title: "Extract Email Addresses",
-      description: "Find and extract all email addresses from text",
-      task: "Extract all email addresses from this text",
-      sampleInput: "Contact us at support@example.com or sales@company.org. For urgent matters, reach admin@site.net.",
+      title: 'Extract Email Addresses',
+      description: 'Find and extract all email addresses from text',
+      task: 'Extract all email addresses from this text',
+      sampleInput:
+        'Contact us at support@example.com or sales@company.org. For urgent matters, reach admin@site.net.',
       icon: Mail,
-      category: "Text"
+      category: 'Text',
     },
     {
-      title: "Split Text by Lines",
-      description: "Convert paragraph text into separate lines",
-      task: "Split this text into separate lines by sentences",
+      title: 'Split Text by Lines',
+      description: 'Convert paragraph text into separate lines',
+      task: 'Split this text into separate lines by sentences',
       sampleInput: "This is the first sentence. This is the second sentence. Here's a third one!",
       icon: AlignLeft,
-      category: "Text"
+      category: 'Text',
     },
     {
-      title: "Format Phone Numbers",
-      description: "Standardize phone number formatting",
-      task: "Format these phone numbers to (XXX) XXX-XXXX format",
-      sampleInput: "1234567890\n555.123.4567\n(555) 987-6543\n+1-800-555-0199",
+      title: 'Format Phone Numbers',
+      description: 'Standardize phone number formatting',
+      task: 'Format these phone numbers to (XXX) XXX-XXXX format',
+      sampleInput: '1234567890\n555.123.4567\n(555) 987-6543\n+1-800-555-0199',
       icon: Phone,
-      category: "Format"
-    }
+      category: 'Format',
+    },
   ];
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'CSV': return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-300 dark:border-blue-800';
-      case 'Text': return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800';
-      case 'Format': return 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-300 dark:border-purple-800';
-      case 'Data': return 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/20 dark:text-orange-300 dark:border-orange-800';
-      default: return 'bg-muted/50 text-muted-foreground border-border';
+      case 'CSV':
+        return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-300 dark:border-blue-800';
+      case 'Text':
+        return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800';
+      case 'Format':
+        return 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-300 dark:border-purple-800';
+      case 'Data':
+        return 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/20 dark:text-orange-300 dark:border-orange-800';
+      default:
+        return 'bg-muted/50 text-muted-foreground border-border';
     }
   };
 
+  const handleSubmit = async (taskDescription: string, text: string, exampleOutput?: string) => {
+    if (!taskDescription.trim() || !routine) return;
 
-  return (
-    <div className="min-h-screen bg-background">
-        <Topbar profile={user ? { display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null } : null} />
+    // Check if user is authenticated before proceeding with the conversion
+    if (!user) {
+      // Store pending conversion in sessionStorage for post-auth retry
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(
+          'pendingConversion',
+          JSON.stringify({
+            taskDescription,
+            text,
+            exampleOutput,
+            timestamp: Date.now(),
+          })
+        );
+      }
+
+      // Show login dialog instead of proceeding
+      setShowLoginDialog(true);
+      setInitialTask(taskDescription);
+      setInitialText(text);
+      return;
+    }
+
+    // User is authenticated, proceed directly with conversion
+
+    const startTime = Date.now();
+
+    const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
+      status: 'running',
+      input: {
+        text,
+        taskDescription,
+        exampleOutput,
+      },
+    };
+
+    let updatedRoutine = addStepToConversionRoutine(routine, newStep);
+    setRoutine(updatedRoutine);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
+
+      const evaluateResponse = await fetch(`/api/evaluate-with-history`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text,
+          task_description: taskDescription,
+          provider: routine.provider,
+        }),
+      });
+
+      if (!evaluateResponse.ok) {
+        throw new Error('Evaluation failed');
+      }
+
+      const evaluationData = await evaluateResponse.json();
+      const evaluation: ToolEvaluation = {
+        reasoning: evaluationData.reasoning || '',
+        tool: evaluationData.tool || '',
+        tool_args: evaluationData.tool_args || [],
+      };
+
+      const convertResponse = await fetch(`/api/convert-with-history`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text,
+          task_description: taskDescription,
+          example_output: exampleOutput,
+          provider: routine.provider,
+        }),
+      });
+
+      if (!convertResponse.ok) {
+        throw new Error('Conversion failed');
+      }
+
+      const conversionData = await convertResponse.json();
+      const duration = Date.now() - startTime;
+
+      updatedRoutine = updateStepStatus(
+        updatedRoutine,
+        stepId,
+        'completed',
+        {
+          result: conversionData,
+          evaluation,
+        },
+        undefined,
+        duration
+      );
+
+      setRoutine(updatedRoutine);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
+
+      const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
+      const duration = Date.now() - startTime;
+
+      updatedRoutine = updateStepStatus(
+        updatedRoutine,
+        stepId,
+        'error',
+        undefined,
+        errorMessage,
+        duration
+      );
+
+      setRoutine(updatedRoutine);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProviderChange = (newProvider: string) => {
+    if (!routine) return;
+    setRoutine((prev) =>
+      prev
+        ? {
+            ...prev,
+            provider: newProvider,
+          }
+        : null
+    );
+  };
+
+  const handleExampleSelect = (task: string, sampleInput?: string) => {
+    setInitialTask(task);
+    setInitialText(sampleInput || '');
+  };
+
+  const handleUseAsInput = (text: string) => {
+    setInitialText(text);
+  };
+
+  const handleSaveConversionRoutine = () => {
+    if (!routine) return;
+    const savedRoutine: SavedConversionRoutine = {
+      id: routine.id,
+      name: routine.name,
+      steps: routine.steps.map((step) => ({
+        id: step.id,
+        stepNumber: step.stepNumber,
+        taskDescription: step.input.taskDescription,
+        exampleOutput: step.input.exampleOutput,
+      })),
+      createdAt: new Date(),
+      usageCount: 0,
+    };
+    saveConversionRoutineToStorage(savedRoutine);
+  };
+
+  const handleReplayConversionRoutine = (savedRoutine: SavedConversionRoutine) => {
+    const replayedRoutine = replayConversionRoutine(savedRoutine, routine?.provider || 'mock');
+    setRoutine(replayedRoutine);
+    setError(null);
+  };
+
+  const handleAddNewStep = (previousResult: string) => {
+    if (!routine) return;
+
+    // For multi-step routine creation, redirect to the routine creation page
+    if (user) {
+      // Store the current routine in sessionStorage to continue in the routine creation page
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(
+          'routineInProgress',
+          JSON.stringify({
+            routine,
+            nextStepText: previousResult,
+          })
+        );
+      }
+      router.push('/routines/create');
+    } else {
+      // Show login dialog for unauthenticated users
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(
+          'pendingRoutineCreation',
+          JSON.stringify({
+            routine,
+            nextStepText: previousResult,
+            timestamp: Date.now(),
+          })
+        );
+      }
+      setShowLoginDialog(true);
+    }
+  };
+
+  const handleLoginAndContinue = async () => {
+    try {
+      setLoading(true);
+
+      // The pending conversion is already stored in sessionStorage
+      // Just trigger the sign in, and the conversion will be retried after auth
+      await signIn();
+
+      setShowLoginDialog(false);
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError('Login failed. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  // Effect to retry pending conversion or redirect for routine creation after login
+  useEffect(() => {
+    if (user && typeof window !== 'undefined') {
+      // Check for pending routine creation first
+      const pendingRoutineStr = sessionStorage.getItem('pendingRoutineCreation');
+      if (pendingRoutineStr) {
+        try {
+          const pendingRoutine = JSON.parse(pendingRoutineStr);
+          const { routine, nextStepText, timestamp } = pendingRoutine;
+
+          // Only process if recent (within 10 minutes)
+          const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
+
+          if (isRecent && routine && nextStepText) {
+            console.log('Redirecting to routine creation after authentication');
+
+            // Store the routine for the creation page
+            sessionStorage.setItem(
+              'routineInProgress',
+              JSON.stringify({
+                routine,
+                nextStepText,
+              })
+            );
+
+            // Clear the pending routine creation
+            sessionStorage.removeItem('pendingRoutineCreation');
+
+            // Close the login dialog if it's open
+            setShowLoginDialog(false);
+
+            // Redirect to routine creation page
+            router.push('/routines/create');
+            return;
+          } else {
+            // Clear expired pending routine
+            sessionStorage.removeItem('pendingRoutineCreation');
+          }
+        } catch (error) {
+          console.error('Failed to parse pending routine creation:', error);
+          sessionStorage.removeItem('pendingRoutineCreation');
+        }
+      }
+
+      // Check for pending conversion
+      const pendingConversionStr = sessionStorage.getItem('pendingConversion');
+      if (pendingConversionStr) {
+        try {
+          const pendingConversion = JSON.parse(pendingConversionStr);
+          const { taskDescription, text, exampleOutput, timestamp } = pendingConversion;
+
+          // Only retry if the pending conversion is recent (within 10 minutes)
+          const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
+
+          if (isRecent && taskDescription && text) {
+            console.log('Retrying pending conversion after authentication:', {
+              taskDescription: taskDescription.substring(0, 50) + '...',
+              textLength: text.length,
+            });
+
+            // Clear the pending conversion
+            sessionStorage.removeItem('pendingConversion');
+
+            // Close the login dialog if it's open
+            setShowLoginDialog(false);
+
+            // Retry the conversion
+            setTimeout(() => {
+              handleSubmit(taskDescription, text, exampleOutput);
+            }, 500); // Give a bit more time for auth to settle
+          } else {
+            // Clear expired pending conversion
+            sessionStorage.removeItem('pendingConversion');
+          }
+        } catch (error) {
+          console.error('Failed to parse pending conversion:', error);
+          sessionStorage.removeItem('pendingConversion');
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  useEffect(() => {
+    if (initialTask || initialText) {
+      const timer = setTimeout(() => {
+        setInitialTask(undefined);
+        setInitialText(undefined);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [initialTask, initialText]);
+
+  if (!routine) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="mt-2 text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  // Show landing page by default, workflow interface when user tries the feature
+  if (!showWorkflow) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Topbar
+          profile={
+            user
+              ? {
+                  display_name: user?.user_metadata?.full_name || null,
+                  avatar_url: user?.user_metadata?.avatar_url || null,
+                }
+              : null
+          }
+        />
 
         {/* Hero Section with Background Gradient */}
-        <section className="bg-gradient-subtle py-24 px-6">
+        <section className="bg-gradient-subtle py-20 px-6">
           <div className="container mx-auto max-w-6xl">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
                 <Sparkles className="h-4 w-4" />
                 Efficient and fast AI-powered conversion
               </div>
-              
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-4 leading-tight">
+
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
                 Transform documents accurately with{' '}
-                <span style={{
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}>
+                <span
+                  style={{
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
                   AI Agents
                 </span>
               </h1>
-              
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
-                Convert, rewrite, and transform any text with powerful AI tools. 
-                From casual notes to professional documents, get instant, intelligent text transformations.
+
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-16 leading-relaxed">
+                Convert, rewrite, and transform any text with powerful AI tools. From casual notes
+                to professional documents, get instant, intelligent text transformations.
               </p>
 
               {/* Try It Now Section */}
@@ -179,19 +541,22 @@ export default function Home() {
                         disabled={!taskDescription.trim() || !text.trim()}
                         className="px-6 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap shadow-sm"
                         style={{
-                          background: !taskDescription.trim() || !text.trim() 
-                            ? 'hsl(var(--muted))' 
-                            : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                          color: 'white'
+                          background:
+                            !taskDescription.trim() || !text.trim()
+                              ? 'hsl(var(--muted))'
+                              : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                          color: 'white',
                         }}
                         onMouseEnter={(e) => {
                           if (taskDescription.trim() && text.trim()) {
-                            e.currentTarget.style.background = 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)';
+                            e.currentTarget.style.background =
+                              'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (taskDescription.trim() && text.trim()) {
-                            e.currentTarget.style.background = 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)';
+                            e.currentTarget.style.background =
+                              'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)';
                           }
                         }}
                       >
@@ -199,7 +564,7 @@ export default function Home() {
                       </button>
                     </div>
                   </div>
-                  
+
                   <div>
                     <textarea
                       value={text}
@@ -219,38 +584,52 @@ export default function Home() {
         <section className="py-16 px-6 bg-background">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center">
-              <h3 className="text-lg font-semibold text-foreground mb-6">Not sure how to start? Try these examples:</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-6">
+                Not sure how to start? Try these examples:
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {examples.map((example, index) => (
-                    <div
-                      key={index}
-                      onClick={() => {
-                        setTaskDescription(example.task);
-                        setText(example.sampleInput);
-                      }}
-                      className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10">
-                          <example.icon className="w-5 h-5 text-primary" />
-                        </div>
-                        <span className={`text-xs px-2 py-1 rounded-full border ${getCategoryColor(example.category)}`}>
-                          {example.category}
-                        </span>
+                {examples.map((example, index) => (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      setTaskDescription(example.task);
+                      setText(example.sampleInput);
+                    }}
+                    className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10">
+                        <example.icon className="w-5 h-5 text-primary" />
                       </div>
-                      <h5 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                        {example.title}
-                      </h5>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {example.description}
-                      </p>
-                      <div className="mt-3 flex items-center text-xs text-blue-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        Try this example
-                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full border ${getCategoryColor(example.category)}`}
+                      >
+                        {example.category}
+                      </span>
                     </div>
+                    <h5 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                      {example.title}
+                    </h5>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {example.description}
+                    </p>
+                    <div className="mt-3 flex items-center text-xs text-blue-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                      Try this example
+                      <svg
+                        className="w-3 h-3 ml-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -266,7 +645,8 @@ export default function Home() {
                   Powerful Text Transformation Features
                 </h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Everything you need to convert, enhance, and transform your text content with AI precision.
+                  Everything you need to convert, enhance, and transform your text content with AI
+                  precision.
                 </p>
               </div>
 
@@ -277,7 +657,8 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Instant Conversion</h3>
                   <p className="text-muted-foreground">
-                    Transform your text in seconds with powerful AI models that understand context and intent.
+                    Transform your text in seconds with powerful AI models that understand context
+                    and intent.
                   </p>
                 </div>
 
@@ -287,7 +668,8 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Multi-Step Workflows</h3>
                   <p className="text-muted-foreground">
-                    Chain multiple transformations together to create complex text processing workflows.
+                    Chain multiple transformations together to create complex text processing
+                    workflows.
                   </p>
                 </div>
 
@@ -297,7 +679,8 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Smart Tools</h3>
                   <p className="text-muted-foreground">
-                    Access intelligent tools for formatting, rewriting, summarizing, and converting text formats.
+                    Access intelligent tools for formatting, rewriting, summarizing, and converting
+                    text formats.
                   </p>
                 </div>
 
@@ -307,7 +690,8 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Save & Share</h3>
                   <p className="text-muted-foreground">
-                    Save your conversion routines and share them with your team for consistent text processing.
+                    Save your conversion routines and share them with your team for consistent text
+                    processing.
                   </p>
                 </div>
 
@@ -317,7 +701,8 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Multiple Providers</h3>
                   <p className="text-muted-foreground">
-                    Choose from different AI providers to get the best results for your specific use case.
+                    Choose from different AI providers to get the best results for your specific use
+                    case.
                   </p>
                 </div>
 
@@ -327,7 +712,8 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Privacy First</h3>
                   <p className="text-muted-foreground">
-                    Your text is processed securely with privacy protection and no permanent storage of content.
+                    Your text is processed securely with privacy protection and no permanent storage
+                    of content.
                   </p>
                 </div>
               </div>
@@ -344,7 +730,8 @@ export default function Home() {
                   Perfect for Every Use Case
                 </h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Whether you&apos;re writing for business or personal use, ConverText adapts to your needs.
+                  Whether you&apos;re writing for business or personal use, ConverText adapts to
+                  your needs.
                 </p>
               </div>
 
@@ -400,13 +787,12 @@ export default function Home() {
         {/* CTA Section */}
         <section className="py-20 bg-gradient-to-r from-blue-500 to-purple-600">
           <div className="container mx-auto px-6 text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Ready to Transform Your Text?
-            </h2>
+            <h2 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Text?</h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of users who are already saving time and improving their writing with ConverText.
+              Join thousands of users who are already saving time and improving their writing with
+              ConverText.
             </p>
-            <button 
+            <button
               onClick={handleGetStarted}
               className="bg-white text-slate-900 px-8 py-4 rounded-lg font-semibold text-base hover:bg-gray-100 transition-colors"
             >
@@ -433,4 +819,90 @@ export default function Home() {
         </footer>
       </div>
     );
+  }
+
+  // Main conversion interface for all users
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <Topbar
+        profile={
+          user
+            ? {
+                display_name: user?.user_metadata?.full_name || null,
+                avatar_url: user?.user_metadata?.avatar_url || null,
+              }
+            : null
+        }
+      />
+
+      <WorkflowTimeline
+        steps={routine.steps}
+        provider={routine.provider}
+        onProviderChange={handleProviderChange}
+        onContinue={handleSubmit}
+        onExampleSelect={handleExampleSelect}
+        onUseAsInput={handleUseAsInput}
+        onSaveWorkflow={handleSaveConversionRoutine}
+        onSaveConversionRoutine={handleSaveConversionRoutine}
+        onOpenWorkflowLibrary={() => setShowConversionRoutineLibrary(true)}
+        initialTask={initialTask}
+        initialText={initialText}
+        loading={loading}
+        onAddNewStep={handleAddNewStep}
+      />
+
+      {error && (
+        <div className="px-4 py-2 bg-destructive/10 border-t border-destructive/20">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-destructive text-sm">{error}</div>
+          </div>
+        </div>
+      )}
+
+      <WorkflowLibrary
+        isOpen={showConversionRoutineLibrary}
+        onClose={() => setShowConversionRoutineLibrary(false)}
+        onReplayConversionRoutine={handleReplayConversionRoutine}
+      />
+
+      {/* Login Dialog */}
+      {showLoginDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-card border border-border rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-foreground mb-4">Sign in to Continue</h2>
+              <p className="text-muted-foreground mb-6">
+                To start your text conversion, please sign in with Google. This will save your
+                conversion history and allow you to reuse workflows.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowLoginDialog(false);
+                    setInitialTask(undefined);
+                    setInitialText(undefined);
+                    // Clear any pending conversion
+                    if (typeof window !== 'undefined') {
+                      sessionStorage.removeItem('pendingConversion');
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 text-sm text-muted-foreground border border-input rounded hover:bg-muted/50 transition-colors"
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <GoogleSignInButton
+                  onClick={handleLoginAndContinue}
+                  variant={resolvedTheme === 'dark' ? 'neutral' : 'light'}
+                  size="medium"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

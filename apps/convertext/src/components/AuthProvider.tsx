@@ -1,12 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  signInWithGoogle, 
-  signOut, 
-  getCurrentUser, 
+import {
+  signInWithGoogle,
+  signOut,
+  getCurrentUser,
   getUserProfile,
-  onAuthStateChange 
+  onAuthStateChange,
 } from '../lib/supabase/auth';
 import { createClient } from '../lib/supabase/client';
 import { migrateLocalStorageToSupabase } from '../utils/workflow-supabase';
@@ -85,7 +85,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Get initial session
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (session?.user) {
           setUser(session.user);
           // Load profile for the authenticated user
@@ -95,7 +97,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           } catch (error) {
             console.error('Failed to load user profile:', error);
           }
-          
+
           // Migrate localStorage data to Supabase on first sign-in
           try {
             await migrateLocalStorageToSupabase();
@@ -119,7 +121,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           } catch (error) {
             console.error('Failed to load user profile:', error);
           }
-          
+
           // Migrate localStorage data to Supabase on first sign-in
           try {
             await migrateLocalStorageToSupabase();
@@ -172,9 +174,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refreshProfile,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

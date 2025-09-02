@@ -8,12 +8,12 @@ interface EmbeddedInputProps {
   placeholder?: string;
 }
 
-const EmbeddedInput: React.FC<EmbeddedInputProps> = ({ 
-  onExecute, 
-  loading = false, 
-  placeholder = "Describe what you want to do with your text...",
+const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
+  onExecute,
+  loading = false,
+  placeholder = 'Describe what you want to do with your text...',
   initialTask,
-  initialText
+  initialText,
 }) => {
   const [taskDescription, setTaskDescription] = useState('');
   const [text, setText] = useState('');
@@ -34,7 +34,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
   const handleExecute = (e: React.FormEvent) => {
     e.preventDefault();
     if (!taskDescription.trim()) return;
-    
+
     onExecute(taskDescription.trim(), text.trim(), exampleOutput.trim() || undefined);
     setTaskDescription('');
     setText('');
@@ -79,7 +79,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
                 rows={1}
                 style={{
                   minHeight: '44px',
-                  height: Math.min(120, Math.max(44, taskDescription.split('\n').length * 20 + 24))
+                  height: Math.min(120, Math.max(44, taskDescription.split('\n').length * 20 + 24)),
                 }}
                 disabled={loading}
                 suppressHydrationWarning={true}
@@ -89,7 +89,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
               <button
                 type="submit"
                 disabled={!isValid || loading}
-                className={`px-4 py-3 rounded-lg font-medium text-sm transition-all ${ 
+                className={`px-4 py-3 rounded-lg font-medium text-sm transition-all ${
                   isValid && !loading
                     ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
                     : 'bg-muted text-muted-foreground cursor-not-allowed'
@@ -103,7 +103,12 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
                 ) : (
                   <div className="flex items-center space-x-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                      />
                     </svg>
                     <span>Execute</span>
                   </div>
@@ -112,11 +117,10 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
             </div>
           </div>
 
-
           {/* Keyboard tip below task input */}
           {taskDescription && !loading && (
             <div className="text-xs text-muted-foreground text-center -mt-2">
-              Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">⌘ Enter</kbd> or 
+              Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">⌘ Enter</kbd> or
               <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl Enter</kbd> to send
             </div>
           )}
@@ -144,7 +148,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
             >
               {showAdvanced ? 'Hide' : 'Show'} advanced options
             </button>
-            
+
             {showAdvanced && (
               <div className="space-y-3 p-3 bg-muted/50 rounded-lg border border-border">
                 <div>
@@ -161,7 +165,7 @@ const EmbeddedInput: React.FC<EmbeddedInputProps> = ({
                     suppressHydrationWarning={true}
                   />
                 </div>
-                
+
                 <div>
                   <label className="text-xs font-medium text-foreground block mb-1">
                     Upload File

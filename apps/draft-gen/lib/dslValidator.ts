@@ -13,7 +13,7 @@ export enum NodeTypeEnum {
   TABLE_COLUMN = 'table-column',
   GRID = 'grid',
   COLUMN = 'column',
-  DOCUMENT = 'document'
+  DOCUMENT = 'document',
 }
 
 // Variable type enum
@@ -223,7 +223,7 @@ export type TextStylesType = z.infer<typeof TextStyles>;
 export type TextNodeType = z.infer<typeof TextNode>;
 export type HeadingNodeType = z.infer<typeof HeadingNode>;
 export type PageBreakNodeType = z.infer<typeof PageBreakNode>;
-// ListNodeType, ListItemNodeType, TableColumnNodeType, GridNodeType, and ColumnNodeType 
+// ListNodeType, ListItemNodeType, TableColumnNodeType, GridNodeType, and ColumnNodeType
 // are already forward declared above for recursion handling
 export type TableNodeType = z.infer<typeof TableNode>;
 export type TableHeadNodeType = z.infer<typeof TableHeadNode>;
@@ -296,7 +296,9 @@ export function isDirectContentNode(node: NodeType): node is TextNodeType | Head
 }
 
 // Check if node is a container that wraps text content
-export function isTextContainerNode(node: NodeType): node is ListItemNodeType | TableColumnNodeType | ColumnNodeType {
+export function isTextContainerNode(
+  node: NodeType
+): node is ListItemNodeType | TableColumnNodeType | ColumnNodeType {
   return isListItemNode(node) || isTableColumnNode(node) || isColumnNode(node);
 }
 

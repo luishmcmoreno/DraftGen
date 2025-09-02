@@ -43,11 +43,7 @@ const TextInput: React.FC<TextInputProps> = ({ value, onChange, addFromResultBut
             onChange={handleFileUpload}
             accept=".txt,.md,.csv"
           />
-          <Button
-            variant="outline"
-            size="sm"
-            asChild
-          >
+          <Button variant="outline" size="sm" asChild>
             <label htmlFor="file-upload" className="cursor-pointer flex items-center gap-2">
               <Upload className="h-4 w-4" />
               Upload File
@@ -60,4 +56,4 @@ const TextInput: React.FC<TextInputProps> = ({ value, onChange, addFromResultBut
   );
 };
 
-export default TextInput; 
+export default TextInput;

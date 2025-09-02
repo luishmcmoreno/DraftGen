@@ -1,10 +1,10 @@
 import { createClient } from './client';
-import type { 
-  Database, 
-  ConversionRoutineStepTemplate,
-  Json 
-} from './database.types';
-import type { SavedConversionRoutine, ConversionRoutineExecution, WorkflowStep } from '../../types/conversion';
+import type { Database, ConversionRoutineStepTemplate, Json } from './database.types';
+import type {
+  SavedConversionRoutine,
+  ConversionRoutineExecution,
+  WorkflowStep,
+} from '../../types/conversion';
 
 type ConversionRoutineRow = Database['public']['Tables']['conversion_routines']['Row'];
 
@@ -18,7 +18,7 @@ function dbRowToSavedRoutine(row: ConversionRoutineRow): SavedConversionRoutine 
     id: row.id,
     name: row.name,
     description: row.description || undefined,
-    steps: (row.steps as unknown) as ConversionRoutineStepTemplate[],
+    steps: row.steps as unknown as ConversionRoutineStepTemplate[],
     createdAt: new Date(row.created_at),
     lastUsed: row.last_used ? new Date(row.last_used) : undefined,
     usageCount: row.usage_count,
@@ -43,9 +43,11 @@ function dbRowToRoutineExecution(
   };
 }
 
-export async function saveConversionRoutine(routine: SavedConversionRoutine): Promise<SavedConversionRoutine> {
+export async function saveConversionRoutine(
+  routine: SavedConversionRoutine
+): Promise<SavedConversionRoutine> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     throw new Error('User must be authenticated to save conversion routine');
@@ -60,7 +62,7 @@ export async function saveConversionRoutine(routine: SavedConversionRoutine): Pr
     .maybeSingle();
 
   let data, error;
-  
+
   if (existing) {
     // Update existing routine
     ({ data, error } = await supabase
@@ -105,7 +107,7 @@ export async function saveConversionRoutine(routine: SavedConversionRoutine): Pr
 
 export async function getStoredConversionRoutines(): Promise<SavedConversionRoutine[]> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     return [];
@@ -127,7 +129,7 @@ export async function getStoredConversionRoutines(): Promise<SavedConversionRout
 
 export async function deleteConversionRoutine(routineId: string): Promise<void> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     throw new Error('User must be authenticated to delete conversion routine');
@@ -146,7 +148,7 @@ export async function deleteConversionRoutine(routineId: string): Promise<void> 
 
 export async function updateConversionRoutineUsage(routineId: string): Promise<void> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     throw new Error('User must be authenticated to update conversion routine usage');
@@ -169,7 +171,7 @@ export async function updateConversionRoutineUsage(routineId: string): Promise<v
 
 async function incrementUsageCount(routineId: string): Promise<number> {
   const supabase = createClient();
-  
+
   const { data } = await supabase
     .from('conversion_routines')
     .select('usage_count')
@@ -179,9 +181,11 @@ async function incrementUsageCount(routineId: string): Promise<number> {
   return (data?.usage_count || 0) + 1;
 }
 
-export async function createRoutineExecution(execution: Omit<ConversionRoutineExecution, 'id' | 'createdAt' | 'lastUpdated'>): Promise<ConversionRoutineExecution> {
+export async function createRoutineExecution(
+  execution: Omit<ConversionRoutineExecution, 'id' | 'createdAt' | 'lastUpdated'>
+): Promise<ConversionRoutineExecution> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     throw new Error('User must be authenticated to create routine execution');
@@ -209,9 +213,12 @@ export async function createRoutineExecution(execution: Omit<ConversionRoutineEx
   return dbRowToRoutineExecution(data, execution.steps);
 }
 
-export async function updateRoutineExecution(executionId: string, updates: Partial<ConversionRoutineExecution>): Promise<ConversionRoutineExecution> {
+export async function updateRoutineExecution(
+  executionId: string,
+  updates: Partial<ConversionRoutineExecution>
+): Promise<ConversionRoutineExecution> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     throw new Error('User must be authenticated to update routine execution');
@@ -222,7 +229,8 @@ export async function updateRoutineExecution(executionId: string, updates: Parti
   };
 
   if (updates.name) updateData.name = updates.name;
-  if (updates.currentStepIndex !== undefined) updateData.current_step_index = updates.currentStepIndex;
+  if (updates.currentStepIndex !== undefined)
+    updateData.current_step_index = updates.currentStepIndex;
   if (updates.status) updateData.status = updates.status;
   if (updates.provider) updateData.provider = updates.provider;
 
@@ -241,9 +249,11 @@ export async function updateRoutineExecution(executionId: string, updates: Parti
   return dbRowToRoutineExecution(data, updates.steps || []);
 }
 
-export async function getRoutineExecution(executionId: string): Promise<ConversionRoutineExecution | null> {
+export async function getRoutineExecution(
+  executionId: string
+): Promise<ConversionRoutineExecution | null> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     return null;
@@ -266,7 +276,7 @@ export async function getRoutineExecution(executionId: string): Promise<Conversi
 
 export async function getUserRoutineExecutions(): Promise<ConversionRoutineExecution[]> {
   const supabase = createClient();
-  
+
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) {
     return [];
@@ -282,5 +292,5 @@ export async function getUserRoutineExecutions(): Promise<ConversionRoutineExecu
     throw new Error(`Failed to load routine executions: ${error.message}`);
   }
 
-  return (data || []).map(row => dbRowToRoutineExecution(row));
+  return (data || []).map((row) => dbRowToRoutineExecution(row));
 }

@@ -27,21 +27,17 @@ export class ConversionAgent {
     text,
     taskDescription,
     exampleOutput,
-    toolArgs
+    toolArgs,
   }: ProcessRequestParams): Promise<ProcessRequestResult> {
     try {
       // First, evaluate the task to determine which tool to use
-      const evalResult = await this.provider.evaluateTask(
-        text,
-        taskDescription,
-        exampleOutput
-      );
+      const evalResult = await this.provider.evaluateTask(text, taskDescription, exampleOutput);
 
       const toolUsed = evalResult.tool;
-      
+
       // Get tool arguments from evaluation or use provided args
-      const toolArgsFromLLM = evalResult.tool_args.map(arg => arg.value);
-      const finalToolArgs = toolArgsFromLLM.length > 0 ? toolArgsFromLLM : (toolArgs || []);
+      const toolArgsFromLLM = evalResult.tool_args.map((arg) => arg.value);
+      const finalToolArgs = toolArgsFromLLM.length > 0 ? toolArgsFromLLM : toolArgs || [];
 
       // Execute the conversion using the selected tool
       const providerResult = await this.provider.generateResponse(
@@ -57,7 +53,7 @@ export class ConversionAgent {
       const error = providerResult.error;
 
       // Determine render mode based on the tool
-      const toolInfo = TextTools.getAvailableTools().find(t => t.name === actualToolUsed);
+      const toolInfo = TextTools.getAvailableTools().find((t) => t.name === actualToolUsed);
       const renderMode = toolInfo?.renderMode || 'diff';
 
       // Generate diff if needed
@@ -69,10 +65,11 @@ export class ConversionAgent {
       // Structure tool arguments for response
       const toolSignature = TextTools.getToolSignatures()[toolUsed] || [];
       const structuredToolArgs: { name: string; value: string }[] = [];
-      
+
       for (let i = 0; i < toolSignature.length; i++) {
         const name = toolSignature[i];
-        if (name !== 'text') { // Skip the text parameter
+        if (name !== 'text') {
+          // Skip the text parameter
           const value = i - 1 < finalToolArgs.length ? finalToolArgs[i - 1] : '';
           structuredToolArgs.push({ name, value });
         }
@@ -86,7 +83,7 @@ export class ConversionAgent {
         render_mode: renderMode,
         tool_args: structuredToolArgs,
         error,
-        confidence: error ? 0 : 1 // Simple confidence: 0 if error, 1 if success
+        confidence: error ? 0 : 1, // Simple confidence: 0 if error, 1 if success
       };
     } catch (error) {
       console.error('Error during agent processing:', error);
@@ -98,7 +95,7 @@ export class ConversionAgent {
         render_mode: 'diff',
         tool_args: [],
         error: error instanceof Error ? error.message : 'Unknown error occurred',
-        confidence: 0
+        confidence: 0,
       };
     }
   }

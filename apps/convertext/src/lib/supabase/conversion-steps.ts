@@ -8,9 +8,16 @@ type ConversionStepUpdate = Database['public']['Tables']['conversion_steps']['Up
 
 // Helper to convert database row to WorkflowStep
 function dbRowToWorkflowStep(row: ConversionStepRow): WorkflowStep {
-  const inputData = row.input_data as { text: string; taskDescription: string; exampleOutput?: string };
-  const outputData = row.output_data as { result: ConversionResult; evaluation?: ToolEvaluation } | null;
-  
+  const inputData = row.input_data as {
+    text: string;
+    taskDescription: string;
+    exampleOutput?: string;
+  };
+  const outputData = row.output_data as {
+    result: ConversionResult;
+    evaluation?: ToolEvaluation;
+  } | null;
+
   return {
     id: row.id,
     stepNumber: row.step_number,
@@ -44,7 +51,7 @@ export async function createConversionStep(
   step: Omit<WorkflowStep, 'id' | 'timestamp'>
 ): Promise<WorkflowStep> {
   const supabase = createClient();
-  
+
   const stepData = workflowStepToDbInsert(executionId, step);
 
   const { data, error } = await supabase
@@ -70,10 +77,10 @@ export async function updateConversionStep(
   }
 ): Promise<WorkflowStep> {
   const supabase = createClient();
-  
+
   const updateData: ConversionStepUpdate = {
-    completed_at: ['completed', 'error', 'skipped'].includes(updates.status || '') 
-      ? new Date().toISOString() 
+    completed_at: ['completed', 'error', 'skipped'].includes(updates.status || '')
+      ? new Date().toISOString()
       : undefined,
   };
 
@@ -98,7 +105,7 @@ export async function updateConversionStep(
 
 export async function getConversionStepsByExecution(executionId: string): Promise<WorkflowStep[]> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from('conversion_steps')
     .select('*')
@@ -114,7 +121,7 @@ export async function getConversionStepsByExecution(executionId: string): Promis
 
 export async function getConversionStep(stepId: string): Promise<WorkflowStep | null> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from('conversion_steps')
     .select('*')
@@ -130,11 +137,8 @@ export async function getConversionStep(stepId: string): Promise<WorkflowStep | 
 
 export async function deleteConversionStep(stepId: string): Promise<void> {
   const supabase = createClient();
-  
-  const { error } = await supabase
-    .from('conversion_steps')
-    .delete()
-    .eq('id', stepId);
+
+  const { error } = await supabase.from('conversion_steps').delete().eq('id', stepId);
 
   if (error) {
     throw new Error(`Failed to delete conversion step: ${error.message}`);

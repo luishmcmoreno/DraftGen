@@ -8,10 +8,10 @@ import { useAuth } from '../../src/components/AuthProvider';
 import { useTheme } from '../../src/components/ThemeProvider';
 import { SavedConversionRoutine } from '../../src/types/conversion';
 import { GoogleSignInButton } from '@draft-gen/ui';
-import { 
-  getStoredConversionRoutines, 
+import {
+  getStoredConversionRoutines,
   deleteConversionRoutine,
-  updateConversionRoutineUsage
+  updateConversionRoutineUsage,
 } from '../../src/lib/supabase/conversion-routines';
 
 export default function RoutinesPage() {
@@ -40,10 +40,11 @@ export default function RoutinesPage() {
     } catch (err) {
       console.error('Error loading routines:', err);
       // If it's a Supabase "no rows" error, just set empty array
-      if (err instanceof Error && (
-        err.message.includes('Cannot coerce the result to a single JSON object') ||
-        err.message.includes('PGRST116')
-      )) {
+      if (
+        err instanceof Error &&
+        (err.message.includes('Cannot coerce the result to a single JSON object') ||
+          err.message.includes('PGRST116'))
+      ) {
         setRoutines([]);
       } else {
         setError(err instanceof Error ? err.message : 'Failed to load routines');
@@ -80,7 +81,7 @@ export default function RoutinesPage() {
     try {
       await deleteConversionRoutine(routineToDelete.id);
       // Remove routine from local state
-      setRoutines(prev => prev.filter(r => r.id !== routineToDelete.id));
+      setRoutines((prev) => prev.filter((r) => r.id !== routineToDelete.id));
       setRoutineToDelete(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete routine');
@@ -102,9 +103,7 @@ export default function RoutinesPage() {
         <main className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <div className="bg-card rounded-lg p-16 text-center">
-              <h3 className="text-xl font-semibold text-card-foreground mb-2">
-                Sign in Required
-              </h3>
+              <h3 className="text-xl font-semibold text-card-foreground mb-2">Sign in Required</h3>
               <p className="text-muted-foreground mb-4">
                 You need to sign in to view your saved conversion routines.
               </p>
@@ -122,17 +121,17 @@ export default function RoutinesPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Topbar profile={{ 
-        display_name: user?.user_metadata?.full_name || null, 
-        avatar_url: user?.user_metadata?.avatar_url || null 
-      }} />
-      
+      <Topbar
+        profile={{
+          display_name: user?.user_metadata?.full_name || null,
+          avatar_url: user?.user_metadata?.avatar_url || null,
+        }}
+      />
+
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground">
-              Conversion Routines
-            </h1>
+            <h1 className="text-3xl font-bold text-foreground">Conversion Routines</h1>
             <button
               onClick={() => router.push('/routines/create')}
               className="px-6 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-semibold"
@@ -184,7 +183,8 @@ export default function RoutinesPage() {
                 No Conversion Routines Yet
               </h3>
               <p className="text-muted-foreground mb-4">
-                Create your first conversion routine to get started with automated text processing workflows.
+                Create your first conversion routine to get started with automated text processing
+                workflows.
               </p>
               <button
                 onClick={() => router.push('/routines/create')}
@@ -202,11 +202,10 @@ export default function RoutinesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-card border border-border rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
             <div className="text-center">
-              <h2 className="text-xl font-semibold text-card-foreground mb-4">
-                Delete Routine
-              </h2>
+              <h2 className="text-xl font-semibold text-card-foreground mb-4">Delete Routine</h2>
               <p className="text-muted-foreground mb-6">
-                Are you sure you want to delete &quot;<strong>{routineToDelete.name}</strong>&quot;? This action cannot be undone.
+                Are you sure you want to delete &quot;<strong>{routineToDelete.name}</strong>&quot;?
+                This action cannot be undone.
               </p>
               <div className="flex space-x-3">
                 <button

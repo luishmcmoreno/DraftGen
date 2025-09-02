@@ -2,18 +2,23 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Topbar from '../../src/components/Topbar';
-import WorkflowTimeline from '../../src/components/WorkflowTimeline';
-import WorkflowLibrary from '../../src/components/WorkflowLibrary';
-import { useAuth } from '../../src/components/AuthProvider';
-import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, ToolEvaluation } from '../../src/types/conversion';
-import { 
-  createNewConversionRoutineExecution, 
-  addStepToConversionRoutine, 
-  updateStepStatus, 
+import Topbar from '../../../src/components/Topbar';
+import WorkflowTimeline from '../../../src/components/WorkflowTimeline';
+import WorkflowLibrary from '../../../src/components/WorkflowLibrary';
+import { useAuth } from '../../../src/components/AuthProvider';
+import {
+  ConversionRoutineExecution,
+  WorkflowStep,
+  SavedConversionRoutine,
+  ToolEvaluation,
+} from '../../../src/types/conversion';
+import {
+  createNewConversionRoutineExecution,
+  addStepToConversionRoutine,
+  updateStepStatus,
   replayConversionRoutine,
-  saveConversionRoutineToStorage
-} from '../../src/utils/workflow-supabase';
+  saveConversionRoutineToStorage,
+} from '../../../src/utils/workflow-supabase';
 
 function CreateRoutineContent() {
   const { user } = useAuth();
@@ -26,54 +31,27 @@ function CreateRoutineContent() {
   const [initialText, setInitialText] = useState<string>();
   const [showConversionRoutineLibrary, setShowConversionRoutineLibrary] = useState(false);
 
-  // Initialize routine - check for routines to save or in-progress routines
+  // Initialize routine - check for in-progress routine from home page
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Check for routine to save (from convert page)
-      const routineToSaveStr = sessionStorage.getItem('routineToSave');
-      if (routineToSaveStr) {
-        try {
-          const { routine: routineToSave, timestamp } = JSON.parse(routineToSaveStr);
-          
-          // Only process if recent (within 10 minutes)
-          const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
-          
-          if (isRecent && routineToSave) {
-            // Clear the session storage
-            sessionStorage.removeItem('routineToSave');
-            
-            // Load the routine for saving/editing
-            setRoutine(routineToSave);
-            return;
-          } else {
-            // Clear expired routine
-            sessionStorage.removeItem('routineToSave');
-          }
-        } catch (error) {
-          console.error('Failed to parse routine to save:', error);
-          sessionStorage.removeItem('routineToSave');
-        }
-      }
-      
-      // Check for in-progress routine (from old flow - keeping for compatibility)
       const routineInProgressStr = sessionStorage.getItem('routineInProgress');
       if (routineInProgressStr) {
         try {
           const { routine: inProgressRoutine, nextStepText } = JSON.parse(routineInProgressStr);
-          
+
           // Clear the session storage
           sessionStorage.removeItem('routineInProgress');
-          
+
           // Create a new step with the text from the previous conversion
           const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
             status: 'editing',
             input: {
               text: nextStepText,
               taskDescription: '',
-              exampleOutput: undefined
-            }
+              exampleOutput: undefined,
+            },
           };
-          
+
           const updatedRoutine = addStepToConversionRoutine(inProgressRoutine, newStep);
           setRoutine(updatedRoutine);
           setInitialText(nextStepText);
@@ -81,11 +59,10 @@ function CreateRoutineContent() {
           return;
         } catch (error) {
           console.error('Failed to parse routine in progress:', error);
-          sessionStorage.removeItem('routineInProgress');
         }
       }
     }
-    
+
     // Default: create new routine
     setRoutine(createNewConversionRoutineExecution());
   }, []);
@@ -94,11 +71,11 @@ function CreateRoutineContent() {
   useEffect(() => {
     const task = searchParams.get('task');
     const text = searchParams.get('text');
-    
+
     if (task && text) {
       setInitialTask(task);
       setInitialText(text);
-      
+
       // Clear URL parameters after loading them
       router.replace('/routines/create');
     }
@@ -121,8 +98,8 @@ function CreateRoutineContent() {
       input: {
         text,
         taskDescription,
-        exampleOutput
-      }
+        exampleOutput,
+      },
     };
 
     let updatedRoutine = addStepToConversionRoutine(routine, newStep);
@@ -153,7 +130,7 @@ function CreateRoutineContent() {
       const evaluation: ToolEvaluation = {
         reasoning: evaluationData.reasoning || '',
         tool: evaluationData.tool || '',
-        tool_args: evaluationData.tool_args || []
+        tool_args: evaluationData.tool_args || [],
       };
 
       const convertResponse = await fetch(`/api/convert-with-history`, {
@@ -182,21 +159,20 @@ function CreateRoutineContent() {
         'completed',
         {
           result: conversionData,
-          evaluation
+          evaluation,
         },
         undefined,
         duration
       );
 
       setRoutine(updatedRoutine);
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
       setError(errorMessage);
-      
+
       const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
       const duration = Date.now() - startTime;
-      
+
       updatedRoutine = updateStepStatus(
         updatedRoutine,
         stepId,
@@ -205,7 +181,7 @@ function CreateRoutineContent() {
         errorMessage,
         duration
       );
-      
+
       setRoutine(updatedRoutine);
     } finally {
       setLoading(false);
@@ -214,10 +190,14 @@ function CreateRoutineContent() {
 
   const handleProviderChange = (newProvider: string) => {
     if (!routine) return;
-    setRoutine(prev => prev ? ({
-      ...prev,
-      provider: newProvider
-    }) : null);
+    setRoutine((prev) =>
+      prev
+        ? {
+            ...prev,
+            provider: newProvider,
+          }
+        : null
+    );
   };
 
   const handleExampleSelect = (task: string, sampleInput?: string) => {
@@ -234,19 +214,16 @@ function CreateRoutineContent() {
     const savedRoutine: SavedConversionRoutine = {
       id: routine.id,
       name: routine.name,
-      steps: routine.steps.map(step => ({
+      steps: routine.steps.map((step) => ({
         id: step.id,
         stepNumber: step.stepNumber,
         taskDescription: step.input.taskDescription,
-        exampleOutput: step.input.exampleOutput
+        exampleOutput: step.input.exampleOutput,
       })),
       createdAt: new Date(),
-      usageCount: 0
+      usageCount: 0,
     };
     saveConversionRoutineToStorage(savedRoutine);
-    
-    // After saving, redirect to routines gallery
-    router.push('/routines');
   };
 
   const handleReplayConversionRoutine = (savedRoutine: SavedConversionRoutine) => {
@@ -257,19 +234,19 @@ function CreateRoutineContent() {
 
   const handleAddNewStep = (previousResult: string) => {
     if (!routine) return;
-    
+
     const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
       status: 'editing',
       input: {
         text: previousResult,
         taskDescription: '',
-        exampleOutput: undefined
-      }
+        exampleOutput: undefined,
+      },
     };
-    
+
     const updatedRoutine = addStepToConversionRoutine(routine, newStep);
     setRoutine(updatedRoutine);
-    
+
     setInitialTask('');
     setInitialText(previousResult);
   };
@@ -297,13 +274,20 @@ function CreateRoutineContent() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Topbar profile={{ display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null }} />
-      
+      <Topbar
+        profile={{
+          display_name: user?.user_metadata?.full_name || null,
+          avatar_url: user?.user_metadata?.avatar_url || null,
+        }}
+      />
+
       {/* Page Header */}
       <div className="px-4 py-6 bg-card border-b border-border">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold text-foreground mb-2">Create Conversion Routine</h1>
-          <p className="text-muted-foreground">Build and test multi-step text conversion workflows that can be saved and reused.</p>
+          <p className="text-muted-foreground">
+            Build and test multi-step text conversion workflows that can be saved and reused.
+          </p>
         </div>
       </div>
 

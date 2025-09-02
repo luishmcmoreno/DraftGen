@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { SavedConversionRoutine } from '../types/conversion';
-import { getStoredConversionRoutines, deleteConversionRoutine, updateConversionRoutineUsage } from '../utils/workflow-supabase';
+import {
+  getStoredConversionRoutines,
+  deleteConversionRoutine,
+  updateConversionRoutineUsage,
+} from '../utils/workflow-supabase';
 import { useAuth } from './AuthProvider';
 
 interface WorkflowLibraryProps {
@@ -9,15 +13,17 @@ interface WorkflowLibraryProps {
   isOpen: boolean;
 }
 
-const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({ 
-  onReplayConversionRoutine, 
-  onClose, 
-  isOpen 
+const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
+  onReplayConversionRoutine,
+  onClose,
+  isOpen,
 }) => {
   const { user } = useAuth();
   const [routines, setRoutines] = useState<SavedConversionRoutine[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'lastUsed' | 'usageCount'>('lastUsed');
+  const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'lastUsed' | 'usageCount'>(
+    'lastUsed'
+  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -39,9 +45,11 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
   };
 
   const filteredRoutines = routines
-    .filter(routine => 
-      routine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (routine.description && routine.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter(
+      (routine) =>
+        routine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (routine.description &&
+          routine.description.toLowerCase().includes(searchTerm.toLowerCase()))
     )
     .sort((a, b) => {
       switch (sortBy) {
@@ -75,7 +83,11 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
   };
 
   const handleDeleteConversionRoutine = async (routineId: string) => {
-    if (confirm('Are you sure you want to delete this conversion routine? This action cannot be undone.')) {
+    if (
+      confirm(
+        'Are you sure you want to delete this conversion routine? This action cannot be undone.'
+      )
+    ) {
       try {
         await deleteConversionRoutine(routineId);
         await loadRoutines(); // Reload the list
@@ -90,14 +102,14 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -133,12 +145,14 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
               {routines.length} saved conversion routine{routines.length !== 1 ? 's' : ''}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground p-2"
-          >
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground p-2">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -175,14 +189,20 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
               {searchTerm ? (
                 <div>
                   <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-lg font-medium text-foreground mb-2">No conversion routines found</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    No conversion routines found
+                  </h3>
                   <p className="text-muted-foreground">Try adjusting your search terms</p>
                 </div>
               ) : (
                 <div>
                   <div className="text-6xl mb-4">📚</div>
-                  <h3 className="text-lg font-medium text-foreground mb-2">No conversion routines yet</h3>
-                  <p className="text-muted-foreground">Create and save your first conversion routine to see it here</p>
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    No conversion routines yet
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Create and save your first conversion routine to see it here
+                  </p>
                 </div>
               )}
             </div>
@@ -196,27 +216,31 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-lg font-semibold text-foreground">
-                          {routine.name}
-                        </h3>
+                        <h3 className="text-lg font-semibold text-foreground">{routine.name}</h3>
                         <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
                           {routine.steps.length} step{routine.steps.length !== 1 ? 's' : ''}
                         </span>
                       </div>
-                      
+
                       {routine.description && (
                         <p className="text-muted-foreground mb-3">{routine.description}</p>
                       )}
-                      
+
                       <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                         <span>Created: {formatDate(routine.createdAt)}</span>
                         {routine.lastUsed && (
-                          <span>Last used: {formatDate(routine.lastUsed)} at {formatTime(routine.lastUsed)}</span>
+                          <span>
+                            Last used: {formatDate(routine.lastUsed)} at{' '}
+                            {formatTime(routine.lastUsed)}
+                          </span>
                         )}
-                        <span>Used {routine.usageCount || 0} time{(routine.usageCount || 0) !== 1 ? 's' : ''}</span>
+                        <span>
+                          Used {routine.usageCount || 0} time
+                          {(routine.usageCount || 0) !== 1 ? 's' : ''}
+                        </span>
                       </div>
                     </div>
-                    
+
                     <div className="flex space-x-2 ml-4">
                       <button
                         onClick={() => handleReplayConversionRoutine(routine)}
@@ -228,8 +252,18 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
                         onClick={() => handleDeleteConversionRoutine(routine.id)}
                         className="px-3 py-2 text-destructive hover:text-destructive-foreground hover:bg-destructive/10 rounded-lg transition-colors"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
                         </svg>
                       </button>
                     </div>

@@ -59,9 +59,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">
-              Original Text
-            </h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">Original Text</h3>
             <div className="bg-muted/50 p-4 rounded-lg">
               <pre className="text-sm text-foreground whitespace-pre-wrap overflow-x-auto max-h-[400px] overflow-y-auto">
                 {result.original_text}
@@ -71,15 +69,13 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result }) => {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Converted Text
-              </h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Converted Text</h3>
             </div>
             <div className="bg-muted/50 p-4 rounded-lg">
               <textarea
                 className="text-sm text-foreground whitespace-pre-wrap overflow-x-auto max-h-[400px] overflow-y-auto w-full bg-background border-none focus:ring-0 resize-vertical"
                 value={editableText}
-                onChange={e => setEditableText(e.target.value)}
+                onChange={(e) => setEditableText(e.target.value)}
                 rows={Math.max(3, Math.min(20, editableText.split('\n').length))}
                 suppressHydrationWarning={true}
               />
@@ -92,4 +88,3 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result }) => {
 };
 
 export default ResultDisplay;
- 

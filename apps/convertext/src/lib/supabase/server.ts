@@ -11,12 +11,21 @@ export function createClient(req: NextApiRequest, res: NextApiResponse) {
         getAll() {
           return Object.keys(req.cookies).map((name) => ({
             name,
-            value: req.cookies[name] || ''
+            value: req.cookies[name] || '',
           }));
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            res.setHeader('Set-Cookie', `${name}=${value}; ${options ? Object.entries(options).map(([key, val]) => `${key}=${val}`).join('; ') : ''}`);
+            res.setHeader(
+              'Set-Cookie',
+              `${name}=${value}; ${
+                options
+                  ? Object.entries(options)
+                      .map(([key, val]) => `${key}=${val}`)
+                      .join('; ')
+                  : ''
+              }`
+            );
           });
         },
       },

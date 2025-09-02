@@ -14,10 +14,10 @@ export class MockProvider extends BaseLLMProvider {
       text: text.substring(0, 100) + '...',
       taskDescription,
       toolUsed,
-      toolArgs
+      toolArgs,
     });
 
-    if (toolUsed && TextTools.getAvailableTools().find(t => t.name === toolUsed)) {
+    if (toolUsed && TextTools.getAvailableTools().find((t) => t.name === toolUsed)) {
       try {
         const args = [text, ...(toolArgs || [])];
         const converted = TextTools.executeTool(toolUsed, args);
@@ -25,14 +25,14 @@ export class MockProvider extends BaseLLMProvider {
           converted_text: converted,
           tool_used: toolUsed,
           tool_args: toolArgs || [],
-          error: undefined
+          error: undefined,
         };
       } catch (error) {
         return {
           converted_text: text,
           tool_used: 'error',
           tool_args: toolArgs || [],
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         };
       }
     } else {
@@ -40,7 +40,7 @@ export class MockProvider extends BaseLLMProvider {
         converted_text: text,
         tool_used: 'error',
         tool_args: toolArgs || [],
-        error: `Tool '${toolUsed}' is not available.`
+        error: `Tool '${toolUsed}' is not available.`,
       };
     }
   }
@@ -53,13 +53,13 @@ export class MockProvider extends BaseLLMProvider {
     console.log('[MockProvider] evaluate_task called with:', {
       text: text.substring(0, 100) + '...',
       taskDescription,
-      exampleOutput
+      exampleOutput,
     });
 
     // Mock logic: select a tool based on simple keyword matching
     const lowerTask = taskDescription.toLowerCase();
     let tool = 'countWords'; // default
-    
+
     if (lowerTask.includes('uppercase') || lowerTask.includes('upper case')) {
       tool = 'toUppercase';
     } else if (lowerTask.includes('lowercase') || lowerTask.includes('lower case')) {
@@ -87,14 +87,14 @@ export class MockProvider extends BaseLLMProvider {
     } else if (lowerTask.includes('remove') && lowerTask.includes('column')) {
       tool = 'removeCsvColumns';
     }
-    
+
     const reasoning = `Based on the task description "${taskDescription}", the most appropriate tool is ${tool}.`;
-    
+
     // Return empty tool_args for mock - the actual execution will determine what args are needed
     return {
       reasoning,
       tool,
-      tool_args: []
+      tool_args: [],
     };
   }
 }

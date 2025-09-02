@@ -20,11 +20,11 @@ export async function GET(request: NextRequest) {
   if (redirectParam) {
     redirect = redirectParam;
     // Store the redirect in a cookie so we can use it after OAuth callback
-    cookieStore.set('auth_redirect', redirect, { 
-      httpOnly: true, 
+    cookieStore.set('auth_redirect', redirect, {
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 300 // 5 minutes
+      maxAge: 300, // 5 minutes
     });
   }
 

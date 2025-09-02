@@ -7,7 +7,12 @@ interface AgentExplanationProps {
   loading: boolean;
 }
 
-export default function AgentExplanation({ provider, agentReasoning, selectedTool, loading }: AgentExplanationProps) {
+export default function AgentExplanation({
+  provider,
+  agentReasoning,
+  selectedTool,
+  loading,
+}: AgentExplanationProps) {
   return (
     <div className="bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 border border-blue-600 rounded-xl p-6 shadow-lg">
       <h3 className="text-lg font-semibold text-white mb-4 drop-shadow">
@@ -34,4 +39,4 @@ export default function AgentExplanation({ provider, agentReasoning, selectedToo
       </div>
     </div>
   );
-} 
+}

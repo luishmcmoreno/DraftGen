@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
+import {
   deleteConversionRoutine,
   updateConversionRoutineUsage,
   getRoutineExecution,
-  updateRoutineExecution
+  updateRoutineExecution,
 } from '../../../../src/lib/supabase/conversion-routines';
 import type { ConversionRoutineExecution } from '../../../../src/types/conversion';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     // Get routine execution details
@@ -18,10 +15,13 @@ export async function GET(
     return NextResponse.json({ execution });
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -36,17 +36,17 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const body = await request.json();
@@ -70,9 +70,12 @@ export async function PUT(
     return NextResponse.json({ error: 'Invalid action or missing updates' }, { status: 400 });
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }

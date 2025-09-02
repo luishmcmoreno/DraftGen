@@ -4,24 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from '@/lib/i18n';
 import { useTheme } from './ThemeProvider';
-import { 
-  HeroSection, 
-  FeaturesGrid, 
-  NavigationHeader, 
+import {
+  HeroSection,
+  FeaturesGrid,
+  NavigationHeader,
   Footer,
   Button,
   Card,
-  GoogleSignInButton
+  GoogleSignInButton,
 } from '@draft-gen/ui';
-import { 
-  FileText, 
-  Zap, 
-  Users, 
-  Shield, 
-  Globe, 
-  Workflow,
-  ArrowRight
-} from 'lucide-react';
+import { FileText, Zap, Users, Shield, Globe, Workflow, ArrowRight } from 'lucide-react';
 
 interface LandingPageProps {
   isAuthenticated: boolean;
@@ -46,7 +38,7 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
   const handlePromptSubmit = (message: string) => {
     // Save prompt to sessionStorage
     sessionStorage.setItem('pendingPrompt', message);
-    
+
     if (isAuthenticated) {
       // If authenticated, go directly to generator with prompt
       router.push(`/${locale}/generator?prompt=${encodeURIComponent(message)}`);
@@ -68,33 +60,33 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
     {
       icon: FileText,
       title: t('features.templates.title'),
-      description: t('features.templates.description')
+      description: t('features.templates.description'),
     },
     {
       icon: Zap,
       title: t('features.automation.title'),
-      description: t('features.automation.description')
+      description: t('features.automation.description'),
     },
     {
       icon: Workflow,
       title: t('features.workflow.title'),
-      description: t('features.workflow.description')
+      description: t('features.workflow.description'),
     },
     {
       icon: Globe,
       title: t('features.multilingual.title'),
-      description: t('features.multilingual.description')
+      description: t('features.multilingual.description'),
     },
     {
       icon: Users,
       title: t('features.collaboration.title'),
-      description: t('features.collaboration.description')
+      description: t('features.collaboration.description'),
     },
     {
       icon: Shield,
       title: t('features.security.title'),
-      description: t('features.security.description')
-    }
+      description: t('features.security.description'),
+    },
   ];
 
   // No navigation links for non-authenticated users
@@ -102,7 +94,7 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
 
   return (
     <div className="min-h-screen bg-background">
-      <NavigationHeader 
+      <NavigationHeader
         appName={t('appName')}
         links={navLinks}
         customActions={
@@ -120,7 +112,8 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
           <>
             {t('hero.titlePrefix')}
             <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-              {' '}{t('hero.titleHighlight')}{' '}
+              {' '}
+              {t('hero.titleHighlight')}{' '}
             </span>
             {t('hero.titleSuffix')}
           </>
@@ -145,9 +138,7 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
         <div className="container mx-auto px-6">
           <div className="mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
-                {t('useCases.title')}
-              </h2>
+              <h2 className="text-3xl font-bold text-foreground mb-4">{t('useCases.title')}</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 {t('useCases.subtitle')}
               </p>
@@ -197,14 +188,10 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-500 to-purple-600">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            {t('cta.title')}
-          </h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            {t('cta.subtitle')}
-          </p>
-          <Button 
-            size="lg" 
+          <h2 className="text-3xl font-bold text-white mb-4">{t('cta.title')}</h2>
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">{t('cta.subtitle')}</p>
+          <Button
+            size="lg"
             variant="secondary"
             onClick={handleGetStarted}
             className="px-8 py-4 text-base"

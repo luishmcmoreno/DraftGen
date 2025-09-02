@@ -29,10 +29,11 @@ export default function RoutineCard({
   lastUsedLabel = 'Last used',
   usageCountLabel = 'Used',
   stepsLabel = 'steps',
-  formatDate = (date: Date) => new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date)
+  formatDate = (date: Date) =>
+    new Intl.DateTimeFormat(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(date),
 }: RoutineCardProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const router = useRouter();
@@ -51,7 +52,10 @@ export default function RoutineCard({
   };
 
   // Create step tags similar to template variables
-  const stepTags = routine.steps.map((step, index) => `Step ${index + 1}: ${step.taskDescription.substring(0, 30)}${step.taskDescription.length > 30 ? '...' : ''}`);
+  const stepTags = routine.steps.map(
+    (step, index) =>
+      `Step ${index + 1}: ${step.taskDescription.substring(0, 30)}${step.taskDescription.length > 30 ? '...' : ''}`
+  );
   const visibleSteps = stepTags.slice(0, 3);
   const remainingSteps = stepTags.slice(3);
   const hasOverflow = remainingSteps.length > 0;
@@ -65,23 +69,30 @@ export default function RoutineCard({
           aria-label={deleteLabel}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
           </svg>
         </button>
       )}
 
       <div className="flex-grow flex flex-col gap-4">
         <div className={`flex flex-col gap-1 ${onDelete ? 'pr-8' : ''}`}>
-          <h3 className="text-lg font-semibold text-card-foreground">
-            {routine.name}
-          </h3>
+          <h3 className="text-lg font-semibold text-card-foreground">{routine.name}</h3>
           {routine.description && (
             <p className="text-muted-foreground text-sm">{routine.description}</p>
           )}
           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-            <span>{routine.steps.length} {stepsLabel}</span>
+            <span>
+              {routine.steps.length} {stepsLabel}
+            </span>
             <span>•</span>
-            <span>{usageCountLabel} {routine.usageCount} times</span>
+            <span>
+              {usageCountLabel} {routine.usageCount} times
+            </span>
           </div>
         </div>
 
@@ -108,7 +119,9 @@ export default function RoutineCard({
                   <div className="absolute z-10 bottom-full left-0 mb-2 px-3 py-2 bg-popover text-popover-foreground text-xs rounded-md shadow-lg whitespace-nowrap border max-w-xs">
                     <div className="flex flex-col gap-1">
                       {remainingSteps.map((stepTag, index) => (
-                        <span key={index} className="truncate">{stepTag}</span>
+                        <span key={index} className="truncate">
+                          {stepTag}
+                        </span>
                       ))}
                     </div>
                     <div className="absolute bottom-0 left-4 transform translate-y-1/2 rotate-45 w-2 h-2 bg-popover border"></div>

@@ -1,26 +1,25 @@
-import { 
+import {
   saveConversionRoutine as saveRoutineToSupabase,
   getStoredConversionRoutines as getRoutinesFromSupabase,
   deleteConversionRoutine as deleteRoutineFromSupabase,
   updateConversionRoutineUsage as updateUsageInSupabase,
   createRoutineExecution,
-  updateRoutineExecution
+  updateRoutineExecution,
 } from '../lib/supabase/conversion-routines';
-import { 
-  createConversionStep,
-  updateConversionStep
-} from '../lib/supabase/conversion-steps';
-import type { 
-  SavedConversionRoutine, 
-  WorkflowStep, 
-  ConversionRoutineExecution
+import { createConversionStep, updateConversionStep } from '../lib/supabase/conversion-steps';
+import type {
+  SavedConversionRoutine,
+  WorkflowStep,
+  ConversionRoutineExecution,
 } from '../types/conversion';
 
 export const generateId = () => {
   return crypto.randomUUID();
 };
 
-export const createNewConversionRoutineExecution = (provider: string = 'mock'): ConversionRoutineExecution => {
+export const createNewConversionRoutineExecution = (
+  provider: string = 'mock'
+): ConversionRoutineExecution => {
   return {
     id: generateId(),
     name: 'ConverText',
@@ -29,7 +28,7 @@ export const createNewConversionRoutineExecution = (provider: string = 'mock'): 
     status: 'idle',
     provider,
     createdAt: new Date(),
-    lastUpdated: new Date()
+    lastUpdated: new Date(),
   };
 };
 
@@ -41,14 +40,14 @@ export const addStepToConversionRoutine = (
     ...step,
     id: generateId(),
     timestamp: new Date(),
-    stepNumber: routine.steps.length + 1
+    stepNumber: routine.steps.length + 1,
   };
 
   return {
     ...routine,
     steps: [...routine.steps, newStep],
     currentStepIndex: routine.steps.length,
-    lastUpdated: new Date()
+    lastUpdated: new Date(),
   };
 };
 
@@ -60,15 +59,13 @@ export const updateStepStatus = (
   error?: string,
   duration?: number
 ): ConversionRoutineExecution => {
-  const updatedSteps = routine.steps.map(step => 
-    step.id === stepId 
-      ? { ...step, status, output, error, duration }
-      : step
+  const updatedSteps = routine.steps.map((step) =>
+    step.id === stepId ? { ...step, status, output, error, duration } : step
   );
 
-  const hasRunningSteps = updatedSteps.some(s => s.status === 'running');
-  const hasErrors = updatedSteps.some(s => s.status === 'error');
-  const allCompleted = updatedSteps.every(s => s.status === 'completed' || s.status === 'error');
+  const hasRunningSteps = updatedSteps.some((s) => s.status === 'running');
+  const hasErrors = updatedSteps.some((s) => s.status === 'error');
+  const allCompleted = updatedSteps.every((s) => s.status === 'completed' || s.status === 'error');
 
   let newStatus: ConversionRoutineExecution['status'] = 'idle';
   if (hasRunningSteps) newStatus = 'running';
@@ -79,7 +76,7 @@ export const updateStepStatus = (
     ...routine,
     steps: updatedSteps,
     status: newStatus,
-    lastUpdated: new Date()
+    lastUpdated: new Date(),
   };
 };
 
@@ -94,9 +91,9 @@ export const replayConversionRoutine = (
     input: {
       text: '', // Will be filled by user during execution
       taskDescription: template.taskDescription,
-      exampleOutput: template.exampleOutput
+      exampleOutput: template.exampleOutput,
     },
-    timestamp: new Date()
+    timestamp: new Date(),
   }));
 
   return {
@@ -108,12 +105,14 @@ export const replayConversionRoutine = (
     provider,
     createdAt: new Date(),
     lastUpdated: new Date(),
-    savedRoutineId: savedRoutine.id
+    savedRoutineId: savedRoutine.id,
   };
 };
 
 // Supabase-backed operations (replacing localStorage)
-export const saveConversionRoutineToStorage = async (routine: SavedConversionRoutine): Promise<void> => {
+export const saveConversionRoutineToStorage = async (
+  routine: SavedConversionRoutine
+): Promise<void> => {
   try {
     await saveRoutineToSupabase(routine);
   } catch (error) {
@@ -205,7 +204,7 @@ export const updateAndSaveConversionStep = async (
 // Utility to migrate from localStorage to Supabase (one-time operation)
 export const migrateLocalStorageToSupabase = async (): Promise<void> => {
   if (typeof window === 'undefined') return;
-  
+
   try {
     // Get existing localStorage data
     const stored = localStorage.getItem('convertext_conversion_routines');
@@ -215,7 +214,7 @@ export const migrateLocalStorageToSupabase = async (): Promise<void> => {
     const migratedRoutines: SavedConversionRoutine[] = routines.map((routine: any) => ({
       ...routine,
       createdAt: new Date(routine.createdAt),
-      lastUsed: routine.lastUsed ? new Date(routine.lastUsed) : undefined
+      lastUsed: routine.lastUsed ? new Date(routine.lastUsed) : undefined,
     }));
 
     // Save each routine to Supabase
@@ -229,8 +228,9 @@ export const migrateLocalStorageToSupabase = async (): Promise<void> => {
 
     // Clear localStorage after successful migration
     localStorage.removeItem('convertext_conversion_routines');
-    console.log(`Successfully migrated ${migratedRoutines.length} routines from localStorage to Supabase`);
-
+    console.log(
+      `Successfully migrated ${migratedRoutines.length} routines from localStorage to Supabase`
+    );
   } catch (error) {
     console.error('Failed to migrate localStorage data to Supabase:', error);
   }

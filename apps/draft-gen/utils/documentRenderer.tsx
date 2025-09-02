@@ -112,7 +112,7 @@ export function renderNode(
     nodePath = [],
     baseIndex = 0, // Add baseIndex with default value of 0
   } = options;
-  
+
   // Calculate the actual index considering the base offset
   const actualIndex = baseIndex + index;
   const currentPath = [...nodePath, actualIndex];
@@ -557,22 +557,22 @@ export function renderNode(
                                 props.style || {};
                               return props.dangerouslySetInnerHTML ? (
                                 <span
-                                    key={j}
-                                    style={otherStyles}
-                                    dangerouslySetInnerHTML={props.dangerouslySetInnerHTML}
-                                  />
-                                ) : (
-                                  <span key={j} style={otherStyles}>
-                                    {props.children}
-                                  </span>
-                                );
-                              }
-                              return rendered;
-                            })
-                          )}
-                        </td>
-                      );
-                    })}
+                                  key={j}
+                                  style={otherStyles}
+                                  dangerouslySetInnerHTML={props.dangerouslySetInnerHTML}
+                                />
+                              ) : (
+                                <span key={j} style={otherStyles}>
+                                  {props.children}
+                                </span>
+                              );
+                            }
+                            return rendered;
+                          })
+                        )}
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })}
@@ -612,7 +612,11 @@ export function renderNode(
       return (
         <tr key={index}>
           {tableRowNode.children.map((col: TableColumnNodeType, colIndex: number) =>
-            renderNode(col, colIndex, { ...options, nodePath: [...currentPath, colIndex], baseIndex: 0 })
+            renderNode(col, colIndex, {
+              ...options,
+              nodePath: [...currentPath, colIndex],
+              baseIndex: 0,
+            })
           )}
         </tr>
       );

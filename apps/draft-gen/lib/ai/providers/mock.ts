@@ -81,12 +81,20 @@ export class MockProvider extends BaseAIProvider {
               {
                 type: NodeTypeEnum.COLUMN,
                 children: [
-                  { type: NodeTypeEnum.TEXT, content: '**From:**\n${VENDOR_NAME}\n${VENDOR_ADDRESS}' },
+                  {
+                    type: NodeTypeEnum.TEXT,
+                    content: '**From:**\n${VENDOR_NAME}\n${VENDOR_ADDRESS}',
+                  },
                 ],
               },
               {
                 type: NodeTypeEnum.COLUMN,
-                children: [{ type: NodeTypeEnum.TEXT, content: '**To:**\n${CLIENT_NAME}\n${CLIENT_ADDRESS}' }],
+                children: [
+                  {
+                    type: NodeTypeEnum.TEXT,
+                    content: '**To:**\n${CLIENT_NAME}\n${CLIENT_ADDRESS}',
+                  },
+                ],
               },
             ],
           },
@@ -160,7 +168,10 @@ export class MockProvider extends BaseAIProvider {
             styles: { alignment: 'center' },
           },
           { type: NodeTypeEnum.TEXT, content: '' },
-          { type: NodeTypeEnum.TEXT, content: 'This Service Agreement is made on **${AGREEMENT_DATE}**' },
+          {
+            type: NodeTypeEnum.TEXT,
+            content: 'This Service Agreement is made on **${AGREEMENT_DATE}**',
+          },
           { type: NodeTypeEnum.TEXT, content: 'Between: ${CLIENT_NAME} ("Client")' },
           { type: NodeTypeEnum.TEXT, content: 'And: ${PROVIDER_NAME} ("Service Provider")' },
           { type: NodeTypeEnum.TEXT, content: '' },

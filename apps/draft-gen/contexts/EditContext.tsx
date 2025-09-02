@@ -15,18 +15,15 @@ export type PathSegment = number | string;
 export type NodePath = PathSegment[];
 
 // Result type for update operations
-type UpdateResult = 
-  | { success: true; data: DocumentSchema }
-  | { success: false; error: string };
+type UpdateResult = { success: true; data: DocumentSchema } | { success: false; error: string };
 
 // Union type for all possible nodes during tree traversal
-type NavigableNode = 
-  | DocumentSchema 
-  | NodeType
-  | TableHeadNodeType;
+type NavigableNode = DocumentSchema | NodeType | TableHeadNodeType;
 
 // Type guard to check if a node has children
-function hasChildren(node: NavigableNode): node is DocumentSchema | Extract<NodeType, { children: any }> | TableHeadNodeType {
+function hasChildren(
+  node: NavigableNode
+): node is DocumentSchema | Extract<NodeType, { children: any }> | TableHeadNodeType {
   return 'children' in node && Array.isArray((node as any).children);
 }
 
@@ -60,7 +57,7 @@ function validatePath(node: NavigableNode, path: NodePath, index: number = 0): b
   }
 
   const segment = path[index];
-  
+
   // Only numeric indices are valid
   if (typeof segment !== 'number') {
     return false;
@@ -105,7 +102,7 @@ function recursiveUpdate(
   }
 
   const segment = path[currentIndex];
-  
+
   // Only handle numeric segments
   if (typeof segment !== 'number') {
     return null;
@@ -131,7 +128,7 @@ function recursiveUpdate(
     // Return new table node with updated head
     return {
       ...node,
-      head: updatedHead as TableHeadNodeType
+      head: updatedHead as TableHeadNodeType,
     } as NavigableNode;
   }
 
@@ -145,12 +142,7 @@ function recursiveUpdate(
     return null;
   }
 
-  const updatedChild = recursiveUpdate(
-    children[segment],
-    path,
-    currentIndex + 1,
-    newContent
-  );
+  const updatedChild = recursiveUpdate(children[segment], path, currentIndex + 1, newContent);
 
   if (!updatedChild) {
     return null;
@@ -162,7 +154,7 @@ function recursiveUpdate(
 
   return {
     ...node,
-    children: newChildren
+    children: newChildren,
   } as NavigableNode;
 }
 
@@ -175,21 +167,18 @@ function createUpdatedNode(node: NodeType, newContent: string): NodeType {
       content: newContent,
     };
   }
-  
+
   // Container nodes that wrap text content
   if (isTextContainerNode(node)) {
     const children = (node as any).children;
     if (children && children[0] && 'content' in children[0]) {
       return {
         ...node,
-        children: [
-          { ...children[0], content: newContent },
-          ...children.slice(1),
-        ],
+        children: [{ ...children[0], content: newContent }, ...children.slice(1)],
       } as NodeType;
     }
   }
-  
+
   return node;
 }
 
@@ -206,9 +195,9 @@ function updateNodeAtPath(dsl: DocumentSchema, path: NodePath, newContent: strin
 
   // Validate the path exists in the tree
   if (!validatePath(dsl, path)) {
-    return { 
-      success: false, 
-      error: `Invalid path: [${path.join(', ')}] does not exist in the document` 
+    return {
+      success: false,
+      error: `Invalid path: [${path.join(', ')}] does not exist in the document`,
     };
   }
 
@@ -216,17 +205,17 @@ function updateNodeAtPath(dsl: DocumentSchema, path: NodePath, newContent: strin
   const updated = recursiveUpdate(dsl, path, 0, newContent);
 
   if (!updated) {
-    return { 
-      success: false, 
-      error: 'Failed to update node: target node may not be editable' 
+    return {
+      success: false,
+      error: 'Failed to update node: target node may not be editable',
     };
   }
 
   // Ensure the result is a valid DocumentSchema
   if (!('type' in updated) || updated.type !== 'document') {
-    return { 
-      success: false, 
-      error: 'Internal error: update resulted in invalid document structure' 
+    return {
+      success: false,
+      error: 'Internal error: update resulted in invalid document structure',
     };
   }
 
@@ -283,7 +272,7 @@ export function EditProvider({
       // Update the DSL using our helper function
       onDslUpdate((dsl) => {
         const result = updateNodeAtPath(dsl, path, newContent);
-        
+
         if (result.success) {
           return result.data;
         } else {

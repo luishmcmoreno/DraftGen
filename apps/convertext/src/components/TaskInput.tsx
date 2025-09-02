@@ -14,10 +14,7 @@ const TaskInput: React.FC<TaskInputProps> = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label
-          htmlFor="task-description"
-          className="block text-sm font-medium text-foreground"
-        >
+        <label htmlFor="task-description" className="block text-sm font-medium text-foreground">
           What do you want to do with the content?
         </label>
         <input
@@ -39,4 +36,4 @@ const TaskInput: React.FC<TaskInputProps> = ({
   );
 };
 
-export default TaskInput; 
+export default TaskInput;

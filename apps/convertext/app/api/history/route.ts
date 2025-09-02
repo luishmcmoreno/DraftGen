@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  getConversionHistory, 
+import {
+  getConversionHistory,
   searchConversionHistory,
-  getConversionStatsByTool 
+  getConversionStatsByTool,
 } from '../../../src/lib/supabase/text-conversions';
 import { getUserRoutineExecutions } from '../../../src/lib/supabase/conversion-routines';
 
@@ -40,9 +40,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid type parameter' }, { status: 400 });
   } catch (error) {
     console.error('History API Error:', error);
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }

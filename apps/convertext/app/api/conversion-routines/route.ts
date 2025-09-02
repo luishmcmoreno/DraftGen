@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  getStoredConversionRoutines, 
+import {
+  getStoredConversionRoutines,
   saveConversionRoutine,
-  createRoutineExecution 
+  createRoutineExecution,
 } from '../../../src/lib/supabase/conversion-routines';
-import type { SavedConversionRoutine, ConversionRoutineExecution } from '../../../src/types/conversion';
+import type {
+  SavedConversionRoutine,
+  ConversionRoutineExecution,
+} from '../../../src/types/conversion';
 
 export async function GET() {
   try {
@@ -13,10 +16,13 @@ export async function GET() {
     return NextResponse.json({ routines });
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -40,12 +46,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ execution: newExecution }, { status: 201 });
     }
 
-    return NextResponse.json({ error: 'Either routine or execution must be provided' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Either routine or execution must be provided' },
+      { status: 400 }
+    );
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }

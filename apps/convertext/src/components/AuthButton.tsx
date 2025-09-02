@@ -29,17 +29,11 @@ export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButto
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           {profile?.avatar_url && (
-            <img 
-              src={profile.avatar_url} 
-              alt="Avatar" 
-              className="w-8 h-8 rounded-full"
-            />
+            <img src={profile.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full" />
           )}
-          <span className="text-sm text-foreground">
-            {profile?.display_name || user.email}
-          </span>
+          <span className="text-sm text-foreground">{profile?.display_name || user.email}</span>
         </div>
-        
+
         {showConvertButton && pathname !== '/' && (
           <button
             onClick={() => {
@@ -54,7 +48,7 @@ export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButto
             Convert
           </button>
         )}
-        
+
         <button
           onClick={signOut}
           className="px-3 py-1 text-sm text-muted-foreground hover:text-foreground border border-border rounded hover:bg-muted/50 transition-colors"

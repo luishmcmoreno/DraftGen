@@ -13,32 +13,34 @@ interface PendingConversion {
 
 export async function signInWithGoogle(pendingConversion?: PendingConversion) {
   console.log('=== signInWithGoogle called ===', { pendingConversion });
-  
+
   const supabase = createClient();
-  
+
   // Sanitize pending conversion to avoid circular references
-  const sanitizedConversion = pendingConversion ? {
-    taskDescription: pendingConversion.taskDescription,
-    text: pendingConversion.text,
-    exampleOutput: pendingConversion.exampleOutput
-  } : null;
-  
+  const sanitizedConversion = pendingConversion
+    ? {
+        taskDescription: pendingConversion.taskDescription,
+        text: pendingConversion.text,
+        exampleOutput: pendingConversion.exampleOutput,
+      }
+    : null;
+
   const redirectTo = `${window.location.origin}/api/auth/callback`;
   const options: any = { redirectTo };
-  
+
   // Include pending conversion data in the state parameter
   if (sanitizedConversion) {
     try {
       options.queryParams = {
-        state: encodeURIComponent(JSON.stringify(sanitizedConversion))
+        state: encodeURIComponent(JSON.stringify(sanitizedConversion)),
       };
     } catch (jsonError) {
       console.warn('Failed to stringify pending conversion, proceeding without state:', jsonError);
     }
   }
-  
+
   console.log('=== OAuth options ===', options);
-  
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -57,9 +59,9 @@ export async function signInWithGoogle(pendingConversion?: PendingConversion) {
 
 export async function signOut() {
   const supabase = createClient();
-  
+
   const { error } = await supabase.auth.signOut();
-  
+
   if (error) {
     throw new Error(`Failed to sign out: ${error.message}`);
   }
@@ -67,29 +69,31 @@ export async function signOut() {
 
 export async function getCurrentUser() {
   const supabase = createClient();
-  
-  const { data: { user }, error } = await supabase.auth.getUser();
-  
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
   if (error) {
     throw new Error(`Failed to get current user: ${error.message}`);
   }
-  
+
   return user;
 }
 
 export async function getUserProfile(): Promise<Profile | null> {
   const supabase = createClient();
-  
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
 
-  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+  if (error && error.code !== 'PGRST116') {
+    // PGRST116 = no rows returned
     throw new Error(`Failed to get user profile: ${error.message}`);
   }
 
@@ -98,8 +102,10 @@ export async function getUserProfile(): Promise<Profile | null> {
 
 export async function upsertUserProfile(profileData: Partial<ProfileInsert>): Promise<Profile> {
   const supabase = createClient();
-  
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     throw new Error('User must be authenticated to upsert profile');
   }
@@ -113,11 +119,7 @@ export async function upsertUserProfile(profileData: Partial<ProfileInsert>): Pr
     updated_at: new Date().toISOString(),
   };
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .upsert(profile)
-    .select()
-    .single();
+  const { data, error } = await supabase.from('profiles').upsert(profile).select().single();
 
   if (error) {
     throw new Error(`Failed to upsert user profile: ${error.message}`);
@@ -128,8 +130,10 @@ export async function upsertUserProfile(profileData: Partial<ProfileInsert>): Pr
 
 export async function updateUserProfile(updates: ProfileUpdate): Promise<Profile> {
   const supabase = createClient();
-  
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     throw new Error('User must be authenticated to update profile');
   }
@@ -153,16 +157,16 @@ export async function updateUserProfile(updates: ProfileUpdate): Promise<Profile
 
 export async function onAuthStateChange(callback: (user: any) => void) {
   const supabase = createClient();
-  
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        // Upsert profile when user signs in
-        await upsertUserProfile({});
-      }
-      callback(session?.user || null);
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      // Upsert profile when user signs in
+      await upsertUserProfile({});
     }
-  );
+    callback(session?.user || null);
+  });
 
   return () => subscription.unsubscribe();
 }
