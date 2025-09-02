@@ -2,18 +2,18 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Topbar from '../../../src/components/Topbar';
-import WorkflowTimeline from '../../../src/components/WorkflowTimeline';
-import WorkflowLibrary from '../../../src/components/WorkflowLibrary';
-import { useAuth } from '../../../src/components/AuthProvider';
-import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, ToolEvaluation } from '../../../src/types/conversion';
+import Topbar from '../../src/components/Topbar';
+import WorkflowTimeline from '../../src/components/WorkflowTimeline';
+import WorkflowLibrary from '../../src/components/WorkflowLibrary';
+import { useAuth } from '../../src/components/AuthProvider';
+import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, ToolEvaluation } from '../../src/types/conversion';
 import { 
   createNewConversionRoutineExecution, 
   addStepToConversionRoutine, 
   updateStepStatus, 
   replayConversionRoutine,
   saveConversionRoutineToStorage
-} from '../../../src/utils/workflow-supabase';
+} from '../../src/utils/workflow-supabase';
 
 function CreateRoutineContent() {
   const { user } = useAuth();
@@ -26,9 +26,36 @@ function CreateRoutineContent() {
   const [initialText, setInitialText] = useState<string>();
   const [showConversionRoutineLibrary, setShowConversionRoutineLibrary] = useState(false);
 
-  // Initialize routine - check for in-progress routine from home page
+  // Initialize routine - check for routines to save or in-progress routines
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Check for routine to save (from convert page)
+      const routineToSaveStr = sessionStorage.getItem('routineToSave');
+      if (routineToSaveStr) {
+        try {
+          const { routine: routineToSave, timestamp } = JSON.parse(routineToSaveStr);
+          
+          // Only process if recent (within 10 minutes)
+          const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
+          
+          if (isRecent && routineToSave) {
+            // Clear the session storage
+            sessionStorage.removeItem('routineToSave');
+            
+            // Load the routine for saving/editing
+            setRoutine(routineToSave);
+            return;
+          } else {
+            // Clear expired routine
+            sessionStorage.removeItem('routineToSave');
+          }
+        } catch (error) {
+          console.error('Failed to parse routine to save:', error);
+          sessionStorage.removeItem('routineToSave');
+        }
+      }
+      
+      // Check for in-progress routine (from old flow - keeping for compatibility)
       const routineInProgressStr = sessionStorage.getItem('routineInProgress');
       if (routineInProgressStr) {
         try {
@@ -54,6 +81,7 @@ function CreateRoutineContent() {
           return;
         } catch (error) {
           console.error('Failed to parse routine in progress:', error);
+          sessionStorage.removeItem('routineInProgress');
         }
       }
     }
@@ -192,7 +220,6 @@ function CreateRoutineContent() {
     }) : null);
   };
 
-
   const handleExampleSelect = (task: string, sampleInput?: string) => {
     setInitialTask(task);
     setInitialText(sampleInput || '');
@@ -217,6 +244,9 @@ function CreateRoutineContent() {
       usageCount: 0
     };
     saveConversionRoutineToStorage(savedRoutine);
+    
+    // After saving, redirect to routines gallery
+    router.push('/routines');
   };
 
   const handleReplayConversionRoutine = (savedRoutine: SavedConversionRoutine) => {

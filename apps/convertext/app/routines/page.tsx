@@ -58,11 +58,11 @@ export default function RoutinesPage() {
       // Update usage statistics
       await updateConversionRoutineUsage(routine.id);
       // Navigate to convert page with routine loaded and auto-run
-      router.push(`/?routineId=${routine.id}&run=true`);
+      router.push(`/convert?routineId=${routine.id}&run=true`);
     } catch (err) {
       console.error('Failed to update routine usage:', err);
       // Still navigate even if usage update fails
-      router.push(`/?routineId=${routine.id}&run=true`);
+      router.push(`/convert?routineId=${routine.id}&run=true`);
     }
   };
 

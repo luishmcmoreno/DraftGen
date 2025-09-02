@@ -45,8 +45,8 @@ export default function RoutineCard({
     if (onRun) {
       onRun(routine);
     } else {
-      // Default behavior: navigate to home page with routine loaded
-      router.push(`/?routineId=${routine.id}&run=true`);
+      // Default behavior: navigate to convert page with routine loaded
+      router.push(`/convert?routineId=${routine.id}&run=true`);
     }
   };
 
