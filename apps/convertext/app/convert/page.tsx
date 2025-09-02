@@ -8,14 +8,19 @@ import WorkflowLibrary from '../../src/components/WorkflowLibrary';
 import { useAuth } from '../../src/components/AuthProvider';
 import { useTheme } from '../../src/components/ThemeProvider';
 import { GoogleSignInButton } from '@draft-gen/ui';
-import { ConversionRoutineExecution, WorkflowStep, SavedConversionRoutine, ToolEvaluation } from '../../src/types/conversion';
-import { 
-  createNewConversionRoutineExecution, 
-  addStepToConversionRoutine, 
-  updateStepStatus, 
+import {
+  ConversionRoutineExecution,
+  WorkflowStep,
+  SavedConversionRoutine,
+  ToolEvaluation,
+} from '../../src/types/conversion';
+import {
+  createNewConversionRoutineExecution,
+  addStepToConversionRoutine,
+  updateStepStatus,
   replayConversionRoutine,
-  saveConversionRoutineToStorage
 } from '../../src/utils/workflow-supabase';
+import { logger } from '@draft-gen/logger';
 
 export default function ConvertPage() {
   const { user, signIn } = useAuth();
@@ -34,6 +39,142 @@ export default function ConvertPage() {
     setRoutine(createNewConversionRoutineExecution());
   }, []);
 
+  const handleSubmit = useCallback(
+    async (taskDescription: string, text: string, exampleOutput?: string) => {
+      if (!taskDescription.trim() || !routine) return;
+
+      // Check if user is authenticated before proceeding with the conversion
+      if (!user) {
+        // Store pending conversion in sessionStorage for post-auth retry
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(
+            'pendingConversion',
+            JSON.stringify({
+              taskDescription,
+              text,
+              exampleOutput,
+              timestamp: Date.now(),
+            })
+          );
+        }
+
+        // Show login dialog instead of proceeding
+        setShowLoginDialog(true);
+        setInitialTask(taskDescription);
+        setInitialText(text);
+        return;
+      }
+
+      // User is authenticated, proceed directly with conversion
+
+      const startTime = Date.now();
+
+      const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
+        status: 'running',
+        input: {
+          text,
+          taskDescription,
+          exampleOutput,
+        },
+      };
+
+      let updatedRoutine = addStepToConversionRoutine(routine, newStep);
+      setRoutine(updatedRoutine);
+      setLoading(true);
+      setError(null);
+
+      try {
+        const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
+
+        const evaluateResponse = await fetch(`/api/evaluate-with-history`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text,
+            task_description: taskDescription,
+            provider: routine.provider,
+          }),
+        });
+
+        if (!evaluateResponse.ok) {
+          throw new Error('Evaluation failed');
+        }
+
+        const evaluationData = await evaluateResponse.json();
+        const evaluation: ToolEvaluation = {
+          reasoning: evaluationData.reasoning || '',
+          tool: evaluationData.tool || '',
+          tool_args: evaluationData.tool_args || [],
+        };
+
+        const convertResponse = await fetch(`/api/convert-with-history`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text,
+            task_description: taskDescription,
+            example_output: exampleOutput,
+            provider: routine.provider,
+          }),
+        });
+
+        if (!convertResponse.ok) {
+          throw new Error('Conversion failed');
+        }
+
+        const conversionData = await convertResponse.json();
+        const duration = Date.now() - startTime;
+
+        updatedRoutine = updateStepStatus(
+          updatedRoutine,
+          stepId,
+          'completed',
+          {
+            result: conversionData,
+            evaluation,
+          },
+          undefined,
+          duration
+        );
+
+        setRoutine(updatedRoutine);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+        setError(errorMessage);
+
+        const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
+        const duration = Date.now() - startTime;
+
+        updatedRoutine = updateStepStatus(
+          updatedRoutine,
+          stepId,
+          'error',
+          undefined,
+          errorMessage,
+          duration
+        );
+
+        setRoutine(updatedRoutine);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      routine,
+      user,
+      setError,
+      setLoading,
+      setRoutine,
+      setShowLoginDialog,
+      setInitialTask,
+      setInitialText,
+    ]
+  );
+
   // Auto-execute conversion from sessionStorage on page load
   useEffect(() => {
     if (typeof window !== 'undefined' && routine) {
@@ -42,22 +183,22 @@ export default function ConvertPage() {
         try {
           const pendingConversion = JSON.parse(pendingConversionStr);
           const { taskDescription, text, exampleOutput, timestamp } = pendingConversion;
-          
+
           // Only process if recent (within 10 minutes)
           const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
-          
+
           if (isRecent && taskDescription && text) {
-            console.log('Auto-executing conversion from landing page:', { 
-              taskDescription: taskDescription.substring(0, 50) + '...', 
-              textLength: text.length 
+            logger.log('Auto-executing conversion from landing page:', {
+              taskDescription: taskDescription.substring(0, 50) + '...',
+              textLength: text.length,
             });
-            
+
             // Set auto-executing state to prevent showing input form
             setIsAutoExecuting(true);
-            
+
             // Clear the pending conversion immediately to avoid re-processing
             sessionStorage.removeItem('pendingConversion');
-            
+
             // Start conversion immediately without showing input form
             handleSubmit(taskDescription, text, exampleOutput);
           } else {
@@ -65,141 +206,23 @@ export default function ConvertPage() {
             sessionStorage.removeItem('pendingConversion');
           }
         } catch (error) {
-          console.error('Failed to parse pending conversion:', error);
+          logger.error('Failed to parse pending conversion:', error);
           sessionStorage.removeItem('pendingConversion');
         }
       }
     }
-  }, [routine]); // Only depend on routine, remove handleSubmit dependency to avoid hoisting issue
-
-  const handleSubmit = useCallback(async (taskDescription: string, text: string, exampleOutput?: string) => {
-    if (!taskDescription.trim() || !routine) return;
-
-    // Check if user is authenticated before proceeding with the conversion
-    if (!user) {
-      // Store pending conversion in sessionStorage for post-auth retry
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('pendingConversion', JSON.stringify({
-          taskDescription,
-          text,
-          exampleOutput,
-          timestamp: Date.now()
-        }));
-      }
-      
-      // Show login dialog instead of proceeding
-      setShowLoginDialog(true);
-      setInitialTask(taskDescription);
-      setInitialText(text);
-      return;
-    }
-
-    // User is authenticated, proceed directly with conversion
-
-    const startTime = Date.now();
-
-    const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
-      status: 'running',
-      input: {
-        text,
-        taskDescription,
-        exampleOutput
-      }
-    };
-
-    let updatedRoutine = addStepToConversionRoutine(routine, newStep);
-    setRoutine(updatedRoutine);
-    setLoading(true);
-    setError(null);
-
-    try {
-      const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
-
-      const evaluateResponse = await fetch(`/api/evaluate-with-history`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text,
-          task_description: taskDescription,
-          provider: routine.provider,
-        }),
-      });
-
-      if (!evaluateResponse.ok) {
-        throw new Error('Evaluation failed');
-      }
-
-      const evaluationData = await evaluateResponse.json();
-      const evaluation: ToolEvaluation = {
-        reasoning: evaluationData.reasoning || '',
-        tool: evaluationData.tool || '',
-        tool_args: evaluationData.tool_args || []
-      };
-
-      const convertResponse = await fetch(`/api/convert-with-history`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text,
-          task_description: taskDescription,
-          example_output: exampleOutput,
-          provider: routine.provider,
-        }),
-      });
-
-      if (!convertResponse.ok) {
-        throw new Error('Conversion failed');
-      }
-
-      const conversionData = await convertResponse.json();
-      const duration = Date.now() - startTime;
-
-      updatedRoutine = updateStepStatus(
-        updatedRoutine,
-        stepId,
-        'completed',
-        {
-          result: conversionData,
-          evaluation
-        },
-        undefined,
-        duration
-      );
-
-      setRoutine(updatedRoutine);
-
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setError(errorMessage);
-      
-      const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
-      const duration = Date.now() - startTime;
-      
-      updatedRoutine = updateStepStatus(
-        updatedRoutine,
-        stepId,
-        'error',
-        undefined,
-        errorMessage,
-        duration
-      );
-      
-      setRoutine(updatedRoutine);
-    } finally {
-      setLoading(false);
-    }
-  }, [routine, user, setError, setLoading, setRoutine, setShowLoginDialog, setInitialTask, setInitialText]);
+  }, [routine, handleSubmit]); // Only depend on routine, remove handleSubmit dependency to avoid hoisting issue
 
   const handleProviderChange = (newProvider: string) => {
     if (!routine) return;
-    setRoutine(prev => prev ? ({
-      ...prev,
-      provider: newProvider
-    }) : null);
+    setRoutine((prev) =>
+      prev
+        ? {
+            ...prev,
+            provider: newProvider,
+          }
+        : null
+    );
   };
 
   const handleExampleSelect = (task: string, sampleInput?: string) => {
@@ -213,15 +236,18 @@ export default function ConvertPage() {
 
   const handleSaveConversionRoutine = () => {
     if (!routine) return;
-    
+
     // Redirect to routines/create page for routine saving/management
     if (user) {
       // Store the current routine in sessionStorage for the routine creation page
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem('routineToSave', JSON.stringify({
-          routine,
-          timestamp: Date.now()
-        }));
+        sessionStorage.setItem(
+          'routineToSave',
+          JSON.stringify({
+            routine,
+            timestamp: Date.now(),
+          })
+        );
       }
       router.push('/routines/create');
     } else {
@@ -238,20 +264,20 @@ export default function ConvertPage() {
 
   const handleAddNewStep = (previousResult: string) => {
     if (!routine) return;
-    
+
     // Add new step directly in this page - no redirect needed
     const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
       status: 'editing',
       input: {
         text: previousResult,
         taskDescription: '',
-        exampleOutput: undefined
-      }
+        exampleOutput: undefined,
+      },
     };
-    
+
     const updatedRoutine = addStepToConversionRoutine(routine, newStep);
     setRoutine(updatedRoutine);
-    
+
     setInitialTask('');
     setInitialText(previousResult);
   };
@@ -259,15 +285,14 @@ export default function ConvertPage() {
   const handleLoginAndContinue = async () => {
     try {
       setLoading(true);
-      
+
       // The pending conversion is already stored in sessionStorage
       // Just trigger the sign in, and the conversion will be retried after auth
       await signIn();
-      
+
       setShowLoginDialog(false);
-      
     } catch (error) {
-      console.error('Login failed:', error);
+      logger.error('Login failed:', error);
       setError('Login failed. Please try again.');
       setLoading(false);
     }
@@ -282,19 +307,22 @@ export default function ConvertPage() {
         try {
           const pendingConversion = JSON.parse(pendingConversionStr);
           const { taskDescription, text, exampleOutput, timestamp } = pendingConversion;
-          
+
           // Only retry if the pending conversion is recent (within 10 minutes)
           const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
-          
+
           if (isRecent && taskDescription && text) {
-            console.log('Retrying pending conversion after authentication:', { taskDescription: taskDescription.substring(0, 50) + '...', textLength: text.length });
-            
+            logger.log('Retrying pending conversion after authentication:', {
+              taskDescription: taskDescription.substring(0, 50) + '...',
+              textLength: text.length,
+            });
+
             // Clear the pending conversion
             sessionStorage.removeItem('pendingConversion');
-            
+
             // Close the login dialog if it's open
             setShowLoginDialog(false);
-            
+
             // Retry the conversion
             setTimeout(() => {
               handleSubmit(taskDescription, text, exampleOutput);
@@ -304,7 +332,7 @@ export default function ConvertPage() {
             sessionStorage.removeItem('pendingConversion');
           }
         } catch (error) {
-          console.error('Failed to parse pending conversion:', error);
+          logger.error('Failed to parse pending conversion:', error);
           sessionStorage.removeItem('pendingConversion');
         }
       }
@@ -333,7 +361,16 @@ export default function ConvertPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Topbar profile={user ? { display_name: user?.user_metadata?.full_name || null, avatar_url: user?.user_metadata?.avatar_url || null } : null} />
+      <Topbar
+        profile={
+          user
+            ? {
+                display_name: user?.user_metadata?.full_name || null,
+                avatar_url: user?.user_metadata?.avatar_url || null,
+              }
+            : null
+        }
+      />
 
       <WorkflowTimeline
         steps={routine.steps}
@@ -372,11 +409,10 @@ export default function ConvertPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-card border border-border rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
             <div className="text-center">
-              <h2 className="text-xl font-semibold text-foreground mb-4">
-                Sign in to Continue
-              </h2>
+              <h2 className="text-xl font-semibold text-foreground mb-4">Sign in to Continue</h2>
               <p className="text-muted-foreground mb-6">
-                To start your text conversion, please sign in with Google. This will save your conversion history and allow you to reuse workflows.
+                To start your text conversion, please sign in with Google. This will save your
+                conversion history and allow you to reuse workflows.
               </p>
               <div className="flex space-x-3">
                 <button

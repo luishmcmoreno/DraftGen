@@ -3,23 +3,24 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { logger } from '@draft-gen/logger';
-import Topbar from '../../../src/components/Topbar';
-import WorkflowTimeline from '../../../src/components/WorkflowTimeline';
-import WorkflowLibrary from '../../../src/components/WorkflowLibrary';
-import { useAuth } from '../../../src/components/AuthProvider';
+
+import Topbar from '@/components/Topbar';
+import WorkflowLibrary from '@/components/WorkflowLibrary';
+import { useAuth } from '@/components/AuthProvider';
 import {
-  ConversionRoutineExecution,
-  WorkflowStep,
-  SavedConversionRoutine,
-  ToolEvaluation,
-} from '../../../src/types/conversion';
-import {
-  createNewConversionRoutineExecution,
   addStepToConversionRoutine,
-  updateStepStatus,
+  createNewConversionRoutineExecution,
   replayConversionRoutine,
   saveConversionRoutineToStorage,
-} from '../../../src/utils/workflow-supabase';
+  updateStepStatus,
+} from '@/utils/workflow-supabase';
+import {
+  ConversionRoutineExecution,
+  SavedConversionRoutine,
+  ToolEvaluation,
+  WorkflowStep,
+} from '@/types/conversion';
+import WorkflowTimeline from '@/components/WorkflowTimeline';
 
 function CreateRoutineContent() {
   const { user } = useAuth();
