@@ -4,7 +4,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   signInWithGoogle,
   signOut,
-  getCurrentUser,
   getUserProfile,
   onAuthStateChange,
 } from '../lib/supabase/auth';
@@ -13,7 +12,7 @@ import { migrateLocalStorageToSupabase } from '../utils/workflow-supabase';
 import type { Database } from '../lib/supabase/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
-type User = any; // Supabase User type
+import type { User } from '@supabase/supabase-js';
 
 interface PendingConversion {
   taskDescription: string;

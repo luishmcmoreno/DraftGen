@@ -24,7 +24,7 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
   const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'lastUsed' | 'usageCount'>(
     'lastUsed'
   );
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -171,7 +171,7 @@ const WorkflowLibrary: React.FC<WorkflowLibraryProps> = ({
             </div>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => setSortBy(e.target.value as 'name' | 'createdAt' | 'lastUsed' | 'usageCount')}
               className="px-4 py-2 border border-input bg-background text-foreground rounded-lg focus:border-ring focus:ring-ring"
             >
               <option value="lastUsed">Last Used</option>

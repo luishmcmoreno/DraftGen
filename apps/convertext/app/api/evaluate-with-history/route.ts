@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProviderFromName } from '../../../src/lib/providers';
 import { ConversionAgent } from '../../../src/lib/agent/conversion-agent';
-import type { ToolEvaluation } from '../../../src/types/conversion';
 
 // This endpoint uses internal conversion tools for task evaluation
 export async function POST(request: NextRequest) {

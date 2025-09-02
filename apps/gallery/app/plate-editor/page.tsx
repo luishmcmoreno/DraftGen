@@ -157,7 +157,7 @@ export default function PlateEditorTest() {
 
   const handleChange = (value: Value) => {
     setEditorValue(value);
-    console.log('Editor value changed:', value);
+    // Editor value changed: value
   };
 
   return (

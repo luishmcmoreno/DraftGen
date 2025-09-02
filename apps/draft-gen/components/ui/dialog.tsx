@@ -4,6 +4,7 @@ import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@draft-gen/ui';
 
 interface DialogContextValue {
   open: boolean;
@@ -78,7 +79,7 @@ const DialogTrigger = React.forwardRef<HTMLButtonElement, DialogTriggerProps>(
             childProps.onClick?.(e);
           },
           ref,
-        } as any
+        } as React.ComponentPropsWithRef<typeof Button>
       );
     }
 
@@ -158,7 +159,7 @@ const DialogClose = React.forwardRef<
           childProps.onClick?.(e);
         },
         ref,
-      } as any
+      } as React.ComponentPropsWithRef<typeof Button>
     );
   }
 

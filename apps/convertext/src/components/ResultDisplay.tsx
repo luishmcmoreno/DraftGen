@@ -13,11 +13,6 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result }) => {
     setEditableText(result.converted_text);
   }, [result.converted_text]);
 
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'text-green-600';
-    if (confidence >= 0.5) return 'text-yellow-600';
-    return 'text-red-600';
-  };
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(editableText);

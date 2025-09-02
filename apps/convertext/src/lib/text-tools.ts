@@ -352,7 +352,7 @@ export class TextTools {
       }
 
       return matches.join('\n');
-    } catch (error) {
+    } catch {
       return 'Error: Invalid regex pattern.';
     }
   }
@@ -476,7 +476,7 @@ export class TextTools {
       }
 
       return filteredLines.join('\n');
-    } catch (error) {
+    } catch {
       return 'Error: Invalid filter pattern.';
     }
   }
@@ -983,7 +983,7 @@ export class TextTools {
   }
 
   static executeTool(toolName: string, args: string[]): string {
-    const method = (this as any)[toolName];
+    const method = (this as Record<string, unknown>)[toolName];
     if (typeof method === 'function') {
       return method.apply(this, args);
     }

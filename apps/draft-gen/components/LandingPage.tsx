@@ -25,7 +25,7 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
   const tCommon = useTranslations('common');
   const { resolvedTheme } = useTheme();
   const router = useRouter();
-  const [prompt, setPrompt] = useState('');
+  const [, setPrompt] = useState('');
 
   // Load prompt from sessionStorage on mount
   useEffect(() => {

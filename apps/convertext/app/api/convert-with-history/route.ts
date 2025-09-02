@@ -9,7 +9,6 @@ import { getProviderFromName } from '../../../src/lib/providers';
 import type {
   TextConversionResponse,
   ConversionResult,
-  WorkflowStep,
 } from '../../../src/types/conversion';
 
 // This endpoint uses internal conversion tools with Supabase history tracking
@@ -78,7 +77,7 @@ export async function POST(request: NextRequest) {
         tool_used: result.tool_used,
         confidence: result.confidence,
         render_mode: result.render_mode,
-        tool_args: result.tool_args as any,
+        tool_args: result.tool_args as Record<string, unknown>,
         error: result.error,
       };
 

@@ -16,7 +16,7 @@ interface WorkflowStepProps {
 const WorkflowStep: React.FC<WorkflowStepProps> = ({
   step,
   onAddNewStep,
-  onSaveWorkflow,
+  onSaveWorkflow: _onSaveWorkflow,
   onExecute,
   isLastStep = false,
 }) => {

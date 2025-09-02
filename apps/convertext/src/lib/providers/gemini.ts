@@ -5,7 +5,7 @@ import type { ToolEvaluation } from '../../types/conversion';
 
 export class GeminiProvider extends BaseLLMProvider {
   private genAI: GoogleGenerativeAI;
-  private model: any;
+  private model: unknown;
 
   constructor() {
     super();

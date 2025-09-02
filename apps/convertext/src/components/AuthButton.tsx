@@ -29,6 +29,7 @@ export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButto
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           {profile?.avatar_url && (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img src={profile.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full" />
           )}
           <span className="text-sm text-foreground">{profile?.display_name || user.email}</span>

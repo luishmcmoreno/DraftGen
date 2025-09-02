@@ -130,9 +130,9 @@ export default function Gallery() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <TemplateCard 
                   template={mockTemplate}
-                  onEdit={(id) => console.log('Edit template:', id)}
-                  onGenerate={(template) => console.log('Generate template:', template)}
-                  onDelete={(template) => console.log('Delete template:', template)}
+                  onEdit={() => { /* Edit template */ }}
+                  onGenerate={() => { /* Generate template */ }}
+                  onDelete={() => { /* Delete template */ }}
                 />
                 
                 <TemplateCard 
@@ -143,8 +143,8 @@ export default function Gallery() {
                     description: null,
                     tags: ['Simple']
                   }}
-                  onEdit={(id) => console.log('Edit template:', id)}
-                  onGenerate={(template) => console.log('Generate template:', template)}
+                  onEdit={() => { /* Edit template */ }}
+                  onGenerate={() => { /* Generate template */ }}
                 />
 
                 <TemplateCard 

@@ -211,7 +211,7 @@ export const migrateLocalStorageToSupabase = async (): Promise<void> => {
     if (!stored) return;
 
     const routines = JSON.parse(stored);
-    const migratedRoutines: SavedConversionRoutine[] = routines.map((routine: any) => ({
+    const migratedRoutines: SavedConversionRoutine[] = routines.map((routine: Record<string, unknown>) => ({
       ...routine,
       createdAt: new Date(routine.createdAt),
       lastUsed: routine.lastUsed ? new Date(routine.lastUsed) : undefined,

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { TextTools } from '../../../src/lib/text-tools';
 
 export async function GET() {

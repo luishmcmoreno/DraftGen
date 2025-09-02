@@ -133,7 +133,7 @@ export const getStoredConversionRoutines = (): SavedConversionRoutine[] => {
     if (!stored) return [];
 
     const routines = JSON.parse(stored);
-    return routines.map((routine: any) => ({
+    return routines.map((routine: Record<string, unknown>) => ({
       ...routine,
       createdAt: new Date(routine.createdAt),
       lastUsed: routine.lastUsed ? new Date(routine.lastUsed) : undefined,

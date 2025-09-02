@@ -26,7 +26,7 @@ export async function signInWithGoogle(pendingConversion?: PendingConversion) {
     : null;
 
   const redirectTo = `${window.location.origin}/api/auth/callback`;
-  const options: any = { redirectTo };
+  const options: { redirectTo: string; queryParams?: { state: string } } = { redirectTo };
 
   // Include pending conversion data in the state parameter
   if (sanitizedConversion) {
@@ -155,7 +155,7 @@ export async function updateUserProfile(updates: ProfileUpdate): Promise<Profile
   return data;
 }
 
-export async function onAuthStateChange(callback: (user: any) => void) {
+export async function onAuthStateChange(callback: (user: import('@supabase/supabase-js').User | null) => void) {
   const supabase = createClient();
 
   const {

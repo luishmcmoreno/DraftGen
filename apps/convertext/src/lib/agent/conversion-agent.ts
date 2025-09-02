@@ -1,6 +1,6 @@
 import { BaseLLMProvider } from '../providers/base';
 import { TextTools } from '../text-tools';
-import type { ConversionResult, ToolEvaluation } from '../../types/conversion';
+import type { ToolEvaluation } from '../../types/conversion';
 
 export interface ProcessRequestParams {
   text: string;

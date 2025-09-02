@@ -118,8 +118,8 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
       const pdfBase64 = await pdfDoc.saveAsBase64({ dataUri: true });
 
       await downloadFile(pdfBase64, 'plate.pdf');
-    } catch (error) {
-      // Failed to export PDF: error
+    } catch {
+      // Failed to export PDF
       alert('Failed to export PDF. Please make sure the editor content is loaded and try again.');
     }
   };
@@ -128,8 +128,8 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
     try {
       const canvas = await getCanvas();
       await downloadFile(canvas.toDataURL('image/png'), 'plate.png');
-    } catch (error) {
-      // Failed to export image: error
+    } catch {
+      // Failed to export image
       alert('Failed to export image. Please make sure the editor content is loaded and try again.');
     }
   };
