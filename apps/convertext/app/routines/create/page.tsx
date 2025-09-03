@@ -8,6 +8,7 @@ import Topbar from '@/components/Topbar';
 import WorkflowTimeline from '@/components/WorkflowTimeline';
 import WorkflowLibrary from '@/components/WorkflowLibrary';
 import { useAuth } from '@/components/AuthProvider';
+import useConversionStore from '@/stores/conversionStore';
 import {
   addStepToConversionRoutine,
   createNewConversionRoutineExecution,
@@ -34,6 +35,9 @@ export default function CreateRoutinePage() {
   const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
+  // Zustand store
+  const { pendingConversion, clearPendingConversion } = useConversionStore();
+
   // Initialize routine and check for pending conversion from landing page
   useEffect(() => {
     // Initialize routine if not already initialized
@@ -42,45 +46,39 @@ export default function CreateRoutinePage() {
       let shouldAddEmptyStep = true;
       let routineToSet = newRoutine;
 
-      // Check for pending conversion from landing page
-      if (typeof window !== 'undefined') {
-        const pendingConversionStr = sessionStorage.getItem('pendingConversion');
-        if (pendingConversionStr) {
-          try {
-            const pendingConversion = JSON.parse(pendingConversionStr);
-            const { taskDescription, text, timestamp } = pendingConversion;
+      // Check for pending conversion from Zustand store
+      if (pendingConversion) {
+        const { taskDescription, text, timestamp } = pendingConversion;
 
-            // Only use if recent (within 10 minutes)
-            const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
+        // Only use if recent (within 10 minutes)
+        const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
 
-            if (isRecent && taskDescription && text) {
-              logger.log('Loading pending conversion from landing page:', {
-                taskDescription: taskDescription.substring(0, 50) + '...',
-                textLength: text.length,
-              });
+        if (isRecent && taskDescription && text) {
+          logger.log('Loading pending conversion from store:', {
+            taskDescription: taskDescription.substring(0, 50) + '...',
+            textLength: text.length,
+          });
 
-              // Set initial values
-              setInitialTask(taskDescription);
-              setInitialText(text);
+          // Set initial values
+          setInitialTask(taskDescription);
+          setInitialText(text);
 
-              // Clear the pending conversion
-              sessionStorage.removeItem('pendingConversion');
+          // Clear the pending conversion from store
+          clearPendingConversion();
 
-              // Set flag to auto-start conversion after component mounts
-              setShouldAutoSubmit(true);
-              
-              // Don't add empty step since we have pending data
-              shouldAddEmptyStep = false;
-            } else {
-              // Clear expired pending conversion
-              sessionStorage.removeItem('pendingConversion');
-            }
-          } catch (error) {
-            logger.error('Failed to parse pending conversion:', error);
-            sessionStorage.removeItem('pendingConversion');
-          }
+          // Set flag to auto-start conversion after component mounts
+          setShouldAutoSubmit(true);
+
+          // Don't add empty step since we have pending data
+          shouldAddEmptyStep = false;
+        } else {
+          // Clear expired pending conversion
+          clearPendingConversion();
         }
+      }
 
+      // Check for in-progress routine (from multi-step creation) - still using sessionStorage for this
+      if (typeof window !== 'undefined') {
         // Check for in-progress routine (from multi-step creation)
         const routineInProgressStr = sessionStorage.getItem('routineInProgress');
         if (routineInProgressStr) {
@@ -103,7 +101,7 @@ export default function CreateRoutinePage() {
             routineToSet = addStepToConversionRoutine(inProgressRoutine, newStep);
             setInitialText(nextStepText);
             setInitialTask('');
-            
+
             // Don't add empty step since we have in-progress routine
             shouldAddEmptyStep = false;
           } catch (error) {
@@ -128,7 +126,7 @@ export default function CreateRoutinePage() {
 
       setRoutine(routineToSet);
     }
-  }, [routine]);
+  }, [routine, pendingConversion, clearPendingConversion]);
 
   // Separate effect for authentication check
   useEffect(() => {
@@ -144,105 +142,108 @@ export default function CreateRoutinePage() {
     return () => clearTimeout(timer);
   }, [user, router]);
 
-  const handleSubmit = useCallback(async (taskDescription: string, text: string, exampleOutput?: string) => {
-    if (!taskDescription.trim() || !routine) return;
+  const handleSubmit = useCallback(
+    async (taskDescription: string, text: string, exampleOutput?: string) => {
+      if (!taskDescription.trim() || !routine) return;
 
-    const startTime = Date.now();
+      const startTime = Date.now();
 
-    const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
-      status: 'running',
-      input: {
-        text,
-        taskDescription,
-        exampleOutput,
-      },
-    };
-
-    let updatedRoutine = addStepToConversionRoutine(routine, newStep);
-    setRoutine(updatedRoutine);
-    setLoading(true);
-    setError(null);
-
-    try {
-      const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
-
-      const evaluateResponse = await fetch(`/api/evaluate-with-history`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const newStep: Omit<WorkflowStep, 'id' | 'timestamp' | 'stepNumber'> = {
+        status: 'running',
+        input: {
           text,
-          task_description: taskDescription,
-          provider: routine.provider,
-        }),
-      });
-
-      if (!evaluateResponse.ok) {
-        throw new Error('Evaluation failed');
-      }
-
-      const evaluationData = await evaluateResponse.json();
-      const evaluation: ToolEvaluation = {
-        reasoning: evaluationData.reasoning || '',
-        tool: evaluationData.tool || '',
-        tool_args: evaluationData.tool_args || [],
+          taskDescription,
+          exampleOutput,
+        },
       };
 
-      const convertResponse = await fetch(`/api/convert-with-history`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text,
-          task_description: taskDescription,
-          example_output: exampleOutput,
-          provider: routine.provider,
-        }),
-      });
+      let updatedRoutine = addStepToConversionRoutine(routine, newStep);
+      setRoutine(updatedRoutine);
+      setLoading(true);
+      setError(null);
 
-      if (!convertResponse.ok) {
-        throw new Error('Conversion failed');
+      try {
+        const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
+
+        const evaluateResponse = await fetch(`/api/evaluate-with-history`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text,
+            task_description: taskDescription,
+            provider: routine.provider,
+          }),
+        });
+
+        if (!evaluateResponse.ok) {
+          throw new Error('Evaluation failed');
+        }
+
+        const evaluationData = await evaluateResponse.json();
+        const evaluation: ToolEvaluation = {
+          reasoning: evaluationData.reasoning || '',
+          tool: evaluationData.tool || '',
+          tool_args: evaluationData.tool_args || [],
+        };
+
+        const convertResponse = await fetch(`/api/convert-with-history`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text,
+            task_description: taskDescription,
+            example_output: exampleOutput,
+            provider: routine.provider,
+          }),
+        });
+
+        if (!convertResponse.ok) {
+          throw new Error('Conversion failed');
+        }
+
+        const conversionData = await convertResponse.json();
+        const duration = Date.now() - startTime;
+
+        updatedRoutine = updateStepStatus(
+          updatedRoutine,
+          stepId,
+          'completed',
+          {
+            result: conversionData,
+            evaluation,
+          },
+          undefined,
+          duration
+        );
+
+        setRoutine(updatedRoutine);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+        setError(errorMessage);
+
+        const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
+        const duration = Date.now() - startTime;
+
+        updatedRoutine = updateStepStatus(
+          updatedRoutine,
+          stepId,
+          'error',
+          undefined,
+          errorMessage,
+          duration
+        );
+
+        setRoutine(updatedRoutine);
+      } finally {
+        setLoading(false);
       }
-
-      const conversionData = await convertResponse.json();
-      const duration = Date.now() - startTime;
-
-      updatedRoutine = updateStepStatus(
-        updatedRoutine,
-        stepId,
-        'completed',
-        {
-          result: conversionData,
-          evaluation,
-        },
-        undefined,
-        duration
-      );
-
-      setRoutine(updatedRoutine);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setError(errorMessage);
-
-      const stepId = updatedRoutine.steps[updatedRoutine.steps.length - 1].id;
-      const duration = Date.now() - startTime;
-
-      updatedRoutine = updateStepStatus(
-        updatedRoutine,
-        stepId,
-        'error',
-        undefined,
-        errorMessage,
-        duration
-      );
-
-      setRoutine(updatedRoutine);
-    } finally {
-      setLoading(false);
-    }
-  }, [routine]);
+    },
+    [routine]
+  );
 
   const handleProviderChange = (newProvider: string) => {
     if (!routine) return;

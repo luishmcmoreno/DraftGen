@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { logger } from '@draft-gen/logger';
 import Topbar from '../src/components/Topbar';
 import { useAuth } from '../src/components/AuthProvider';
 import { useTheme } from '../src/components/ThemeProvider';
 import { GoogleSignInButton } from '@draft-gen/ui';
+import useConversionStore from '../src/stores/conversionStore';
 import {
   FileText,
   Zap,
@@ -31,43 +32,28 @@ export default function Home() {
   const { resolvedTheme } = useTheme();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [taskDescription, setTaskDescription] = useState('');
   const [text, setText] = useState('');
 
+  // Zustand store
+  const { setPendingConversion, showLoginDialog, setShowLoginDialog, setPostAuthRedirect } =
+    useConversionStore();
+
   const handleTryNow = () => {
     if (!taskDescription.trim() || !text.trim()) return;
-    
+
+    // Store conversion data in Zustand store
+    setPendingConversion(taskDescription, text);
+
     // Check if user is authenticated
     if (!user) {
-      // Store pending conversion in sessionStorage for post-auth
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(
-          'pendingConversion',
-          JSON.stringify({
-            taskDescription,
-            text,
-            timestamp: Date.now(),
-          })
-        );
-      }
-      
-      // Show login dialog
+      // Show login dialog and set redirect path
       setShowLoginDialog(true);
+      setPostAuthRedirect('/routines/create');
       return;
     }
-    
-    // User is authenticated, redirect to create page with data
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem(
-        'pendingConversion',
-        JSON.stringify({
-          taskDescription,
-          text,
-          timestamp: Date.now(),
-        })
-      );
-    }
+
+    // User is authenticated, redirect to create page
     router.push('/routines/create');
   };
 
@@ -167,10 +153,11 @@ export default function Home() {
     try {
       setLoading(true);
 
-      // The pending conversion is already stored in sessionStorage
-      // Just trigger the sign in, and the conversion will be retried after auth
+      // The pending conversion is already stored in Zustand store
+      // Just trigger the sign in
       await signIn();
 
+      // After successful sign in, the auth callback will redirect
       setShowLoginDialog(false);
     } catch (error) {
       logger.error('Login failed:', error);
@@ -178,395 +165,346 @@ export default function Home() {
     }
   };
 
-  // Effect to redirect to create page after login with pending conversion
-  useEffect(() => {
-    if (user && typeof window !== 'undefined') {
-      // Check for pending conversion - redirect to create page
-      const pendingConversionStr = sessionStorage.getItem('pendingConversion');
-      if (pendingConversionStr) {
-        try {
-          const pendingConversion = JSON.parse(pendingConversionStr);
-          const { timestamp, redirected } = pendingConversion;
-
-          // Skip if already redirected
-          if (redirected) {
-            return;
-          }
-
-          // Only process if the pending conversion is recent (within 10 minutes)
-          const isRecent = Date.now() - timestamp < 10 * 60 * 1000;
-
-          if (isRecent) {
-            logger.log('Redirecting to create page with pending conversion after authentication');
-
-            // Close the login dialog if it's open
-            setShowLoginDialog(false);
-
-            // Keep the pending conversion in sessionStorage for the create page to use
-            // But mark it as being processed to avoid infinite redirects
-            sessionStorage.setItem(
-              'pendingConversion',
-              JSON.stringify({
-                ...pendingConversion,
-                redirected: true
-              })
-            );
-            
-            // Redirect to routine creation page
-            router.push('/routines/create');
-            return;
-          } else {
-            // Clear expired pending conversion
-            sessionStorage.removeItem('pendingConversion');
-          }
-        } catch (error) {
-          logger.error('Failed to parse pending conversion:', error);
-          sessionStorage.removeItem('pendingConversion');
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
+  // No useEffect needed anymore - auth redirect handled by AuthProvider with Zustand
 
   // Return landing page
   return (
-      <div className="min-h-screen bg-background">
-        <Topbar
-          profile={
-            user
-              ? {
-                  display_name: user?.user_metadata?.full_name || null,
-                  avatar_url: user?.user_metadata?.avatar_url || null,
-                }
-              : null
-          }
-        />
+    <div className="min-h-screen bg-background">
+      <Topbar
+        profile={
+          user
+            ? {
+                display_name: user?.user_metadata?.full_name || null,
+                avatar_url: user?.user_metadata?.avatar_url || null,
+              }
+            : null
+        }
+      />
 
-        {/* Hero Section with Background Gradient */}
-        <section className="bg-gradient-subtle py-20 px-6">
-          <div className="container mx-auto max-w-6xl">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
-                <Sparkles className="h-4 w-4" />
-                Efficient and fast AI-powered conversion
-              </div>
-
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-                Transform documents accurately with{' '}
-                <span
-                  style={{
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
-                  AI Agents
-                </span>
-              </h1>
-
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-16 leading-relaxed">
-                Convert, rewrite, and transform any text with powerful AI tools. From casual notes
-                to professional documents, get instant, intelligent text transformations.
-              </p>
-
-              {/* Try It Now Section */}
-              <div className="bg-card border border-border rounded-xl p-8 mb-12 text-left max-w-4xl mx-auto shadow-lg">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      What do you want to do?
-                    </label>
-                    <div className="flex gap-3">
-                      <input
-                        type="text"
-                        value={taskDescription}
-                        onChange={(e) => setTaskDescription(e.target.value)}
-                        placeholder="e.g., Remove duplicate rows from CSV, Capitalize all words, Extract email addresses, Format phone numbers..."
-                        className="flex-1 px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                      />
-                      <button
-                        onClick={handleTryNow}
-                        disabled={!taskDescription.trim() || !text.trim()}
-                        className="px-6 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap shadow-sm"
-                        style={{
-                          background:
-                            !taskDescription.trim() || !text.trim()
-                              ? 'hsl(var(--muted))'
-                              : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                          color: 'white',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (taskDescription.trim() && text.trim()) {
-                            e.currentTarget.style.background =
-                              'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (taskDescription.trim() && text.trim()) {
-                            e.currentTarget.style.background =
-                              'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)';
-                          }
-                        }}
-                      >
-                        Convert
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <textarea
-                      value={text}
-                      onChange={(e) => setText(e.target.value)}
-                      placeholder="Paste or type your text here..."
-                      rows={4}
-                      className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none shadow-sm"
-                    />
-                  </div>
-                </div>
-              </div>
+      {/* Hero Section with Background Gradient */}
+      <section className="bg-gradient-subtle py-20 px-6">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
+              <Sparkles className="h-4 w-4" />
+              Efficient and fast AI-powered conversion
             </div>
-          </div>
-        </section>
 
-        {/* Examples Section - Outside gradient background */}
-        <section className="py-16 px-6 bg-background">
-          <div className="container mx-auto max-w-6xl">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-foreground mb-6">
-                Not sure how to start? Try these examples:
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {examples.map((example, index) => (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      setTaskDescription(example.task);
-                      setText(example.sampleInput);
-                    }}
-                    className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10">
-                        <example.icon className="w-5 h-5 text-primary" />
-                      </div>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full border ${getCategoryColor(example.category)}`}
-                      >
-                        {example.category}
-                      </span>
-                    </div>
-                    <h5 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {example.title}
-                    </h5>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {example.description}
-                    </p>
-                    <div className="mt-3 flex items-center text-xs text-blue-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                      Try this example
-                      <svg
-                        className="w-3 h-3 ml-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+              Transform documents accurately with{' '}
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                AI Agents
+              </span>
+            </h1>
 
-        {/* Features Grid */}
-        <section className="py-20 bg-muted/30">
-          <div className="container mx-auto px-6">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold text-foreground mb-4">
-                  Powerful Text Transformation Features
-                </h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Everything you need to convert, enhance, and transform your text content with AI
-                  precision.
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div className="bg-card border border-border rounded-lg p-6">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <Zap className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Instant Conversion</h3>
-                  <p className="text-muted-foreground">
-                    Transform your text in seconds with powerful AI models that understand context
-                    and intent.
-                  </p>
-                </div>
-
-                <div className="bg-card border border-border rounded-lg p-6">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <Workflow className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Multi-Step Workflows</h3>
-                  <p className="text-muted-foreground">
-                    Chain multiple transformations together to create complex text processing
-                    workflows.
-                  </p>
-                </div>
-
-                <div className="bg-card border border-border rounded-lg p-6">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <FileText className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Smart Tools</h3>
-                  <p className="text-muted-foreground">
-                    Access intelligent tools for formatting, rewriting, summarizing, and converting
-                    text formats.
-                  </p>
-                </div>
-
-                <div className="bg-card border border-border rounded-lg p-6">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <Users className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Save & Share</h3>
-                  <p className="text-muted-foreground">
-                    Save your conversion routines and share them with your team for consistent text
-                    processing.
-                  </p>
-                </div>
-
-                <div className="bg-card border border-border rounded-lg p-6">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <Globe className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Multiple Providers</h3>
-                  <p className="text-muted-foreground">
-                    Choose from different AI providers to get the best results for your specific use
-                    case.
-                  </p>
-                </div>
-
-                <div className="bg-card border border-border rounded-lg p-6">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <Shield className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Privacy First</h3>
-                  <p className="text-muted-foreground">
-                    Your text is processed securely with privacy protection and no permanent storage
-                    of content.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Use Cases */}
-        <section className="py-20">
-          <div className="container mx-auto px-6">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold text-foreground mb-4">
-                  Perfect for Every Use Case
-                </h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Whether you&apos;re writing for business or personal use, ConverText adapts to
-                  your needs.
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-card border border-border rounded-lg p-8">
-                  <h3 className="text-xl font-semibold mb-4">Business & Professional</h3>
-                  <ul className="space-y-3 text-muted-foreground">
-                    <li className="flex items-start gap-2">
-                      <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Transform casual emails into professional correspondence</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Convert meeting notes into structured reports</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Rewrite content for different audiences</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Create consistent documentation formats</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-card border border-border rounded-lg p-8">
-                  <h3 className="text-xl font-semibold mb-4">Personal & Creative</h3>
-                  <ul className="space-y-3 text-muted-foreground">
-                    <li className="flex items-start gap-2">
-                      <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Polish your writing style and tone</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Convert formats (lists, paragraphs, summaries)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Enhance clarity and readability</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Adapt text length and complexity</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-r from-blue-500 to-purple-600">
-          <div className="container mx-auto px-6 text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Text?</h2>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of users who are already saving time and improving their writing with
-              ConverText.
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-16 leading-relaxed">
+              Convert, rewrite, and transform any text with powerful AI tools. From casual notes to
+              professional documents, get instant, intelligent text transformations.
             </p>
-            <button
-              onClick={handleGetStarted}
-              className="bg-white text-slate-900 px-8 py-4 rounded-lg font-semibold text-base hover:bg-gray-100 transition-colors"
-            >
-              Get Started Now
-            </button>
-          </div>
-        </section>
 
-        {/* Footer */}
-        <footer className="border-t border-border bg-muted/30">
-          <div className="container mx-auto px-6 py-12">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-                  <FileText className="h-5 w-5 text-white" />
+            {/* Try It Now Section */}
+            <div className="bg-card border border-border rounded-xl p-8 mb-12 text-left max-w-4xl mx-auto shadow-lg">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    What do you want to do?
+                  </label>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={taskDescription}
+                      onChange={(e) => setTaskDescription(e.target.value)}
+                      placeholder="e.g., Remove duplicate rows from CSV, Capitalize all words, Extract email addresses, Format phone numbers..."
+                      className="flex-1 px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
+                    />
+                    <button
+                      onClick={handleTryNow}
+                      disabled={!taskDescription.trim() || !text.trim()}
+                      className="px-6 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap shadow-sm"
+                      style={{
+                        background:
+                          !taskDescription.trim() || !text.trim()
+                            ? 'hsl(var(--muted))'
+                            : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                        color: 'white',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (taskDescription.trim() && text.trim()) {
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (taskDescription.trim() && text.trim()) {
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)';
+                        }
+                      }}
+                    >
+                      Convert
+                    </button>
+                  </div>
                 </div>
-                <span className="text-xl font-semibold">ConverText</span>
+
+                <div>
+                  <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="Paste or type your text here..."
+                    rows={4}
+                    className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none shadow-sm"
+                  />
+                </div>
               </div>
-              <p className="text-muted-foreground">
-                &copy; {new Date().getFullYear()} ConverText. Transform your text with AI precision.
-              </p>
             </div>
           </div>
-        </footer>
+        </div>
+      </section>
+
+      {/* Examples Section - Outside gradient background */}
+      <section className="py-16 px-6 bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-foreground mb-6">
+              Not sure how to start? Try these examples:
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {examples.map((example, index) => (
+                <div
+                  key={index}
+                  onClick={() => {
+                    setTaskDescription(example.task);
+                    setText(example.sampleInput);
+                  }}
+                  className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10">
+                      <example.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full border ${getCategoryColor(example.category)}`}
+                    >
+                      {example.category}
+                    </span>
+                  </div>
+                  <h5 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    {example.title}
+                  </h5>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {example.description}
+                  </p>
+                  <div className="mt-3 flex items-center text-xs text-blue-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    Try this example
+                    <svg
+                      className="w-3 h-3 ml-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-foreground mb-4">
+                Powerful Text Transformation Features
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Everything you need to convert, enhance, and transform your text content with AI
+                precision.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="bg-card border border-border rounded-lg p-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Zap className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Instant Conversion</h3>
+                <p className="text-muted-foreground">
+                  Transform your text in seconds with powerful AI models that understand context and
+                  intent.
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Workflow className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Multi-Step Workflows</h3>
+                <p className="text-muted-foreground">
+                  Chain multiple transformations together to create complex text processing
+                  workflows.
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <FileText className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Smart Tools</h3>
+                <p className="text-muted-foreground">
+                  Access intelligent tools for formatting, rewriting, summarizing, and converting
+                  text formats.
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Save & Share</h3>
+                <p className="text-muted-foreground">
+                  Save your conversion routines and share them with your team for consistent text
+                  processing.
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Globe className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Multiple Providers</h3>
+                <p className="text-muted-foreground">
+                  Choose from different AI providers to get the best results for your specific use
+                  case.
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Privacy First</h3>
+                <p className="text-muted-foreground">
+                  Your text is processed securely with privacy protection and no permanent storage
+                  of content.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Use Cases */}
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-foreground mb-4">
+                Perfect for Every Use Case
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Whether you&apos;re writing for business or personal use, ConverText adapts to your
+                needs.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="bg-card border border-border rounded-lg p-8">
+                <h3 className="text-xl font-semibold mb-4">Business & Professional</h3>
+                <ul className="space-y-3 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Transform casual emails into professional correspondence</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Convert meeting notes into structured reports</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Rewrite content for different audiences</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Create consistent documentation formats</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-8">
+                <h3 className="text-xl font-semibold mb-4">Personal & Creative</h3>
+                <ul className="space-y-3 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Polish your writing style and tone</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Convert formats (lists, paragraphs, summaries)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Enhance clarity and readability</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Adapt text length and complexity</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-500 to-purple-600">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Text?</h2>
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            Join thousands of users who are already saving time and improving their writing with
+            ConverText.
+          </p>
+          <button
+            onClick={handleGetStarted}
+            className="bg-white text-slate-900 px-8 py-4 rounded-lg font-semibold text-base hover:bg-gray-100 transition-colors"
+          >
+            Get Started Now
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-muted/30">
+        <div className="container mx-auto px-6 py-12">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+                <FileText className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-xl font-semibold">ConverText</span>
+            </div>
+            <p className="text-muted-foreground">
+              &copy; {new Date().getFullYear()} ConverText. Transform your text with AI precision.
+            </p>
+          </div>
+        </div>
+      </footer>
 
       {/* Login Dialog */}
       {showLoginDialog && (
@@ -582,10 +520,7 @@ export default function Home() {
                 <button
                   onClick={() => {
                     setShowLoginDialog(false);
-                    // Clear any pending conversion if user cancels
-                    if (typeof window !== 'undefined') {
-                      sessionStorage.removeItem('pendingConversion');
-                    }
+                    // Dialog will remain closed, pending conversion stays in store
                   }}
                   className="flex-1 px-4 py-2 text-sm text-muted-foreground border border-input rounded hover:bg-muted/50 transition-colors"
                   disabled={loading}

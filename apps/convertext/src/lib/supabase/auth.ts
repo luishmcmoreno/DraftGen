@@ -6,41 +6,10 @@ type Profile = Database['public']['Tables']['profiles']['Row'];
 type ProfileInsert = Database['public']['Tables']['profiles']['Insert'];
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
-interface PendingConversion {
-  taskDescription: string;
-  text: string;
-  exampleOutput?: string;
-}
-
-export async function signInWithGoogle(pendingConversion?: PendingConversion) {
-  logger.log('=== signInWithGoogle called ===', { pendingConversion });
+export async function signInWithGoogle() {
+  logger.log('=== signInWithGoogle called ===');
 
   const supabase = createClient();
-
-  // Sanitize pending conversion to avoid circular references
-  const sanitizedConversion = pendingConversion
-    ? {
-        taskDescription: pendingConversion.taskDescription,
-        text: pendingConversion.text,
-        exampleOutput: pendingConversion.exampleOutput,
-      }
-    : null;
-
-  const redirectTo = `${window.location.origin}/api/auth/callback`;
-  const options: { redirectTo: string; queryParams?: { state: string } } = { redirectTo };
-
-  // Include pending conversion data in the state parameter
-  if (sanitizedConversion) {
-    try {
-      options.queryParams = {
-        state: encodeURIComponent(JSON.stringify(sanitizedConversion)),
-      };
-    } catch (jsonError) {
-      logger.warn('Failed to stringify pending conversion, proceeding without state:', jsonError);
-    }
-  }
-
-  logger.log('=== OAuth options ===', options);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -157,7 +126,10 @@ export async function updateUserProfile(updates: ProfileUpdate): Promise<Profile
 }
 
 export async function onAuthStateChange(
-  callback: (user: import('@supabase/supabase-js').User | null) => void
+  callback: (
+    user: import('@supabase/supabase-js').User | null,
+    event?: import('@supabase/supabase-js').AuthChangeEvent
+  ) => void
 ) {
   const supabase = createClient();
 
@@ -168,7 +140,7 @@ export async function onAuthStateChange(
       // Upsert profile when user signs in
       await upsertUserProfile({});
     }
-    callback(session?.user || null);
+    callback(session?.user || null, event);
   });
 
   return () => subscription.unsubscribe();

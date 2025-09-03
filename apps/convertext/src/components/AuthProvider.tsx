@@ -6,21 +6,17 @@ import { signInWithGoogle, signOut, getUserProfile, onAuthStateChange } from '..
 import { createClient } from '../lib/supabase/client';
 import { migrateLocalStorageToSupabase } from '../utils/workflow-supabase';
 import type { Database } from '../lib/supabase/database.types';
+import { useRouter } from 'next/navigation';
+import useConversionStore from '../stores/conversionStore';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 import type { User } from '@supabase/supabase-js';
-
-interface PendingConversion {
-  taskDescription: string;
-  text: string;
-  exampleOutput?: string;
-}
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (pendingConversion?: PendingConversion) => Promise<void>;
+  signIn: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -43,6 +39,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  // Zustand store
+  const { pendingConversion, postAuthRedirect, setPostAuthRedirect } = useConversionStore();
 
   const refreshProfile = async () => {
     if (user) {
@@ -99,13 +99,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
           } catch (error) {
             logger.warn('Failed to migrate localStorage data:', error);
           }
+
+          // Check if we just came back from OAuth and have a redirect path
+          // This handles the case where the user is already authenticated after OAuth callback
+          if (postAuthRedirect) {
+            logger.log('Found post-auth redirect on initial load:', postAuthRedirect);
+            // Clear the redirect path from storage
+            setPostAuthRedirect(null);
+            // Navigate to the stored path
+            router.push(postAuthRedirect);
+          }
         }
       } catch (error) {
         logger.error('Failed to get initial session:', error);
       }
 
       // Set up auth state change listener
-      unsubscribe = await onAuthStateChange(async (authUser) => {
+      unsubscribe = await onAuthStateChange(async (authUser, event) => {
         setUser(authUser);
 
         if (authUser) {
@@ -123,6 +133,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
           } catch (error) {
             logger.warn('Failed to migrate localStorage data:', error);
           }
+
+          // Only redirect on SIGNED_IN event, not on initial load or token refresh
+          // Note: postAuthRedirect and pendingConversion are restored from sessionStorage
+          if (event === 'SIGNED_IN' && postAuthRedirect) {
+            logger.log('Redirecting after new sign-in to:', postAuthRedirect);
+            // Clear the redirect path from storage
+            setPostAuthRedirect(null);
+            // Navigate to the stored path
+            router.push(postAuthRedirect);
+          }
         } else {
           setProfile(null);
         }
@@ -139,12 +159,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         unsubscribe();
       }
     };
-  }, []);
+  }, [pendingConversion, postAuthRedirect, router, setPostAuthRedirect]);
 
-  const handleSignIn = async (pendingConversion?: PendingConversion) => {
-    logger.log('=== handleSignIn called ===', { pendingConversion });
+  const handleSignIn = async () => {
+    logger.log('=== handleSignIn called ===');
     try {
-      await signInWithGoogle(pendingConversion);
+      // No need to pass pendingConversion - it's in Zustand store
+      await signInWithGoogle();
     } catch (error) {
       logger.error('Sign in failed:', error);
       throw error;
