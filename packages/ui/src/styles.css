@@ -237,3 +237,355 @@
     animation: zoom-in 0.2s ease-out;
   }
 }
+
+/* Plate.js Editor Styles */
+@layer components {
+  /* Editor container styles */
+  [data-slate-editor] {
+    @apply w-full px-12 py-4;
+  }
+
+  /* Plate editor specific styles */
+  .slate-editor {
+    @apply w-full relative;
+  }
+  
+  /* Plate editor wrapper */
+  .plate-editor-wrapper {
+    @apply w-full relative;
+  }
+  
+  /* Editor content area - ensure space for drag handles */
+  [contenteditable="true"] {
+    @apply relative;
+  }
+
+  /* Toolbar styles */
+  [role="toolbar"] {
+    @apply flex items-center gap-1 p-1;
+  }
+
+  /* Toolbar button styles */
+  [role="toolbar"] button {
+    @apply inline-flex items-center justify-center rounded p-1.5 transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  [role="toolbar"] button[data-state="on"] {
+    @apply bg-muted text-foreground;
+  }
+  
+  /* Toolbar separator */
+  [role="toolbar"] [data-orientation="vertical"] {
+    @apply mx-1 h-6 w-px bg-border;
+  }
+  
+  /* Toolbar icons */
+  [role="toolbar"] button svg {
+    @apply h-4 w-4;
+  }
+
+  /* Dropdown menu styles */
+  [data-radix-popper-content-wrapper] {
+    @apply z-50;
+  }
+
+  /* Mention element styles */
+  [data-slate-inline="true"] {
+    @apply inline;
+  }
+
+  .slate-mention,
+  [data-slate-type="mention"] {
+    @apply inline-flex items-center rounded-md bg-primary/10 px-1.5 py-0.5 text-sm font-medium text-primary;
+  }
+
+  /* Selection area styles */
+  .slate-selection-area {
+    @apply pointer-events-none absolute z-10 border border-primary/30 bg-primary/10;
+  }
+
+  /* Placeholder styles */
+  [data-slate-placeholder] {
+    @apply pointer-events-none absolute opacity-50;
+  }
+
+  /* List styles in editor */
+  [data-slate-node="element"] ul {
+    @apply list-disc pl-6;
+  }
+
+  [data-slate-node="element"] ol {
+    @apply list-decimal pl-6;
+  }
+
+  /* Table styles */
+  [data-slate-node="element"] table {
+    @apply w-full border-collapse;
+  }
+
+  [data-slate-node="element"] td,
+  [data-slate-node="element"] th {
+    @apply border border-border p-2;
+  }
+
+  /* Code block styles */
+  [data-slate-node="element"] pre {
+    @apply rounded-md bg-muted p-4 font-mono text-sm;
+  }
+
+  /* Inline code styles */
+  [data-slate-node="text"] code {
+    @apply rounded bg-muted px-1 py-0.5 font-mono text-sm;
+  }
+
+  /* Blockquote styles */
+  [data-slate-node="element"] blockquote {
+    @apply border-l-4 border-muted pl-4 italic;
+  }
+
+  /* Link styles */
+  [data-slate-node="element"] a {
+    @apply text-primary underline;
+  }
+
+  /* Heading styles in editor */
+  [data-slate-node="element"] h1 {
+    @apply text-3xl font-bold;
+  }
+
+  [data-slate-node="element"] h2 {
+    @apply text-2xl font-bold;
+  }
+
+  [data-slate-node="element"] h3 {
+    @apply text-xl font-bold;
+  }
+
+  [data-slate-node="element"] h4 {
+    @apply text-lg font-semibold;
+  }
+
+  [data-slate-node="element"] h5 {
+    @apply text-base font-semibold;
+  }
+
+  [data-slate-node="element"] h6 {
+    @apply text-sm font-semibold;
+  }
+
+  /* Horizontal rule */
+  [data-slate-node="element"] hr {
+    @apply my-4 border-t border-border;
+  }
+
+  /* Floating toolbar styles */
+  .plate-floating-toolbar {
+    @apply rounded-md border border-border bg-background p-1 shadow-md;
+  }
+
+  /* Fixed toolbar styles */
+  .plate-toolbar {
+    @apply flex items-center gap-1 border-b border-border bg-background p-2;
+  }
+
+  /* Combobox styles */
+  .plate-combobox {
+    @apply rounded-md border border-input bg-background;
+  }
+
+  /* Resizable handle */
+  .slate-resizable-handle {
+    @apply absolute h-4 w-4 rounded-full bg-primary;
+  }
+  
+  /* Drag handle styles */
+  [data-block-toolbar-wrapper] {
+    @apply relative;
+  }
+  
+  /* Gutter area for drag handle */
+  .slate-gutter {
+    @apply absolute -left-12 top-0 z-10 w-10 select-none;
+  }
+  
+  /* Block toolbar container */
+  .slate-blockToolbar {
+    @apply relative flex items-center;
+  }
+  
+  /* Block selection and drag handle button */
+  .slate-blockToolbar button {
+    @apply flex h-6 w-6 items-center justify-center rounded transition-all duration-150 opacity-0 hover:bg-muted hover:opacity-100;
+  }
+  
+  /* Show drag handle on hover of parent element */
+  [data-slate-node]:hover .slate-blockToolbar button {
+    @apply opacity-40 hover:opacity-100;
+  }
+  
+  /* Drag handle button when focused/active */
+  .slate-blockToolbar button:focus,
+  .slate-blockToolbar button[data-state="on"] {
+    @apply opacity-100 bg-muted;
+  }
+  
+  /* Drag handle icon/grip */
+  .slate-blockToolbar button svg {
+    @apply h-4 w-4 text-muted-foreground;
+  }
+  
+  /* Block wrapper to ensure proper positioning */
+  .slate-blockWrapper {
+    @apply relative;
+  }
+  
+  /* DND line indicator */
+  .slate-dnd-line,
+  .slate-dropLine {
+    @apply absolute left-0 h-0.5 w-full bg-primary transition-opacity;
+  }
+  
+  /* Drop line visibility */
+  .slate-dropLine {
+    @apply opacity-0;
+  }
+  
+  .slate-dropLine.active {
+    @apply opacity-100;
+  }
+  
+  /* Dragging state */
+  [data-slate-node].dragging,
+  .slate-dragging {
+    @apply opacity-50;
+  }
+  
+  /* Dragging preview */
+  .slate-drag-preview {
+    @apply pointer-events-none opacity-80;
+  }
+  
+  /* Block selection area */
+  .slate-block-selection-area {
+    @apply absolute inset-0 pointer-events-none bg-primary/10 border-2 border-primary/30 rounded;
+  }
+  
+  /* DND cursor states */
+  [data-slate-dnd-dragging="true"] {
+    @apply cursor-grabbing;
+  }
+  
+  [data-slate-dnd-draggable="true"]:hover {
+    @apply cursor-grab;
+  }
+
+  /* Media elements */
+  .slate-media-element {
+    @apply relative inline-block;
+  }
+  
+  /* Column/Grid layout styles */
+  [data-slate-type="column_group"],
+  .slate-column-group {
+    @apply flex gap-4 w-full my-4;
+  }
+  
+  /* Column group container - targets the flex wrapper */
+  .group\/column-group > div.flex {
+    @apply gap-4;
+  }
+  
+  /* Individual column element */
+  [data-slate-type="column"],
+  .slate-column,
+  .group\/column {
+    @apply flex-1 min-w-0 relative p-2;
+  }
+  
+  /* Column with specific width */
+  [data-slate-type="column"][data-width] {
+    @apply flex-initial;
+  }
+  
+  /* Column content wrapper */
+  .slate-column-content {
+    @apply w-full;
+  }
+  
+  /* Column element content area */
+  .group\/column > [data-slate-node] {
+    @apply w-full;
+  }
+  
+  /* Column resizer/handle */
+  .slate-resizable,
+  .slate-resizer {
+    @apply absolute -right-1 top-0 bottom-0 w-2 cursor-col-resize bg-transparent hover:bg-primary/20 transition-colors z-10;
+  }
+  
+  .slate-resizable:active,
+  .slate-resizer:active {
+    @apply bg-primary/40;
+  }
+  
+  /* Column drag handle for reordering */
+  .slate-column-drag-handle {
+    @apply absolute -top-6 left-0 h-5 px-2 flex items-center gap-1 opacity-0 hover:opacity-100 transition-opacity cursor-move;
+  }
+  
+  .group\/column:hover .slate-column-drag-handle {
+    @apply opacity-50 hover:opacity-100;
+  }
+  
+  /* Grid styles (alternative to columns) */
+  [data-slate-type="grid"] {
+    @apply grid gap-4 w-full my-4;
+  }
+  
+  /* 2-column grid */
+  [data-slate-type="grid"][data-columns="2"] {
+    @apply grid-cols-2;
+  }
+  
+  /* 3-column grid */
+  [data-slate-type="grid"][data-columns="3"] {
+    @apply grid-cols-3;
+  }
+  
+  /* 4-column grid */
+  [data-slate-type="grid"][data-columns="4"] {
+    @apply grid-cols-4;
+  }
+  
+  /* Responsive columns */
+  @media (max-width: 768px) {
+    [data-slate-type="column_group"],
+    .slate-column-group {
+      @apply flex-col;
+    }
+    
+    [data-slate-type="grid"] {
+      @apply grid-cols-1;
+    }
+  }
+
+  /* Editor focus styles */
+  [data-slate-editor]:focus {
+    @apply outline-none;
+  }
+
+  /* Plate content editable area */
+  [contenteditable="true"]:focus {
+    @apply outline-none;
+  }
+
+  /* Mention input styles */
+  .plate-mention-input {
+    @apply rounded-md border border-input bg-background px-2 py-1 text-sm;
+  }
+
+  /* Emoji picker styles */
+  .plate-emoji-picker {
+    @apply rounded-md border border-border bg-background p-2 shadow-lg;
+  }
+}

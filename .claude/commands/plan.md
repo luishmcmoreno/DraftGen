@@ -12,7 +12,7 @@ allowed-tools:
 
 # Context management
 - Treat CURRENT_PLAN.md as the single source of truth.
-- The CURRENT_PLAN.md is located at .claude/plan/CURRENT_PLAN.md
+- The CURRENT_PLAN is located at .claude/plan/CURRENT_PLAN.md
 - On every run: if CURRENT_PLAN.md exists, load and parse it; otherwise create it.
 - Keep chat output concise; store details (full plan, checklists, logs, notes) in CURRENT_PLAN.md.
 

@@ -15,7 +15,7 @@ allowed-tools:
 
 # Run archive helper
 Archival commands:
-`bash .claude/scripts/archive-plan.sh`
+`bash .claude/commands/scripts/archive-plan.sh`
 
 # Delegate to canonical /plan
 You will now generate a comprehensive, gated plan for **$ARGUMENTS**, persisting to a fresh CURRENT_PLAN.md.

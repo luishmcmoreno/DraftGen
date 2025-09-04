@@ -24,6 +24,7 @@ import { MarkdownKit } from '../../plugins/markdown-kit';
 import { BlockSelectionKit } from '../../plugins/block-selection-kit';
 import { SlashKit } from '../../plugins/slash-kit';
 import { TableKit } from '../../plugins/table-kit';
+import { MentionKit } from '../../plugins/mention-kit';
 
 // Simplified EditorKit with essential plugins for document generation
 export const EditorKit = [
@@ -33,6 +34,7 @@ export const EditorKit = [
   ...TableKit,
   ...CalloutKit,
   ...LinkKit,
+  ...MentionKit,
   
   // Marks
   ...BasicMarksKit,
