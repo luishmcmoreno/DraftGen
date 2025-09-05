@@ -7,7 +7,7 @@ import { logger } from '@draft-gen/logger';
 import Topbar from '../../src/components/Topbar';
 import { useAuth } from '../../src/components/AuthProvider';
 import { useTheme } from '../../src/components/ThemeProvider';
-import { GoogleSignInButton, HeroSection, HeroSectionRef } from '@draft-gen/ui';
+import { GoogleSignInButton, HeroSection, HeroSectionRef, FeaturesGrid } from '@draft-gen/ui';
 import useConversionStore from '../../src/stores/conversionStore';
 import {
   FileText,
@@ -133,6 +133,39 @@ export default function Home() {
       sampleInput: '1234567890\n555.123.4567\n(555) 987-6543\n+1-800-555-0199',
       icon: Phone,
       category: t('examples.categories.format'),
+    },
+  ];
+
+  const features = [
+    {
+      icon: Zap,
+      title: t('features.instant.title'),
+      description: t('features.instant.description'),
+    },
+    {
+      icon: Workflow,
+      title: t('features.workflow.title'),
+      description: t('features.workflow.description'),
+    },
+    {
+      icon: FileText,
+      title: t('features.smarttools.title'),
+      description: t('features.smarttools.description'),
+    },
+    {
+      icon: Users,
+      title: t('features.saveshare.title'),
+      description: t('features.saveshare.description'),
+    },
+    {
+      icon: Globe,
+      title: t('features.multiproviders.title'),
+      description: t('features.multiproviders.description'),
+    },
+    {
+      icon: Shield,
+      title: t('features.privacy.title'),
+      description: t('features.privacy.description'),
     },
   ];
 
@@ -263,83 +296,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
-                {t('features.title')}
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                {t('features.subtitle')}
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="bg-card border border-border rounded-lg p-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Zap className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{t('features.instant.title')}</h3>
-                <p className="text-muted-foreground">
-                  {t('features.instant.description')}
-                </p>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Workflow className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{t('features.workflow.title')}</h3>
-                <p className="text-muted-foreground">
-                  {t('features.workflow.description')}
-                </p>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <FileText className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{t('features.smarttools.title')}</h3>
-                <p className="text-muted-foreground">
-                  {t('features.smarttools.description')}
-                </p>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{t('features.saveshare.title')}</h3>
-                <p className="text-muted-foreground">
-                  {t('features.saveshare.description')}
-                </p>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Globe className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{t('features.multiproviders.title')}</h3>
-                <p className="text-muted-foreground">
-                  {t('features.multiproviders.description')}
-                </p>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Shield className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{t('features.privacy.title')}</h3>
-                <p className="text-muted-foreground">
-                  {t('features.privacy.description')}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FeaturesGrid
+        title={t('features.title')}
+        subtitle={t('features.subtitle')}
+        features={features}
+        className="bg-muted/30"
+      />
 
       {/* Use Cases */}
       <section className="py-20">
