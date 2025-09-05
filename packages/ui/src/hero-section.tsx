@@ -6,6 +6,11 @@ import { Textarea } from './textarea'
 import { Card } from './card'
 import { cn } from './utils'
 
+export interface HeroSectionRef {
+  setMessage: (message: string) => void
+  setInputs: (task: string, text: string) => void
+}
+
 export interface HeroSectionProps {
   title?: React.ReactNode
   subtitle?: string
@@ -25,7 +30,7 @@ export interface HeroSectionProps {
   onDualSubmit?: (task: string, text: string) => void
 }
 
-export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
+export const HeroSection = React.forwardRef<HeroSectionRef, HeroSectionProps>(
   ({
     title = (
       <>
@@ -54,6 +59,16 @@ export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
     const [message, setMessage] = React.useState("")
     const [taskDescription, setTaskDescription] = React.useState("")
     const [text, setText] = React.useState("")
+
+    React.useImperativeHandle(ref, () => ({
+      setMessage: (newMessage: string) => {
+        setMessage(newMessage)
+      },
+      setInputs: (task: string, textContent: string) => {
+        setTaskDescription(task)
+        setText(textContent)
+      }
+    }))
 
     const handleSubmit = () => {
       if (showDualInput) {

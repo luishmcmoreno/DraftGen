@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { logger } from '@draft-gen/logger';
 import Topbar from '../../src/components/Topbar';
 import { useAuth } from '../../src/components/AuthProvider';
 import { useTheme } from '../../src/components/ThemeProvider';
-import { GoogleSignInButton, HeroSection } from '@draft-gen/ui';
+import { GoogleSignInButton, HeroSection, HeroSectionRef } from '@draft-gen/ui';
 import useConversionStore from '../../src/stores/conversionStore';
 import {
   FileText,
@@ -37,6 +37,7 @@ export default function Home() {
   const { resolvedTheme } = useTheme();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const heroRef = useRef<HeroSectionRef>(null);
 
   // Zustand store
   const { setPendingConversion, showLoginDialog, setShowLoginDialog, setPostAuthRedirect } =
@@ -188,6 +189,7 @@ export default function Home() {
       />
 
       <HeroSection
+        ref={heroRef}
         title={
           <>
             {t('hero.title')}{' '}
@@ -219,7 +221,7 @@ export default function Home() {
                 <div
                   key={index}
                   onClick={() => {
-                    handleDualSubmit(example.task, example.sampleInput);
+                    heroRef.current?.setInputs(example.task, example.sampleInput);
                   }}
                   className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
                 >

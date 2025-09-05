@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from '@/lib/i18n';
 import { useTheme } from './ThemeProvider';
 import {
   HeroSection,
+  HeroSectionRef,
   FeaturesGrid,
   NavigationHeader,
   Footer,
@@ -42,6 +43,7 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
   const { resolvedTheme } = useTheme();
   const router = useRouter();
   const [, setPrompt] = useState('');
+  const heroRef = useRef<HeroSectionRef>(null);
 
   // Load prompt from sessionStorage on mount
   useEffect(() => {
@@ -206,6 +208,7 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
       />
 
       <HeroSection
+        ref={heroRef}
         title={
           <>
             {t('hero.titlePrefix')}
@@ -237,7 +240,7 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
                 <div
                   key={index}
                   onClick={() => {
-                    handlePromptSubmit(example.prompt);
+                    heroRef.current?.setMessage(example.prompt);
                   }}
                   className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
                 >
