@@ -36,7 +36,7 @@ export interface HeroSectionProps {
   onFileUpload?: (files: FileList) => void
 }
 
-export const HeroSection = React.forwardRef<HeroSectionRef, HeroSectionProps>(
+export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
   ({
     title = (
       <>
@@ -55,9 +55,7 @@ export const HeroSection = React.forwardRef<HeroSectionRef, HeroSectionProps>(
     className,
     // Dual input props
     showDualInput = false,
-    taskLabel,
     taskPlaceholder,
-    textLabel,
     textPlaceholder,
     onDualSubmit,
     // Enhanced input props
@@ -74,15 +72,6 @@ export const HeroSection = React.forwardRef<HeroSectionRef, HeroSectionProps>(
     const [attachedFiles, setAttachedFiles] = React.useState<FileList | null>(null)
     const fileInputRef = React.useRef<HTMLInputElement>(null)
 
-    React.useImperativeHandle(ref, () => ({
-      setMessage: (newMessage: string) => {
-        setMessage(newMessage)
-      },
-      setInputs: (task: string, textContent: string) => {
-        setTaskDescription(task)
-        setText(textContent)
-      }
-    }))
 
     const handleSubmit = () => {
       if (showDualInput) {

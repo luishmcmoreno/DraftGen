@@ -137,7 +137,7 @@ export default function CreateRoutinePage() {
         // If still no user after check, redirect to home
         router.push('/');
       }
-    }, 1000); // Give auth 1 second to load
+    }, 0); // Give auth 1 second to load
 
     return () => clearTimeout(timer);
   }, [user, router]);
