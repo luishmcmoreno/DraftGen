@@ -42,7 +42,7 @@ export const HeroSection = React.forwardRef<HeroSectionRef, HeroSectionProps>(
     subtitle = "Create templates, transform data, and generate documents with AI. From invoices to contracts, automate your document workflow in minutes.",
     badgeText = "Transform documents with AI",
     placeholderText = "Describe the document template you need... (e.g., 'Create an invoice template for my consulting business')",
-    examplesText = "Try: \"Create a professional invoice template\" or \"Help me clean up messy contract data\"",
+    examplesText,
     ctaText = "Start Building Now",
     onSubmit,
     onGetStarted,
