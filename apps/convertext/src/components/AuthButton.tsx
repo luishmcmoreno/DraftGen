@@ -1,7 +1,8 @@
 import React from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAuth } from './AuthProvider';
 import { useTheme } from './ThemeProvider';
+import { useLocalizedRouter } from '../utils/navigation';
 import { GoogleSignInButton } from '@draft-gen/ui';
 
 interface AuthButtonProps {
@@ -12,7 +13,7 @@ interface AuthButtonProps {
 export function AuthButton({ onAuthClick, showConvertButton = false }: AuthButtonProps = {}) {
   const { user, profile, loading, signIn, signOut } = useAuth();
   const { resolvedTheme } = useTheme();
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const pathname = usePathname();
 
   if (loading) {

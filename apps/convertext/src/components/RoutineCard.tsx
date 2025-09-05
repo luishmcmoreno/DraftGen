@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { SavedConversionRoutine } from '../types/conversion';
+import { useLocalizedRouter } from '../utils/navigation';
 
 interface RoutineCardProps {
   routine: SavedConversionRoutine;
@@ -36,7 +36,7 @@ export default function RoutineCard({
     }).format(date),
 }: RoutineCardProps) {
   const [showTooltip, setShowTooltip] = useState(false);
-  const router = useRouter();
+  const router = useLocalizedRouter();
 
   const handleEdit = () => {
     router.push(`/routines/create?routineId=${routine.id}`);

@@ -1,24 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useLocalizedRouter } from '@/utils/navigation';
 import { logger } from '@draft-gen/logger';
-import Topbar from '../../src/components/Topbar';
-import RoutineCard from '../../src/components/RoutineCard';
-import { useAuth } from '../../src/components/AuthProvider';
-import { useTheme } from '../../src/components/ThemeProvider';
-import { SavedConversionRoutine } from '../../src/types/conversion';
+import Topbar from '@/components/Topbar';
+import RoutineCard from '@/components/RoutineCard';
+import { useAuth } from '@/components/AuthProvider';
+import { useTheme } from '@/components/ThemeProvider';
+import { SavedConversionRoutine } from '@/types/conversion';
 import { GoogleSignInButton } from '@draft-gen/ui';
 import {
   getStoredConversionRoutines,
   deleteConversionRoutine,
   updateConversionRoutineUsage,
-} from '../../src/lib/supabase/conversion-routines';
+} from '@/lib/supabase/conversion-routines';
 
 export default function RoutinesPage() {
   const { user, signIn } = useAuth();
   const { resolvedTheme } = useTheme();
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const [routines, setRoutines] = useState<SavedConversionRoutine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

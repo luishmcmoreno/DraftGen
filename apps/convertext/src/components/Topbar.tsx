@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { FileText } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { useTheme } from './ThemeProvider';
+import { useLocalizedRouter, useLocalizedHref } from '../utils/navigation';
 import { GoogleSignInButton } from '@draft-gen/ui';
 
 const ThemeToggle = dynamic(() => import('./ThemeToggle'), {
@@ -23,7 +24,8 @@ type UserProfile = {
 
 export default function Topbar({ profile }: { profile?: UserProfile | null }) {
   const t = useTranslations('common');
-  const router = useRouter();
+  const router = useLocalizedRouter();
+  const localizedHref = useLocalizedHref();
   const pathname = usePathname();
   const { signIn, signOut } = useAuth();
   const { resolvedTheme } = useTheme();
@@ -64,7 +66,7 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
             <Link
-              href="/"
+              href={localizedHref('/')}
               className="flex items-center gap-2 text-xl font-bold text-card-foreground"
             >
               <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
@@ -74,9 +76,9 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
             </Link>
             <nav className="flex gap-6">
               <Link
-                href="/"
+                href={localizedHref('/')}
                 className={`transition-colors ${
-                  pathname === '/'
+                  pathname === localizedHref('/')
                     ? 'text-foreground font-medium'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
@@ -84,7 +86,7 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
                 {t('convert')}
               </Link>
               <Link
-                href="/routines"
+                href={localizedHref('/routines')}
                 className={`transition-colors ${
                   isActive('/routines')
                     ? 'text-foreground font-medium'

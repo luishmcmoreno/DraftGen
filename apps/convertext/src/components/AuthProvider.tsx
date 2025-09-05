@@ -6,7 +6,7 @@ import { signInWithGoogle, signOut, getUserProfile, onAuthStateChange } from '..
 import { createClient } from '../lib/supabase/client';
 import { migrateLocalStorageToSupabase } from '../utils/workflow-supabase';
 import type { Database } from '../lib/supabase/database.types';
-import { useRouter } from 'next/navigation';
+import { useLocalizedRouter } from '../utils/navigation';
 import useConversionStore from '../stores/conversionStore';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const router = useLocalizedRouter();
 
   // Zustand store
   const { pendingConversion, postAuthRedirect, setPostAuthRedirect } = useConversionStore();

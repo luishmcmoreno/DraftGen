@@ -1,11 +1,11 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { locales } from '../../i18n';
-import { AuthProvider } from '../../src/components/AuthProvider';
-import { ThemeProvider } from '../../src/components/ThemeProvider';
+import { locales } from '@root/i18n';
+import { AuthProvider } from '@/components/AuthProvider';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import '@draft-gen/ui/src/styles.css';
-import '../../src/styles/globals.css';
+import '@/styles/globals.css';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useLocalizedRouter } from '../../../../src/utils/navigation';
 import { logger } from '@draft-gen/logger';
 
 import Topbar from '@/components/Topbar';
@@ -25,7 +25,7 @@ import {
 
 export default function CreateRoutinePage() {
   const { user } = useAuth();
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const [routine, setRoutine] = useState<ConversionRoutineExecution | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

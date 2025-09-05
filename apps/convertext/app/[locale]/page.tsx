@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { logger } from '@draft-gen/logger';
-import Topbar from '../../src/components/Topbar';
-import { useAuth } from '../../src/components/AuthProvider';
-import { useTheme } from '../../src/components/ThemeProvider';
+import Topbar from '@/components/Topbar';
+import { useAuth } from '@/components/AuthProvider';
+import { useTheme } from '@/components/ThemeProvider';
+import { useLocalizedRouter } from '@/utils/navigation';
 import { GoogleSignInButton, HeroSection, HeroSectionRef, FeaturesGrid } from '@draft-gen/ui';
-import useConversionStore from '../../src/stores/conversionStore';
+import useConversionStore from '@/stores/conversionStore';
 import {
   FileText,
   Zap,
@@ -17,7 +17,6 @@ import {
   Globe,
   Workflow,
   ArrowRight,
-  Sparkles,
   Trash2,
   Type,
   Columns,
@@ -35,7 +34,7 @@ export default function Home() {
   
   const { user, signIn } = useAuth();
   const { resolvedTheme } = useTheme();
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const [loading, setLoading] = useState(false);
   const heroRef = useRef<HeroSectionRef>(null);
 

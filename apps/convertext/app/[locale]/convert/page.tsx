@@ -1,31 +1,31 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import Topbar from '../../src/components/Topbar';
-import WorkflowTimeline from '../../src/components/WorkflowTimeline';
-import WorkflowLibrary from '../../src/components/WorkflowLibrary';
-import { useAuth } from '../../src/components/AuthProvider';
-import { useTheme } from '../../src/components/ThemeProvider';
+import { useLocalizedRouter } from '@/utils/navigation';
+import Topbar from '@/components/Topbar';
+import WorkflowTimeline from '@/components/WorkflowTimeline';
+import WorkflowLibrary from '@/components/WorkflowLibrary';
+import { useAuth } from '@/components/AuthProvider';
+import { useTheme } from '@/components/ThemeProvider';
 import { GoogleSignInButton } from '@draft-gen/ui';
 import {
   ConversionRoutineExecution,
   WorkflowStep,
   SavedConversionRoutine,
   ToolEvaluation,
-} from '../../src/types/conversion';
+} from '@/types/conversion';
 import {
   createNewConversionRoutineExecution,
   addStepToConversionRoutine,
   updateStepStatus,
   replayConversionRoutine,
-} from '../../src/utils/workflow-supabase';
+} from '@/utils/workflow-supabase';
 import { logger } from '@draft-gen/logger';
 
 export default function ConvertPage() {
   const { user, signIn } = useAuth();
   const { resolvedTheme } = useTheme();
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const [routine, setRoutine] = useState<ConversionRoutineExecution | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

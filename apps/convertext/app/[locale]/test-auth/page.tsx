@@ -1,7 +1,7 @@
 'use client';
 
-import { useAuth } from '../../src/components/AuthProvider';
-import { createClient } from '../../src/lib/supabase/client';
+import { useAuth } from '@/components/AuthProvider';
+import { createClient } from '@/lib/supabase/client';
 import { logger } from '@draft-gen/logger';
 
 export default function TestAuth() {

@@ -1,10 +1,11 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useLocalizedRouter } from '@/utils/navigation';
 import { useEffect, useState, Suspense } from 'react';
 
 function AuthErrorContent() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string>('');
 
