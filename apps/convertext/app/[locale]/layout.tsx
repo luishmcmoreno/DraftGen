@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { locales } from '@root/i18n';
 import { AuthProvider } from '@/components/AuthProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import ThemeScript from '../../src/components/ThemeScript';
 import '@draft-gen/ui/src/styles.css';
 import '@/styles/globals.css';
 
@@ -44,6 +45,9 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body className="min-h-screen bg-background antialiased" suppressHydrationWarning={true}>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ThemeProvider>

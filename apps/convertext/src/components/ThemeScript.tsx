@@ -1,20 +1,17 @@
-'use client';
-
-import { useEffect } from 'react';
-
 export default function ThemeScript() {
-  useEffect(() => {
-    // Apply theme immediately on mount to prevent flash
-    const savedTheme = localStorage.getItem('convertext-theme') || 'system';
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
-    const resolvedTheme = savedTheme === 'system' ? systemTheme : savedTheme;
+  const themeScript = `
+    (function() {
+      try {
+        const theme = localStorage.getItem('convertext-theme') || 'system';
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const resolvedTheme = theme === 'system' ? systemTheme : theme;
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(resolvedTheme);
+        document.documentElement.setAttribute('data-theme', resolvedTheme);
+        document.documentElement.style.colorScheme = resolvedTheme;
+      } catch (e) {}
+    })();
+  `;
 
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(resolvedTheme);
-    document.documentElement.setAttribute('data-theme', resolvedTheme);
-  }, []);
-
-  return null;
+  return <script dangerouslySetInnerHTML={{ __html: themeScript }} suppressHydrationWarning />;
 }
