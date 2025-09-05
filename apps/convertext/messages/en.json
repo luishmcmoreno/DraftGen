@@ -40,7 +40,7 @@
       "tryExample": "Try this example",
       "categories": {
         "csv": "CSV",
-        "text": "Text", 
+        "text": "Text",
         "format": "Format",
         "data": "Data"
       },
@@ -51,7 +51,7 @@
       },
       "capitalize": {
         "title": "Capitalize All Words",
-        "description": "Transform text to title case formatting", 
+        "description": "Transform text to title case formatting",
         "task": "Capitalize all words in this text"
       },
       "removecolumns": {
@@ -65,7 +65,7 @@
         "task": "Convert European number format to American format"
       },
       "csvToJson": {
-        "title": "CSV to JSON", 
+        "title": "CSV to JSON",
         "description": "Convert CSV data into JSON format",
         "task": "Convert this CSV data to JSON format"
       },
@@ -77,7 +77,7 @@
       "splitText": {
         "title": "Split Text by Lines",
         "description": "Convert paragraph text into separate lines",
-        "task": "Split this text into separate lines by sentences" 
+        "task": "Split this text into separate lines by sentences"
       },
       "formatPhones": {
         "title": "Format Phone Numbers",
@@ -93,7 +93,7 @@
         "description": "Transform your text in seconds with powerful AI models that understand context and intent."
       },
       "workflow": {
-        "title": "Multi-Step Workflows", 
+        "title": "Multi-Step Workflows",
         "description": "Chain multiple transformations together to create complex text processing workflows."
       },
       "smarttools": {
@@ -119,7 +119,7 @@
       "business": {
         "title": "Business & Professional",
         "item1": "Transform casual emails into professional correspondence",
-        "item2": "Convert meeting notes into structured reports", 
+        "item2": "Convert meeting notes into structured reports",
         "item3": "Rewrite content for different audiences",
         "item4": "Create consistent documentation formats"
       },
@@ -127,7 +127,7 @@
         "title": "Personal & Creative",
         "item1": "Polish your writing style and tone",
         "item2": "Convert formats (lists, paragraphs, summaries)",
-        "item3": "Enhance clarity and readability", 
+        "item3": "Enhance clarity and readability",
         "item4": "Adapt text length and complexity"
       }
     },
@@ -151,7 +151,7 @@
     "history": "Conversion History"
   },
   "routines": {
-    "title": "My Routines", 
+    "title": "My Routines",
     "create": "Create New Routine",
     "empty": {
       "title": "No routines yet",

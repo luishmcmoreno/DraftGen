@@ -20,7 +20,6 @@ export interface HeroSectionProps {
   examplesText?: string
   ctaText?: string
   onSubmit?: (message: string) => void
-  onGetStarted?: () => void
   className?: string
   // Dual input mode props
   showDualInput?: boolean
@@ -36,7 +35,7 @@ export interface HeroSectionProps {
   onFileUpload?: (files: FileList) => void
 }
 
-export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
+export const HeroSection = React.forwardRef<HeroSectionRef, HeroSectionProps>(
   ({
     title = (
       <>
@@ -51,7 +50,6 @@ export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
     examplesText,
     ctaText = "Start Building Now",
     onSubmit,
-    onGetStarted,
     className,
     // Dual input props
     showDualInput = false,
@@ -72,6 +70,16 @@ export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
     const [attachedFiles, setAttachedFiles] = React.useState<FileList | null>(null)
     const fileInputRef = React.useRef<HTMLInputElement>(null)
 
+    // Expose methods via ref
+    React.useImperativeHandle(ref, () => ({
+      setMessage: (msg: string) => {
+        setMessage(msg)
+      },
+      setInputs: (task: string, inputText: string) => {
+        setTaskDescription(task)
+        setText(inputText)
+      }
+    }))
 
     const handleSubmit = () => {
       if (showDualInput) {
@@ -93,13 +101,6 @@ export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
 
     const handleAttachClick = () => {
       fileInputRef.current?.click()
-    }
-
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault()
-        handleSubmit()
-      }
     }
 
     return (
@@ -210,7 +211,12 @@ export const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
                         placeholder={placeholderText}
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        onKeyPress={handleKeyPress}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault()
+                            handleSubmit()
+                          }
+                        }}
                         className="flex-1 min-h-[60px] resize-none border-0 shadow-none focus-visible:ring-0 text-base"
                         resize="none"
                       />

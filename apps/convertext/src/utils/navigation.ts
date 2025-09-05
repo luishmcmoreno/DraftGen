@@ -40,9 +40,9 @@ export function getCurrentLocale(): Locale {
   if (typeof window === 'undefined') {
     return defaultLocale;
   }
-  
+
   const pathname = window.location.pathname;
   const locale = pathname.split('/')[1] as Locale;
-  
+
   return locale && ['en', 'pt'].includes(locale) ? locale : defaultLocale;
 }

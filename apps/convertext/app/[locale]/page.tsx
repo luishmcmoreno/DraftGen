@@ -31,7 +31,7 @@ export default function Home() {
   const t = useTranslations('home');
   const tCommon = useTranslations('common');
   const tAuth = useTranslations('auth');
-  
+
   const { user, signIn } = useAuth();
   const { resolvedTheme } = useTheme();
   const router = useLocalizedRouter();
@@ -183,7 +183,7 @@ export default function Home() {
     const textCategory = t('examples.categories.text');
     const formatCategory = t('examples.categories.format');
     const dataCategory = t('examples.categories.data');
-    
+
     switch (category) {
       case csvCategory:
         return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-300 dark:border-blue-800';
@@ -247,7 +247,6 @@ export default function Home() {
         taskPlaceholder={t('hero.inputPlaceholder')}
         textPlaceholder={t('hero.textareaPlaceholder')}
         onDualSubmit={handleDualSubmit}
-        onGetStarted={handleGetStarted}
         apiProviders={apiProviders}
         defaultProvider="gemini"
         allowFileUpload={true}
@@ -258,9 +257,7 @@ export default function Home() {
       <section className="py-16 px-6 bg-background">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center">
-            <h3 className="text-lg font-semibold text-foreground mb-6">
-              {t('examples.title')}
-            </h3>
+            <h3 className="text-lg font-semibold text-foreground mb-6">{t('examples.title')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {examples.map((example, index) => (
                 <div
@@ -321,9 +318,7 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
-                {t('usecases.title')}
-              </h2>
+              <h2 className="text-3xl font-bold text-foreground mb-4">{t('usecases.title')}</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 {t('usecases.subtitle')}
               </p>
@@ -382,9 +377,7 @@ export default function Home() {
       <section className="py-20 bg-gradient-to-r from-blue-500 to-purple-600">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">{t('cta.title')}</h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            {t('cta.subtitle')}
-          </p>
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">{t('cta.subtitle')}</p>
           <button
             onClick={handleGetStarted}
             className="bg-white text-slate-900 px-8 py-4 rounded-lg font-semibold text-base hover:bg-gray-100 transition-colors"
@@ -417,9 +410,7 @@ export default function Home() {
           <div className="bg-card border border-border rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
             <div className="text-center">
               <h2 className="text-xl font-semibold text-foreground mb-4">{tAuth('signIn')}</h2>
-              <p className="text-muted-foreground mb-6">
-                {tAuth('signInDescription')}
-              </p>
+              <p className="text-muted-foreground mb-6">{tAuth('signInDescription')}</p>
               <div className="flex space-x-3">
                 <button
                   onClick={() => {

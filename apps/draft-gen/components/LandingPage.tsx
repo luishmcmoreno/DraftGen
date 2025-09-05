@@ -14,13 +14,13 @@ import {
   Card,
   GoogleSignInButton,
 } from '@draft-gen/ui';
-import { 
-  FileText, 
-  Zap, 
-  Users, 
-  Shield, 
-  Globe, 
-  Workflow, 
+import {
+  FileText,
+  Zap,
+  Users,
+  Shield,
+  Globe,
+  Workflow,
   ArrowRight,
   FileCheck,
   Receipt,
@@ -29,7 +29,7 @@ import {
   Briefcase,
   Award,
   FileSignature,
-  Building
+  Building,
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -224,7 +224,6 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
         placeholderText={t('hero.placeholder')}
         ctaText={t('hero.createButton')}
         onSubmit={handlePromptSubmit}
-        onGetStarted={handleGetStarted}
       />
 
       {/* Examples Section */}
