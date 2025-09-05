@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Send, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { Button } from './button'
 import { Input } from './input'
 import { Textarea } from './textarea'
@@ -173,7 +173,7 @@ export const HeroSection = React.forwardRef<HeroSectionRef, HeroSectionProps>(
                         size="lg"
                         className="self-end px-8"
                       >
-                        <Send className="h-5 w-5" />
+                        Create
                       </Button>
                     </div>
                     {examplesText && (
@@ -186,19 +186,6 @@ export const HeroSection = React.forwardRef<HeroSectionRef, HeroSectionProps>(
               </Card>
             </div>
 
-            {/* Additional CTA */}
-            {onGetStarted && (
-              <div className="flex justify-center">
-                <Button
-                  variant="gradient"
-                  size="lg"
-                  onClick={onGetStarted}
-                  className="px-8 py-4 text-base"
-                >
-                  {ctaText}
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       </section>

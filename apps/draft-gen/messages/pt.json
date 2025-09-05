@@ -125,6 +125,7 @@
       "badge": "Transforme documentos com IA",
       "placeholder": "Descreva o modelo de documento que você precisa... (ex: 'Criar um modelo de fatura para minha consultoria')",
       "cta": "Começar Agora",
+      "createButton": "Criar",
       "examples": "Tente: \"Criar um modelo de fatura profissional\" ou \"Ajude-me a limpar dados de contrato bagunçados\""
     },
     "features": {

@@ -222,7 +222,7 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
         subtitle={t('hero.subtitle')}
         badgeText={t('hero.badge')}
         placeholderText={t('hero.placeholder')}
-        ctaText={t('hero.cta')}
+        ctaText={t('hero.createButton')}
         onSubmit={handlePromptSubmit}
         onGetStarted={handleGetStarted}
       />
