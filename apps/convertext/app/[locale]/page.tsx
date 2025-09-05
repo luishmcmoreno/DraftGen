@@ -7,7 +7,7 @@ import { logger } from '@draft-gen/logger';
 import Topbar from '../../src/components/Topbar';
 import { useAuth } from '../../src/components/AuthProvider';
 import { useTheme } from '../../src/components/ThemeProvider';
-import { GoogleSignInButton } from '@draft-gen/ui';
+import { GoogleSignInButton, HeroSection } from '@draft-gen/ui';
 import useConversionStore from '../../src/stores/conversionStore';
 import {
   FileText,
@@ -37,18 +37,14 @@ export default function Home() {
   const { resolvedTheme } = useTheme();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [taskDescription, setTaskDescription] = useState('');
-  const [text, setText] = useState('');
 
   // Zustand store
   const { setPendingConversion, showLoginDialog, setShowLoginDialog, setPostAuthRedirect } =
     useConversionStore();
 
-  const handleTryNow = () => {
-    if (!taskDescription.trim() || !text.trim()) return;
-
+  const handleDualSubmit = (task: string, textContent: string) => {
     // Store conversion data in Zustand store
-    setPendingConversion(taskDescription, text);
+    setPendingConversion(task, textContent);
 
     // Check if user is authenticated
     if (!user) {
@@ -191,91 +187,25 @@ export default function Home() {
         }
       />
 
-      {/* Hero Section with Background Gradient */}
-      <section className="bg-gradient-subtle py-20 px-6">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
-              <Sparkles className="h-4 w-4" />
-              {t('hero.badge')}
-            </div>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-              {t('hero.title')}{' '}
-              <span
-                style={{
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                {t('hero.titleHighlight')}
-              </span>
-            </h1>
-
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-16 leading-relaxed">
-              {t('hero.subtitle')}
-            </p>
-
-            {/* Try It Now Section */}
-            <div className="bg-card border border-border rounded-xl p-8 mb-12 text-left max-w-4xl mx-auto shadow-lg">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    {t('hero.inputLabel')}
-                  </label>
-                  <div className="flex gap-3">
-                    <input
-                      type="text"
-                      value={taskDescription}
-                      onChange={(e) => setTaskDescription(e.target.value)}
-                      placeholder={t('hero.inputPlaceholder')}
-                      className="flex-1 px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                    />
-                    <button
-                      onClick={handleTryNow}
-                      disabled={!taskDescription.trim() || !text.trim()}
-                      className="px-6 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap shadow-sm"
-                      style={{
-                        background:
-                          !taskDescription.trim() || !text.trim()
-                            ? 'hsl(var(--muted))'
-                            : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                        color: 'white',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (taskDescription.trim() && text.trim()) {
-                          e.currentTarget.style.background =
-                            'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (taskDescription.trim() && text.trim()) {
-                          e.currentTarget.style.background =
-                            'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)';
-                        }
-                      }}
-                    >
-                      {tCommon('convert')}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <textarea
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    placeholder={t('hero.textareaPlaceholder')}
-                    rows={4}
-                    className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none shadow-sm"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection
+        title={
+          <>
+            {t('hero.title')}{' '}
+            <span className="bg-gradient-primary bg-clip-text text-transparent">
+              {t('hero.titleHighlight')}
+            </span>
+          </>
+        }
+        subtitle={t('hero.subtitle')}
+        badgeText={t('hero.badge')}
+        ctaText={tCommon('convert')}
+        showDualInput={true}
+        taskLabel={t('hero.inputLabel')}
+        taskPlaceholder={t('hero.inputPlaceholder')}
+        textPlaceholder={t('hero.textareaPlaceholder')}
+        onDualSubmit={handleDualSubmit}
+        onGetStarted={handleGetStarted}
+      />
 
       {/* Examples Section - Outside gradient background */}
       <section className="py-16 px-6 bg-background">
@@ -289,8 +219,7 @@ export default function Home() {
                 <div
                   key={index}
                   onClick={() => {
-                    setTaskDescription(example.task);
-                    setText(example.sampleInput);
+                    handleDualSubmit(example.task, example.sampleInput);
                   }}
                   className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
                 >
