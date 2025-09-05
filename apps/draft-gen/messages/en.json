@@ -118,9 +118,9 @@
       "login": "Sign In"
     },
     "hero": {
-      "titlePrefix": "The Future of",
-      "titleHighlight": "Document",
-      "titleSuffix": "Creation",
+      "titlePrefix": "Create documents easily with",
+      "titleHighlight": "AI Agents",
+      "titleSuffix": "",
       "subtitle": "Create templates, transform data, and generate documents with AI. From invoices to contracts, automate your document workflow in minutes.",
       "badge": "Transform documents with AI",
       "placeholder": "Describe the document template you need... (e.g., 'Create an invoice template for my consulting business')",
