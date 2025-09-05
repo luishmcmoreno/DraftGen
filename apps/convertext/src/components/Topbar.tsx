@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { FileText } from 'lucide-react';
@@ -21,6 +22,7 @@ type UserProfile = {
 };
 
 export default function Topbar({ profile }: { profile?: UserProfile | null }) {
+  const t = useTranslations('common');
   const router = useRouter();
   const pathname = usePathname();
   const { signIn, signOut } = useAuth();
@@ -68,7 +70,7 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
               <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
                 <FileText className="h-5 w-5 text-white" />
               </div>
-              ConverText
+              {t('appName')}
             </Link>
             <nav className="flex gap-6">
               <Link
@@ -79,7 +81,7 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Convert
+                {t('convert')}
               </Link>
               <Link
                 href="/routines"
@@ -89,7 +91,7 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Routines
+                {t('nav.routines')}
               </Link>
             </nav>
           </div>
@@ -126,7 +128,7 @@ export default function Topbar({ profile }: { profile?: UserProfile | null }) {
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                     >
-                      Logout
+                      {t('nav.logout')}
                     </button>
                   </div>
                 </div>

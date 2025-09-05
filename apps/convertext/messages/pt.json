@@ -1,0 +1,167 @@
+{
+  "common": {
+    "appName": "ConverText",
+    "tagline": "Ferramenta de Conversão de Texto com IA",
+    "getStarted": "Começar",
+    "getStartedNow": "Começar Agora",
+    "tryNow": "Experimente Agora",
+    "convert": "Converter",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "save": "Salvar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "nav": {
+      "routines": "Rotinas",
+      "logout": "Sair"
+    }
+  },
+  "auth": {
+    "signIn": "Faça Login para Continuar",
+    "signInDescription": "Para iniciar sua conversão de texto, faça login com o Google. Isso salvará seu histórico de conversões e permitirá reutilizar fluxos de trabalho.",
+    "signInWithGoogle": "Continuar com Google",
+    "signOut": "Sair"
+  },
+  "home": {
+    "hero": {
+      "badge": "Conversão eficiente e rápida com IA",
+      "title": "Transforme documentos com precisão usando",
+      "titleHighlight": "Agentes de IA",
+      "subtitle": "Converta, reescreva e transforme qualquer texto com ferramentas de IA poderosas. De notas casuais a documentos profissionais, obtenha transformações de texto instantâneas e inteligentes.",
+      "inputLabel": "O que você quer fazer?",
+      "inputPlaceholder": "ex: Remover linhas duplicadas do CSV, Capitalizar todas as palavras, Extrair endereços de email, Formatar números de telefone...",
+      "textareaPlaceholder": "Cole ou digite seu texto aqui..."
+    },
+    "examples": {
+      "title": "Não sabe por onde começar? Experimente estes exemplos:",
+      "tryExample": "Experimente este exemplo",
+      "categories": {
+        "csv": "CSV",
+        "text": "Texto",
+        "format": "Formato",
+        "data": "Dados"
+      },
+      "removeduplicates": {
+        "title": "Remover Linhas Duplicadas",
+        "description": "Limpe arquivos CSV removendo entradas duplicadas",
+        "task": "Remover linhas duplicadas destes dados CSV"
+      },
+      "capitalize": {
+        "title": "Capitalizar Todas as Palavras",
+        "description": "Transformar texto para formatação de título",
+        "task": "Capitalizar todas as palavras neste texto"
+      },
+      "removecolumns": {
+        "title": "Remover Colunas CSV",
+        "description": "Excluir colunas específicas dos dados CSV",
+        "task": "Remover a coluna 'age' destes dados CSV"
+      },
+      "europeanNumbers": {
+        "title": "Converter Números Europeus",
+        "description": "Alterar formato decimal europeu para americano",
+        "task": "Converter formato de números europeus para formato americano"
+      },
+      "csvToJson": {
+        "title": "CSV para JSON",
+        "description": "Converter dados CSV para formato JSON",
+        "task": "Converter estes dados CSV para formato JSON"
+      },
+      "extractEmails": {
+        "title": "Extrair Endereços de Email",
+        "description": "Encontrar e extrair todos os endereços de email do texto",
+        "task": "Extrair todos os endereços de email deste texto"
+      },
+      "splitText": {
+        "title": "Dividir Texto por Linhas",
+        "description": "Converter texto de parágrafo em linhas separadas",
+        "task": "Dividir este texto em linhas separadas por frases"
+      },
+      "formatPhones": {
+        "title": "Formatar Números de Telefone",
+        "description": "Padronizar formatação de números de telefone",
+        "task": "Formatar estes números de telefone para o formato (XXX) XXX-XXXX"
+      }
+    },
+    "features": {
+      "title": "Recursos Poderosos de Transformação de Texto",
+      "subtitle": "Tudo que você precisa para converter, aprimorar e transformar seu conteúdo de texto com precisão de IA.",
+      "instant": {
+        "title": "Conversão Instantânea",
+        "description": "Transforme seu texto em segundos com modelos de IA poderosos que entendem contexto e intenção."
+      },
+      "workflow": {
+        "title": "Fluxos de Trabalho Multi-Etapas",
+        "description": "Encadeie múltiplas transformações para criar fluxos de trabalho complexos de processamento de texto."
+      },
+      "smarttools": {
+        "title": "Ferramentas Inteligentes",
+        "description": "Acesse ferramentas inteligentes para formatação, reescrita, resumo e conversão de formatos de texto."
+      },
+      "saveshare": {
+        "title": "Salvar e Compartilhar",
+        "description": "Salve suas rotinas de conversão e compartilhe com sua equipe para processamento consistente de texto."
+      },
+      "multiproviders": {
+        "title": "Múltiplos Provedores",
+        "description": "Escolha entre diferentes provedores de IA para obter os melhores resultados para seu caso específico."
+      },
+      "privacy": {
+        "title": "Privacidade em Primeiro Lugar",
+        "description": "Seu texto é processado com segurança com proteção de privacidade e sem armazenamento permanente de conteúdo."
+      }
+    },
+    "usecases": {
+      "title": "Perfeito para Todos os Casos de Uso",
+      "subtitle": "Seja você escrevendo para uso comercial ou pessoal, o ConverText se adapta às suas necessidades.",
+      "business": {
+        "title": "Empresarial e Profissional",
+        "item1": "Transforme emails casuais em correspondência profissional",
+        "item2": "Converta notas de reunião em relatórios estruturados",
+        "item3": "Reescreva conteúdo para diferentes públicos",
+        "item4": "Crie formatos de documentação consistentes"
+      },
+      "personal": {
+        "title": "Pessoal e Criativo",
+        "item1": "Aperfeiçoe seu estilo de escrita e tom",
+        "item2": "Converta formatos (listas, parágrafos, resumos)",
+        "item3": "Melhore clareza e legibilidade",
+        "item4": "Adapte comprimento e complexidade do texto"
+      }
+    },
+    "cta": {
+      "title": "Pronto para Transformar Seu Texto?",
+      "subtitle": "Junte-se a milhares de usuários que já estão economizando tempo e melhorando sua escrita com o ConverText."
+    },
+    "footer": {
+      "copyright": "© {year} ConverText. Transforme seu texto com precisão de IA."
+    }
+  },
+  "conversion": {
+    "title": "Conversão de Texto",
+    "prompt": "Descreva o que você quer fazer com seu texto",
+    "inputText": "Texto de Entrada",
+    "outputText": "Texto de Saída",
+    "convert": "Converter",
+    "converting": "Convertendo...",
+    "success": "Conversão concluída com sucesso",
+    "error": "Falha ao converter texto",
+    "history": "Histórico de Conversões"
+  },
+  "routines": {
+    "title": "Minhas Rotinas",
+    "create": "Criar Nova Rotina",
+    "empty": {
+      "title": "Ainda não há rotinas",
+      "subtitle": "Crie sua primeira rotina de conversão para começar",
+      "cta": "Criar Rotina"
+    },
+    "card": {
+      "createdAt": "Criado",
+      "updatedAt": "Atualizado",
+      "steps": "etapas"
+    }
+  }
+}

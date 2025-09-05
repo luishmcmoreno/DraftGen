@@ -1,8 +1,12 @@
-import '@draft-gen/ui/src/styles.css';
-import '../src/styles/globals.css';
-import { AuthProvider } from '../src/components/AuthProvider';
-import { ThemeProvider } from '../src/components/ThemeProvider';
+import { Inter } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
+import '../src/styles/globals.css';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'ConverText - AI-Powered Text Conversion Tool',
@@ -17,11 +21,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-background antialiased" suppressHydrationWarning={true}>
-        <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
+    <html className={inter.variable} suppressHydrationWarning>
+      <body className="font-sans min-h-screen bg-background antialiased" suppressHydrationWarning={true}>
+        {children}
       </body>
     </html>
   );

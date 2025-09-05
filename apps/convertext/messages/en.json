@@ -1,0 +1,167 @@
+{
+  "common": {
+    "appName": "ConverText",
+    "tagline": "AI-Powered Text Conversion Tool",
+    "getStarted": "Get Started",
+    "getStartedNow": "Get Started Now",
+    "tryNow": "Try Now",
+    "convert": "Convert",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "nav": {
+      "routines": "Routines",
+      "logout": "Logout"
+    }
+  },
+  "auth": {
+    "signIn": "Sign in to Continue",
+    "signInDescription": "To start your text conversion, please sign in with Google. This will save your conversion history and allow you to reuse workflows.",
+    "signInWithGoogle": "Continue with Google",
+    "signOut": "Sign Out"
+  },
+  "home": {
+    "hero": {
+      "badge": "Efficient and fast AI-powered conversion",
+      "title": "Transform documents accurately with",
+      "titleHighlight": "AI Agents",
+      "subtitle": "Convert, rewrite, and transform any text with powerful AI tools. From casual notes to professional documents, get instant, intelligent text transformations.",
+      "inputLabel": "What do you want to do?",
+      "inputPlaceholder": "e.g., Remove duplicate rows from CSV, Capitalize all words, Extract email addresses, Format phone numbers...",
+      "textareaPlaceholder": "Paste or type your text here..."
+    },
+    "examples": {
+      "title": "Not sure how to start? Try these examples:",
+      "tryExample": "Try this example",
+      "categories": {
+        "csv": "CSV",
+        "text": "Text", 
+        "format": "Format",
+        "data": "Data"
+      },
+      "removeduplicates": {
+        "title": "Remove Duplicate Rows",
+        "description": "Clean up CSV files by removing duplicate entries",
+        "task": "Remove duplicate rows from this CSV data"
+      },
+      "capitalize": {
+        "title": "Capitalize All Words",
+        "description": "Transform text to title case formatting", 
+        "task": "Capitalize all words in this text"
+      },
+      "removecolumns": {
+        "title": "Remove CSV Columns",
+        "description": "Delete specific columns from CSV data",
+        "task": "Remove the 'age' column from this CSV data"
+      },
+      "europeanNumbers": {
+        "title": "Convert European Numbers",
+        "description": "Change European decimal format to American",
+        "task": "Convert European number format to American format"
+      },
+      "csvToJson": {
+        "title": "CSV to JSON", 
+        "description": "Convert CSV data into JSON format",
+        "task": "Convert this CSV data to JSON format"
+      },
+      "extractEmails": {
+        "title": "Extract Email Addresses",
+        "description": "Find and extract all email addresses from text",
+        "task": "Extract all email addresses from this text"
+      },
+      "splitText": {
+        "title": "Split Text by Lines",
+        "description": "Convert paragraph text into separate lines",
+        "task": "Split this text into separate lines by sentences" 
+      },
+      "formatPhones": {
+        "title": "Format Phone Numbers",
+        "description": "Standardize phone number formatting",
+        "task": "Format these phone numbers to (XXX) XXX-XXXX format"
+      }
+    },
+    "features": {
+      "title": "Powerful Text Transformation Features",
+      "subtitle": "Everything you need to convert, enhance, and transform your text content with AI precision.",
+      "instant": {
+        "title": "Instant Conversion",
+        "description": "Transform your text in seconds with powerful AI models that understand context and intent."
+      },
+      "workflow": {
+        "title": "Multi-Step Workflows", 
+        "description": "Chain multiple transformations together to create complex text processing workflows."
+      },
+      "smarttools": {
+        "title": "Smart Tools",
+        "description": "Access intelligent tools for formatting, rewriting, summarizing, and converting text formats."
+      },
+      "saveshare": {
+        "title": "Save & Share",
+        "description": "Save your conversion routines and share them with your team for consistent text processing."
+      },
+      "multiproviders": {
+        "title": "Multiple Providers",
+        "description": "Choose from different AI providers to get the best results for your specific use case."
+      },
+      "privacy": {
+        "title": "Privacy First",
+        "description": "Your text is processed securely with privacy protection and no permanent storage of content."
+      }
+    },
+    "usecases": {
+      "title": "Perfect for Every Use Case",
+      "subtitle": "Whether you're writing for business or personal use, ConverText adapts to your needs.",
+      "business": {
+        "title": "Business & Professional",
+        "item1": "Transform casual emails into professional correspondence",
+        "item2": "Convert meeting notes into structured reports", 
+        "item3": "Rewrite content for different audiences",
+        "item4": "Create consistent documentation formats"
+      },
+      "personal": {
+        "title": "Personal & Creative",
+        "item1": "Polish your writing style and tone",
+        "item2": "Convert formats (lists, paragraphs, summaries)",
+        "item3": "Enhance clarity and readability", 
+        "item4": "Adapt text length and complexity"
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your Text?",
+      "subtitle": "Join thousands of users who are already saving time and improving their writing with ConverText."
+    },
+    "footer": {
+      "copyright": "© {year} ConverText. Transform your text with AI precision."
+    }
+  },
+  "conversion": {
+    "title": "Text Conversion",
+    "prompt": "Describe what you want to do with your text",
+    "inputText": "Input Text",
+    "outputText": "Output Text",
+    "convert": "Convert",
+    "converting": "Converting...",
+    "success": "Conversion completed successfully",
+    "error": "Failed to convert text",
+    "history": "Conversion History"
+  },
+  "routines": {
+    "title": "My Routines", 
+    "create": "Create New Routine",
+    "empty": {
+      "title": "No routines yet",
+      "subtitle": "Create your first conversion routine to get started",
+      "cta": "Create Routine"
+    },
+    "card": {
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "steps": "steps"
+    }
+  }
+}
