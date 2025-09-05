@@ -32,7 +32,7 @@
       "titleHighlight": "Agentes de IA",
       "subtitle": "Converta, reescreva e transforme qualquer texto com ferramentas de IA poderosas. De notas casuais a documentos profissionais, obtenha transformações de texto instantâneas e inteligentes.",
       "inputLabel": "O que você quer fazer?",
-      "inputPlaceholder": "Descreva o que você quer fazer com seu texto...",
+      "inputPlaceholder": "Descreva como seu texto deve ser ajustado...",
       "textareaPlaceholder": "Cole ou digite o texto que você quer converter aqui"
     },
     "examples": {

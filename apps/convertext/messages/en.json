@@ -32,7 +32,7 @@
       "titleHighlight": "AI Agents",
       "subtitle": "Convert, rewrite, and transform any text with powerful AI tools. From casual notes to professional documents, get instant, intelligent text transformations.",
       "inputLabel": "What do you want to do?",
-      "inputPlaceholder": "Describe what you want to do with your text...",
+      "inputPlaceholder": "Describe how your text should be adjusted...",
       "textareaPlaceholder": "Paste or type the text you want to convert here"
     },
     "examples": {
