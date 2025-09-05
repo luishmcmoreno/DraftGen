@@ -178,6 +178,64 @@
     },
     "footer": {
       "copyright": "All rights reserved. Built with AI-powered document automation."
+    },
+    "examples": {
+      "sectionTitle": "Not sure how to start? Try these examples:",
+      "tryExample": "Try this example",
+      "categories": {
+        "contracts": "Contracts",
+        "business": "Business",
+        "legal": "Legal",
+        "personal": "Personal"
+      },
+      "employmentContract": {
+        "title": "Employment Contract",
+        "description": "Professional employment agreement template",
+        "prompt": "Create a comprehensive employment contract template with employee details, salary, benefits, and terms",
+        "sampleTemplate": "Employment agreement template for new hires"
+      },
+      "invoice": {
+        "title": "Business Invoice",
+        "description": "Professional invoice template for services",
+        "prompt": "Create a professional invoice template with company details, itemized services, and payment terms",
+        "sampleTemplate": "Invoice template for consulting services"
+      },
+      "serviceAgreement": {
+        "title": "Service Agreement",
+        "description": "Client service agreement template",
+        "prompt": "Create a service agreement template for client projects with scope, deliverables, and terms",
+        "sampleTemplate": "Service agreement for freelance projects"
+      },
+      "businessProposal": {
+        "title": "Business Proposal",
+        "description": "Professional project proposal template",
+        "prompt": "Create a business proposal template with project overview, timeline, costs, and terms",
+        "sampleTemplate": "Project proposal template for client presentation"
+      },
+      "legalNotice": {
+        "title": "Legal Notice",
+        "description": "Formal legal notice template",
+        "prompt": "Create a formal legal notice template with recipient details, violation description, and required actions",
+        "sampleTemplate": "Legal notice template for compliance issues"
+      },
+      "businessLetter": {
+        "title": "Business Letter",
+        "description": "Professional business correspondence",
+        "prompt": "Create a formal business letter template with proper formatting, sender/recipient details, and message structure",
+        "sampleTemplate": "Professional business correspondence template"
+      },
+      "certificate": {
+        "title": "Certificate",
+        "description": "Achievement certificate template",
+        "prompt": "Create a certificate template for achievements, courses, or awards with recipient name and details",
+        "sampleTemplate": "Certificate of completion template"
+      },
+      "companyPolicy": {
+        "title": "Company Policy",
+        "description": "Internal company policy document",
+        "prompt": "Create a company policy document template with policy title, description, procedures, and compliance requirements",
+        "sampleTemplate": "Company policy document template"
+      }
     }
   }
 }

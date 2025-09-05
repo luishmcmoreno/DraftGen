@@ -178,6 +178,64 @@
     },
     "footer": {
       "copyright": "Todos os direitos reservados. Construído com automação de documentos alimentada por IA."
+    },
+    "examples": {
+      "sectionTitle": "Não sabe por onde começar? Experimente estes exemplos:",
+      "tryExample": "Experimente este exemplo",
+      "categories": {
+        "contracts": "Contratos",
+        "business": "Negócios",
+        "legal": "Legal",
+        "personal": "Pessoal"
+      },
+      "employmentContract": {
+        "title": "Contrato de Trabalho",
+        "description": "Modelo de contrato de trabalho profissional",
+        "prompt": "Criar um modelo de contrato de trabalho abrangente com detalhes do funcionário, salário, benefícios e termos",
+        "sampleTemplate": "Modelo de contrato de trabalho para novas contratações"
+      },
+      "invoice": {
+        "title": "Fatura Comercial",
+        "description": "Modelo de fatura profissional para serviços",
+        "prompt": "Criar um modelo de fatura profissional com detalhes da empresa, serviços itemizados e termos de pagamento",
+        "sampleTemplate": "Modelo de fatura para serviços de consultoria"
+      },
+      "serviceAgreement": {
+        "title": "Acordo de Serviços",
+        "description": "Modelo de acordo de serviços para clientes",
+        "prompt": "Criar um modelo de acordo de serviços para projetos de clientes com escopo, entregáveis e termos",
+        "sampleTemplate": "Acordo de serviços para projetos freelance"
+      },
+      "businessProposal": {
+        "title": "Proposta Comercial",
+        "description": "Modelo de proposta profissional para projetos",
+        "prompt": "Criar um modelo de proposta comercial com visão geral do projeto, cronograma, custos e termos",
+        "sampleTemplate": "Modelo de proposta de projeto para apresentação ao cliente"
+      },
+      "legalNotice": {
+        "title": "Notificação Legal",
+        "description": "Modelo de notificação legal formal",
+        "prompt": "Criar um modelo de notificação legal formal com detalhes do destinatário, descrição da violação e ações necessárias",
+        "sampleTemplate": "Modelo de notificação legal para questões de conformidade"
+      },
+      "businessLetter": {
+        "title": "Carta Comercial",
+        "description": "Correspondência comercial profissional",
+        "prompt": "Criar um modelo de carta comercial formal com formatação adequada, detalhes do remetente/destinatário e estrutura da mensagem",
+        "sampleTemplate": "Modelo de correspondência comercial profissional"
+      },
+      "certificate": {
+        "title": "Certificado",
+        "description": "Modelo de certificado de conquista",
+        "prompt": "Criar um modelo de certificado para conquistas, cursos ou prêmios com nome do destinatário e detalhes",
+        "sampleTemplate": "Modelo de certificado de conclusão"
+      },
+      "companyPolicy": {
+        "title": "Política da Empresa",
+        "description": "Documento de política interna da empresa",
+        "prompt": "Criar um modelo de documento de política da empresa com título da política, descrição, procedimentos e requisitos de conformidade",
+        "sampleTemplate": "Modelo de documento de política da empresa"
+      }
     }
   }
 }

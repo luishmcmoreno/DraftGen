@@ -13,7 +13,23 @@ import {
   Card,
   GoogleSignInButton,
 } from '@draft-gen/ui';
-import { FileText, Zap, Users, Shield, Globe, Workflow, ArrowRight } from 'lucide-react';
+import { 
+  FileText, 
+  Zap, 
+  Users, 
+  Shield, 
+  Globe, 
+  Workflow, 
+  ArrowRight,
+  FileCheck,
+  Receipt,
+  Scale,
+  Mail,
+  Briefcase,
+  Award,
+  FileSignature,
+  Building
+} from 'lucide-react';
 
 interface LandingPageProps {
   isAuthenticated: boolean;
@@ -89,6 +105,88 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
     },
   ];
 
+  const examples = [
+    {
+      title: t('examples.employmentContract.title'),
+      description: t('examples.employmentContract.description'),
+      prompt: t('examples.employmentContract.prompt'),
+      sampleTemplate: t('examples.employmentContract.sampleTemplate'),
+      icon: FileSignature,
+      category: 'Contracts',
+    },
+    {
+      title: t('examples.invoice.title'),
+      description: t('examples.invoice.description'),
+      prompt: t('examples.invoice.prompt'),
+      sampleTemplate: t('examples.invoice.sampleTemplate'),
+      icon: Receipt,
+      category: 'Business',
+    },
+    {
+      title: t('examples.serviceAgreement.title'),
+      description: t('examples.serviceAgreement.description'),
+      prompt: t('examples.serviceAgreement.prompt'),
+      sampleTemplate: t('examples.serviceAgreement.sampleTemplate'),
+      icon: FileCheck,
+      category: 'Contracts',
+    },
+    {
+      title: t('examples.businessProposal.title'),
+      description: t('examples.businessProposal.description'),
+      prompt: t('examples.businessProposal.prompt'),
+      sampleTemplate: t('examples.businessProposal.sampleTemplate'),
+      icon: Briefcase,
+      category: 'Business',
+    },
+    {
+      title: t('examples.legalNotice.title'),
+      description: t('examples.legalNotice.description'),
+      prompt: t('examples.legalNotice.prompt'),
+      sampleTemplate: t('examples.legalNotice.sampleTemplate'),
+      icon: Scale,
+      category: 'Legal',
+    },
+    {
+      title: t('examples.businessLetter.title'),
+      description: t('examples.businessLetter.description'),
+      prompt: t('examples.businessLetter.prompt'),
+      sampleTemplate: t('examples.businessLetter.sampleTemplate'),
+      icon: Mail,
+      category: 'Personal',
+    },
+    {
+      title: t('examples.certificate.title'),
+      description: t('examples.certificate.description'),
+      prompt: t('examples.certificate.prompt'),
+      sampleTemplate: t('examples.certificate.sampleTemplate'),
+      icon: Award,
+      category: 'Personal',
+    },
+    {
+      title: t('examples.companyPolicy.title'),
+      description: t('examples.companyPolicy.description'),
+      prompt: t('examples.companyPolicy.prompt'),
+      sampleTemplate: t('examples.companyPolicy.sampleTemplate'),
+      icon: Building,
+      category: 'Business',
+    },
+  ];
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'Contracts':
+        return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-300 dark:border-blue-800';
+      case 'Business':
+        return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800';
+      case 'Legal':
+        return 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-300 dark:border-purple-800';
+      case 'Personal':
+        return 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/20 dark:text-orange-300 dark:border-orange-800';
+      default:
+        return 'bg-muted/50 text-muted-foreground border-border';
+    }
+  };
+
   // No navigation links for non-authenticated users
   const navLinks: never[] = [];
 
@@ -126,6 +224,61 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
         onSubmit={handlePromptSubmit}
         onGetStarted={handleGetStarted}
       />
+
+      {/* Examples Section */}
+      <section className="py-16 px-6 bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-foreground mb-6">
+              {t('examples.sectionTitle')}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {examples.map((example, index) => (
+                <div
+                  key={index}
+                  onClick={() => {
+                    handlePromptSubmit(example.prompt);
+                  }}
+                  className="group cursor-pointer bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-md transition-all duration-200 hover:-translate-y-1"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/10">
+                      <example.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full border ${getCategoryColor(example.category)}`}
+                    >
+                      {t(`examples.categories.${example.category.toLowerCase()}`)}
+                    </span>
+                  </div>
+                  <h5 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    {example.title}
+                  </h5>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {example.description}
+                  </p>
+                  <div className="mt-3 flex items-center text-xs text-blue-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    {t('examples.tryExample')}
+                    <svg
+                      className="w-3 h-3 ml-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       <FeaturesGrid
         title={t('features.title')}
