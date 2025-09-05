@@ -32,8 +32,8 @@
       "titleHighlight": "AI Agents",
       "subtitle": "Convert, rewrite, and transform any text with powerful AI tools. From casual notes to professional documents, get instant, intelligent text transformations.",
       "inputLabel": "What do you want to do?",
-      "inputPlaceholder": "e.g., Remove duplicate rows from CSV, Capitalize all words, Extract email addresses, Format phone numbers...",
-      "textareaPlaceholder": "Paste or type your text here..."
+      "inputPlaceholder": "Describe what you want to do with your text...",
+      "textareaPlaceholder": "Paste or type the text you want to convert here"
     },
     "examples": {
       "title": "Not sure how to start? Try these examples:",

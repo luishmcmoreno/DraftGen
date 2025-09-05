@@ -32,8 +32,8 @@
       "titleHighlight": "Agentes de IA",
       "subtitle": "Converta, reescreva e transforme qualquer texto com ferramentas de IA poderosas. De notas casuais a documentos profissionais, obtenha transformações de texto instantâneas e inteligentes.",
       "inputLabel": "O que você quer fazer?",
-      "inputPlaceholder": "ex: Remover linhas duplicadas do CSV, Capitalizar todas as palavras, Extrair endereços de email, Formatar números de telefone...",
-      "textareaPlaceholder": "Cole ou digite seu texto aqui..."
+      "inputPlaceholder": "Descreva o que você quer fazer com seu texto...",
+      "textareaPlaceholder": "Cole ou digite o texto que você quer converter aqui"
     },
     "examples": {
       "title": "Não sabe por onde começar? Experimente estes exemplos:",

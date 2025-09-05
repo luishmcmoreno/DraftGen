@@ -123,7 +123,7 @@
       "titleSuffix": "",
       "subtitle": "Crie modelos, transforme dados e gere documentos com IA. De faturas a contratos, automatize seu fluxo de trabalho de documentos em minutos.",
       "badge": "Transforme documentos com IA",
-      "placeholder": "Descreva o modelo de documento que você precisa... (ex: 'Criar um modelo de fatura para minha consultoria')",
+      "placeholder": "Descreva o modelo de documento que você precisa...",
       "cta": "Começar Agora",
       "createButton": "Criar",
       "examples": "Tente: \"Criar um modelo de fatura profissional\" ou \"Ajude-me a limpar dados de contrato bagunçados\""

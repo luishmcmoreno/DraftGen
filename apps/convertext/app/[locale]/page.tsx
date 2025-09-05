@@ -202,7 +202,6 @@ export default function Home() {
         badgeText={t('hero.badge')}
         ctaText={tCommon('convert')}
         showDualInput={true}
-        taskLabel={t('hero.inputLabel')}
         taskPlaceholder={t('hero.inputPlaceholder')}
         textPlaceholder={t('hero.textareaPlaceholder')}
         onDualSubmit={handleDualSubmit}

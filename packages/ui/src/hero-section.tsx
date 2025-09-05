@@ -116,44 +116,30 @@ export const HeroSection = React.forwardRef<HeroSectionRef, HeroSectionProps>(
               <Card shadow="glow" className="p-6 border-border">
                 {showDualInput ? (
                   <div className="space-y-4">
-                    <div>
-                      {taskLabel && (
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          {taskLabel}
-                        </label>
-                      )}
-                      <div className="flex gap-3">
-                        <Input
-                          placeholder={taskPlaceholder}
-                          value={taskDescription}
-                          onChange={(e) => setTaskDescription(e.target.value)}
-                          className="flex-1 border-0 shadow-none focus-visible:ring-0 text-base"
-                        />
-                        <Button
-                          onClick={handleSubmit}
-                          disabled={!taskDescription.trim() || !text.trim()}
-                          variant="gradient"
-                          size="lg"
-                          className="px-8"
-                        >
-                          {ctaText}
-                        </Button>
-                      </div>
-                    </div>
-                    <div>
-                      {textLabel && (
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          {textLabel}
-                        </label>
-                      )}
-                      <Textarea
-                        placeholder={textPlaceholder}
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        rows={4}
-                        className="w-full border-0 shadow-none focus-visible:ring-0 text-base resize-none"
+                    <div className="flex gap-3">
+                      <Input
+                        placeholder={taskPlaceholder}
+                        value={taskDescription}
+                        onChange={(e) => setTaskDescription(e.target.value)}
+                        className="flex-1 border-0 shadow-none focus-visible:ring-0 text-base"
                       />
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={!taskDescription.trim() || !text.trim()}
+                        variant="gradient"
+                        size="lg"
+                        className="px-8"
+                      >
+                        {ctaText}
+                      </Button>
                     </div>
+                    <Textarea
+                      placeholder={textPlaceholder}
+                      value={text}
+                      onChange={(e) => setText(e.target.value)}
+                      rows={4}
+                      className="w-full border-0 shadow-none focus-visible:ring-0 text-base resize-none"
+                    />
                   </div>
                 ) : (
                   <>
