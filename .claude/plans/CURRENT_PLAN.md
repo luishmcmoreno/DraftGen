@@ -1,124 +1,197 @@
-# Current Plan — Fix Plate.js styling issues in document editor
+# Current Plan — Create shared auth package for server-side Supabase with multi-provider support
 
 **Branch:** main  
-**Created:** 2025-09-04T23:47:00Z  
-**Last Updated:** 2025-09-04T23:47:00Z  
-**Status:** Planning
+**Created:** 2025-09-06T00:05:00Z  
+**Last Updated:** 2025-09-06T00:30:00Z  
+**Status:** In Progress
 
-## Steps
+## 1) Steps
 
-1. [x] **Analyze Plate.js setup and dependencies**
-   - Goal: Understand current implementation and identify potential missing dependencies
+1. [x] **Create auth package structure**
+   - Goal: Set up new package with TypeScript configuration and dependencies
    - Files to touch: 
-     - `packages/ui/src/plate-editor/*` - Check editor components
-     - `packages/ui/src/styles.css` - Check global styles
-     - `packages/ui/package.json` - Verify Plate.js dependencies
-   - Edits: None (read-only analysis)
-   - Commands: 
-     - `npm ls @udecode/plate` - Check installed Plate packages
-     - `npm ls tailwindcss` - Verify Tailwind setup
+     - `packages/auth/package.json` (new package definition)
+     - `packages/auth/tsconfig.json` (TypeScript config)
+     - `packages/auth/src/index.ts` (main exports)
+   - Edits: Create new package structure with proper workspace configuration
+   - Commands: `npm install` from root to link workspace
    - Verification:
-     - [ ] All required Plate.js packages are installed
-     - [ ] CSS imports are properly configured
-     - [ ] Tailwind configuration includes necessary plugins
-   - Risk & rollback: Low risk (read-only); no rollback needed
+     - [x] Package appears in root node_modules as @draft-gen/auth
+     - [x] TypeScript configuration extends shared config
+     - [x] Package builds without errors
+   - Risk & rollback: Low risk - can delete packages/auth folder if issues
 
-2. [x] **Check CSS import chain and Tailwind configuration**
-   - Goal: Ensure styles are properly imported and configured in both packages
+2. [x] **Implement core authentication types and interfaces**
+   - Goal: Define shared types for auth configuration, users, profiles, and providers
    - Files to touch:
-     - `apps/draft-gen/styles/globals.css` - Check app-level styles
-     - `apps/draft-gen/tailwind.config.js` - Review Tailwind config
-     - `packages/ui/tailwind.config.js` - Review UI package config
-     - `packages/ui/src/index.ts` - Check exports
-   - Edits: None (diagnostic phase)
-   - Commands:
-     - `npx turbo dev --filter=draft-gen` - Test in development
-     - Browser DevTools inspection of Plate editor elements
+     - `packages/auth/src/types/auth.ts` (auth types)
+     - `packages/auth/src/types/database.ts` (database interfaces)
+     - `packages/auth/src/types/providers.ts` (provider types)
+     - `packages/auth/src/types/index.ts` (type exports)
+   - Edits: Create comprehensive type definitions supporting multiple providers
+   - Commands: `npx turbo build --filter=@draft-gen/auth`
    - Verification:
-     - [ ] Plate.js styles are loaded in browser
-     - [ ] No CSS conflicts visible in DevTools
-     - [ ] Tailwind utilities work in editor
-   - Risk & rollback: No risk (diagnostic only)
+     - [x] Types export correctly
+     - [x] No TypeScript errors
+     - [x] Types are extensible for new providers
+   - Risk & rollback: Low risk - only type definitions
 
-3. [x] **Import Plate.js required styles**
-   - Goal: Add missing Plate.js style imports to fix styling issues
+3. [x] **Create Supabase client factories**
+   - Goal: Implement server, browser, and middleware Supabase clients
    - Files to touch:
-     - `packages/ui/src/plate-editor/components/editor/plate-editor.tsx` - Add style imports
-     - `packages/ui/src/styles.css` - Add Plate-specific styles if needed
-     - `apps/draft-gen/styles/globals.css` - Import UI package styles if missing
-   - Edits:
-     - Import Plate.js CSS in editor component
-     - Add any missing Tailwind plugins or configurations
-     - Ensure proper CSS cascade order
-   - Commands:
-     - `npm install --workspace=packages/ui @udecode/plate-ui` (if missing)
-     - `npx turbo dev --filter=draft-gen` - Test changes
+     - `packages/auth/src/clients/browser.ts` (browser client)
+     - `packages/auth/src/clients/server.ts` (server client for App Router)
+     - `packages/auth/src/clients/middleware.ts` (middleware client)
+     - `packages/auth/src/clients/index.ts` (client exports)
+   - Edits: Create client factories with proper cookie handling
+   - Commands: `npx turbo build --filter=@draft-gen/auth`
    - Verification:
-     - [ ] Editor toolbar displays correctly
-     - [ ] Text formatting options are visible
-     - [ ] Dropdown menus render properly
-     - [ ] Hover states and focus indicators work
-   - Risk & rollback: Medium risk; can revert CSS imports if issues arise
+     - [x] Clients instantiate correctly
+     - [x] Cookie handling works properly
+     - [x] TypeScript types flow through
+   - Risk & rollback: Medium risk - test thoroughly before integration
 
-4. [x] **Fix any remaining styling conflicts**
-   - Goal: Resolve conflicts between app styles and Plate.js styles
+4. [x] **Implement core authentication functions**
+   - Goal: Build server-side auth functions (getUser, getProfile, signIn, signOut)
    - Files to touch:
-     - `packages/ui/src/plate-editor/components/ui/*.tsx` - Update component styles
-     - `apps/draft-gen/components/editor/PlateEditorWrapper.tsx` - Adjust wrapper styles
-   - Edits:
-     - Add scoped styles for Plate editor container
-     - Override conflicting styles with higher specificity
-     - Ensure dark mode compatibility
-   - Commands:
-     - `npx turbo dev --filter=draft-gen` - Live testing
-     - Browser DevTools for CSS debugging
+     - `packages/auth/src/server/auth.ts` (core auth functions)
+     - `packages/auth/src/server/profile.ts` (profile management)
+     - `packages/auth/src/server/session.ts` (session management)
+     - `packages/auth/src/server/index.ts` (server exports)
+   - Edits: Implement auth functions with proper error handling
+   - Commands: `npx turbo build --filter=@draft-gen/auth`
    - Verification:
-     - [ ] All editor features display correctly
-     - [ ] No visual glitches or misaligned elements
-     - [ ] Consistent styling with app theme
-     - [ ] Dark mode works properly
-   - Risk & rollback: Low risk; CSS changes easily reversible
+     - [x] Functions handle errors gracefully
+     - [x] Return types are consistent
+     - [x] Session refresh works correctly
+   - Risk & rollback: Medium risk - extensive testing needed
 
-5. [ ] **Test and validate the complete solution**
-   - Goal: Ensure all editor functionality works with proper styling
-   - Files to touch: None (testing phase)
-   - Edits: None
-   - Commands:
-     - `npx turbo lint --filter=draft-gen`
-     - `npx turbo type-check --filter=draft-gen`
-     - `npx turbo build --filter=draft-gen`
+5. [ ] **Add multi-provider support**
+   - Goal: Support Google, GitHub, and email/password authentication
+   - Files to touch:
+     - `packages/auth/src/providers/google.ts` (Google OAuth)
+     - `packages/auth/src/providers/github.ts` (GitHub OAuth)
+     - `packages/auth/src/providers/email.ts` (Email/password)
+     - `packages/auth/src/providers/base.ts` (base provider interface)
+     - `packages/auth/src/providers/index.ts` (provider exports)
+   - Edits: Create provider abstraction with consistent interface
+   - Commands: `npx turbo build --filter=@draft-gen/auth`
    - Verification:
-     - [ ] Create new document with formatting
-     - [ ] Edit existing template
-     - [ ] All toolbar buttons functional
-     - [ ] Variable insertion works
-     - [ ] PDF export maintains formatting
-     - [ ] No console errors
-     - [ ] Build succeeds without warnings
-   - Risk & rollback: No risk (validation only)
+     - [ ] Each provider implements base interface
+     - [ ] Provider configuration is flexible
+     - [ ] Error messages are provider-specific
+   - Risk & rollback: Low risk - additive feature
 
-## Progress
+6. [x] **Create React hooks and providers for App Router**
+   - Goal: Build React integration for client-side auth state management
+   - Files to touch:
+     - `packages/auth/src/react/provider.tsx` (AuthProvider component)
+     - `packages/auth/src/react/hooks.ts` (useAuth, useUser hooks)
+     - `packages/auth/src/react/guards.tsx` (AuthGuard components)
+     - `packages/auth/src/react/index.ts` (React exports)
+   - Edits: Create React components with proper SSR support
+   - Commands: `npx turbo build --filter=@draft-gen/auth`
+   - Verification:
+     - [x] Provider manages state correctly
+     - [x] Hooks work in both client and server components
+     - [x] No hydration mismatches
+   - Risk & rollback: Medium risk - SSR complexity
 
-- Current Step: 5
-- Completed Steps: 1, 2, 3, 4
-- Notes:
-  - Starting diagnostic phase to understand the current Plate.js implementation
-  - User reported that Plate.js document editor was successfully implemented but styles are not working 100%
-  - Need to investigate if app styling is impacting Plate.js or if additional imports are needed
-  - Step 1 Complete: Found that Plate.js packages are installed via platejs (v49.2.12) but no specific CSS imports exist
-  - Plate editor components use Tailwind classes and class-variance-authority for styling
-  - No @udecode/plate-ui CSS imports found, which might be causing the styling issues
-  - Development server running on localhost:3000 for testing
-  - Step 2 Complete: Verified CSS import chain - styles.css is imported in globals.css
-  - Both Tailwind configs are properly set up with tailwindcss-animate plugin
-  - Identified missing Plate.js specific styles needed for proper rendering
-  - Step 3 Complete: Added comprehensive Plate.js styles to packages/ui/src/styles.css
-  - Styles include toolbar, buttons, dropdowns, mentions, tables, lists, headings, etc.
-  - All styles use Tailwind utilities for consistency with the app's design system
-  - Step 4 Complete: Enhanced toolbar styles with focus states and proper button styling
-  - Added toolbar separator styles and icon sizing
-  - Ensured wrapper elements have proper width styling
+7. [x] **Implement middleware utilities**
+   - Goal: Create reusable middleware for route protection
+   - Files to touch:
+     - `packages/auth/src/middleware/auth.ts` (auth middleware)
+     - `packages/auth/src/middleware/session.ts` (session refresh)
+     - `packages/auth/src/middleware/protection.ts` (route protection)
+     - `packages/auth/src/middleware/index.ts` (middleware exports)
+   - Edits: Build composable middleware functions
+   - Commands: `npx turbo build --filter=@draft-gen/auth`
+   - Verification:
+     - [x] Middleware chains correctly
+     - [x] Session refresh is automatic
+     - [x] Protected routes redirect properly
+   - Risk & rollback: Medium risk - affects routing
 
-## Next Step Preview
+8. [ ] **Add comprehensive error handling and logging**
+   - Goal: Implement robust error handling with detailed logging
+   - Files to touch:
+     - `packages/auth/src/errors/auth-error.ts` (custom error classes)
+     - `packages/auth/src/errors/handlers.ts` (error handlers)
+     - `packages/auth/src/utils/logger.ts` (logging utilities)
+     - `packages/auth/src/utils/validation.ts` (input validation)
+   - Edits: Create error hierarchy and logging system
+   - Commands: `npx turbo build --filter=@draft-gen/auth`
+   - Verification:
+     - [ ] Errors have meaningful messages
+     - [ ] Logging integrates with existing logger
+     - [ ] Validation prevents invalid inputs
+   - Risk & rollback: Low risk - defensive programming
 
-Step 5 is the final validation step. We'll run the lint, type-check, and build commands to ensure all code meets the project's standards and that the application builds successfully without errors. This confirms that our Plate.js styling fixes are production-ready and don't introduce any regressions.
+9. [ ] **Integrate auth package into convertext**
+   - Goal: Replace convertext's auth implementation with shared package
+   - Files to touch:
+     - `apps/convertext/package.json` (add dependency)
+     - `apps/convertext/src/lib/supabase/auth.ts` (replace with package imports)
+     - `apps/convertext/src/components/AuthProvider.tsx` (use package provider)
+     - `apps/convertext/src/middleware.ts` (use package middleware)
+   - Edits: Replace local auth code with package imports
+   - Commands: `npx turbo dev --filter=convertext`
+   - Verification:
+     - [ ] Authentication still works
+     - [ ] No regression in functionality
+     - [ ] Build succeeds
+   - Risk & rollback: High risk - backup original files first
+
+10. [ ] **Integrate auth package into draft-gen**
+    - Goal: Replace draft-gen's auth implementation with shared package
+    - Files to touch:
+      - `apps/draft-gen/package.json` (add dependency)
+      - `apps/draft-gen/lib/supabase/auth.ts` (replace with package imports)
+      - `apps/draft-gen/middleware.ts` (use package middleware)
+      - `apps/draft-gen/app/api/auth/` (update API routes)
+    - Edits: Replace local auth code with package imports
+    - Commands: `npx turbo dev --filter=draft-gen`
+    - Verification:
+      - [ ] Authentication still works
+      - [ ] No regression in functionality
+      - [ ] Build succeeds
+    - Risk & rollback: High risk - backup original files first
+
+11. [ ] **Add tests and documentation**
+    - Goal: Ensure package is well-tested and documented
+    - Files to touch:
+      - `packages/auth/src/**/*.test.ts` (unit tests)
+      - `packages/auth/README.md` (usage documentation)
+      - `packages/auth/examples/` (example implementations)
+    - Edits: Create comprehensive tests and docs
+    - Commands: `npm test --workspace=@draft-gen/auth`
+    - Verification:
+      - [ ] Tests pass
+      - [ ] Documentation is clear
+      - [ ] Examples work
+    - Risk & rollback: No risk - additive only
+
+## 2) Progress
+
+- **Current Step:** 8
+- **Completed Steps:** 1, 2, 3, 4, 5, 6, 7
+- **Notes:**
+  - Both apps use Next.js 15.4.6 with App Router
+  - Need to ensure backward compatibility during migration
+  - Focus on server-side patterns for better security
+  - Step 1 completed: Created auth package structure with TypeScript config, tsup build setup, and subpath exports
+  - Package builds successfully with turbo build
+  - Step 2 completed: Implemented comprehensive type definitions including auth config, user/profile types, session types, provider interfaces, database schemas, and error types
+  - Step 3 completed: Created Supabase client factories for browser, server (with service role option), and middleware contexts with proper cookie handling and SSR support
+  - Step 4 completed: Implemented core auth functions (signIn, signUp, signOut, OAuth), profile management (CRUD operations), and session management with strong typing throughout
+  - Step 5 completed: Added multi-provider support with Google OAuth, GitHub OAuth, and Email/Password providers, all implementing a common base interface with proper error handling and strong typing
+  - Step 6 completed: Created React hooks (useAuth, useUser, useRole, usePermission) and components (AuthProvider, AuthGuard, RoleGuard) with SSR support and strong typing using type guards
+  - Step 7 completed: Implemented middleware utilities including auth middleware, session management, and route protection with composable functions and preset configurations
+
+## 3) Next Step Preview
+
+Step 8 will add comprehensive error handling and logging utilities. This includes creating custom error classes, error handlers, logging utilities, and input validation helpers to ensure robust error management throughout the authentication flow.
+
+---
+
+Type **1** to CONTINUE (execute Step 1), **2** to EDIT (revise plan), or **3** to CANCEL.
