@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createMiddlewareClient } from '../clients/middleware';
 import type { AuthUser, Database } from '../types';
+import { authLogger } from '../utils/logger';
 
 /**
  * Middleware configuration options
@@ -87,13 +88,13 @@ export function createAuthMiddleware<T extends Database = Database>(
     const pathname = request.nextUrl.pathname;
 
     if (debug) {
-      console.log('[Auth Middleware] Processing:', pathname);
+      authLogger.debug('[Auth Middleware] Processing:', { pathname });
     }
 
     // Check if path is public
     if (isPathMatch(pathname, publicPaths)) {
       if (debug) {
-        console.log('[Auth Middleware] Public path, allowing access');
+        authLogger.debug('[Auth Middleware] Public path, allowing access');
       }
       return response;
     }
@@ -106,9 +107,9 @@ export function createAuthMiddleware<T extends Database = Database>(
     const user = session?.user as AuthUser | undefined;
 
     if (debug) {
-      console.log('[Auth Middleware] Session:', session ? 'Valid' : 'Invalid');
+      authLogger.debug('[Auth Middleware] Session:', { valid: session ? 'Valid' : 'Invalid' });
       if (sessionError) {
-        console.error('[Auth Middleware] Session error:', sessionError);
+        authLogger.error('[Auth Middleware] Session error:', sessionError);
       }
     }
 
@@ -118,7 +119,7 @@ export function createAuthMiddleware<T extends Database = Database>(
         await supabase.auth.refreshSession();
       
       if (debug && refreshError) {
-        console.error('[Auth Middleware] Refresh error:', refreshError);
+        authLogger.error('[Auth Middleware] Refresh error:', refreshError);
       }
 
       if (refreshedSession) {
@@ -134,7 +135,7 @@ export function createAuthMiddleware<T extends Database = Database>(
     if (isProtected) {
       if (!user) {
         if (debug) {
-          console.log('[Auth Middleware] Unauthenticated access to protected path');
+          authLogger.debug('[Auth Middleware] Unauthenticated access to protected path');
         }
 
         if (onAuthFailure) {
@@ -154,7 +155,7 @@ export function createAuthMiddleware<T extends Database = Database>(
         
         if (!isAuthorized) {
           if (debug) {
-            console.log('[Auth Middleware] Custom authorization failed');
+            authLogger.debug('[Auth Middleware] Custom authorization failed');
           }
 
           if (onAuthFailure) {
@@ -177,7 +178,7 @@ export function createAuthMiddleware<T extends Database = Database>(
     // Handle guest-only paths
     if (isGuestOnly && user) {
       if (debug) {
-        console.log('[Auth Middleware] Authenticated user accessing guest path');
+        authLogger.debug('[Auth Middleware] Authenticated user accessing guest path');
       }
 
       // Redirect to dashboard

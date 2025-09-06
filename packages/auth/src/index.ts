@@ -11,6 +11,37 @@ export * from './types';
 // Export providers
 export * from './providers';
 
+// Export errors (excluding conflicting exports from types)
+export {
+  // From auth-error.ts
+  AUTH_ERROR_CODES,
+  AuthError,
+  AuthenticationError,
+  AuthorizationError,
+  SessionError,
+  ProviderError,
+  ValidationError,
+  ConfigurationError,
+  createAuthError,
+  isAuthError,
+  hasErrorCode,
+  type AuthErrorContext,
+  // From handlers.ts
+  handleAuthError,
+  fromSupabaseError,
+  createErrorResponse,
+  handleComponentError,
+  withRetry,
+  CircuitBreaker,
+  setupGlobalErrorHandlers,
+  type ErrorResponse,
+  type RetryConfig,
+  type CircuitBreakerConfig,
+} from './errors';
+
+// Export utilities
+export * from './utils';
+
 // Note: Server, client, react, and middleware exports are available
 // through their respective subpath exports:
 // - @draft-gen/auth/server

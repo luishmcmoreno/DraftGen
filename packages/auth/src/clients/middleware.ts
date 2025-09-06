@@ -7,6 +7,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../types/database';
 import type { AuthConfig } from '../types/auth';
+import { authLogger } from '../utils/logger';
 
 /**
  * Create a Supabase client for middleware usage
@@ -103,7 +104,7 @@ export async function updateSession(
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if (config?.debug) {
-    console.log('Middleware session update:', { 
+    authLogger.debug('Middleware session update:', { 
       hasUser: !!user, 
       error: error?.message,
       path: request.nextUrl.pathname 

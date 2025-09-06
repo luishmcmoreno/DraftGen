@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createMiddlewareClient } from '../clients/middleware';
 import type { AuthUser, Database } from '../types';
+import { authLogger } from '../utils/logger';
 
 /**
  * Route protection configuration
@@ -95,7 +96,7 @@ export function createRouteProtection<T extends Database = Database>(
     const pathname = request.nextUrl.pathname;
     
     if (debug) {
-      console.log('[Route Protection] Checking path:', pathname);
+      authLogger.debug('[Route Protection] Checking path:', { pathname });
     }
 
     // Find matching route config
@@ -103,13 +104,13 @@ export function createRouteProtection<T extends Database = Database>(
     
     if (!routeConfig) {
       if (debug) {
-        console.log('[Route Protection] No matching route config, allowing access');
+        authLogger.debug('[Route Protection] No matching route config, allowing access');
       }
       return NextResponse.next();
     }
 
     if (debug) {
-      console.log('[Route Protection] Found route config:', routeConfig);
+      authLogger.debug('[Route Protection] Found route config:', routeConfig);
     }
 
     // Check route requirements
@@ -197,7 +198,7 @@ async function checkRouteProtection<T extends Database = Database>(
   if (routeConfig.guestOnly) {
     if (authUser) {
       if (debug) {
-        console.log('[Route Protection] Authenticated user accessing guest-only route');
+        authLogger.debug('[Route Protection] Authenticated user accessing guest-only route');
       }
       
       const redirectTo = routeConfig.redirectTo || '/';
@@ -212,7 +213,7 @@ async function checkRouteProtection<T extends Database = Database>(
   // Check authentication requirement
   if (routeConfig.requireAuth && !authUser) {
     if (debug) {
-      console.log('[Route Protection] Authentication required but user not authenticated');
+      authLogger.debug('[Route Protection] Authentication required but user not authenticated');
     }
     
     const redirectTo = routeConfig.redirectTo || defaultRedirect;
@@ -237,7 +238,7 @@ async function checkRouteProtection<T extends Database = Database>(
     
     if (!hasRequiredRole) {
       if (debug) {
-        console.log('[Route Protection] User lacks required roles');
+        authLogger.debug('[Route Protection] User lacks required roles');
       }
       
       const redirectTo = routeConfig.redirectTo || unauthorizedRedirect;
@@ -257,7 +258,7 @@ async function checkRouteProtection<T extends Database = Database>(
     
     if (!hasRequiredPermission) {
       if (debug) {
-        console.log('[Route Protection] User lacks required permissions');
+        authLogger.debug('[Route Protection] User lacks required permissions');
       }
       
       const redirectTo = routeConfig.redirectTo || unauthorizedRedirect;
@@ -273,7 +274,7 @@ async function checkRouteProtection<T extends Database = Database>(
     
     if (!isAuthorized) {
       if (debug) {
-        console.log('[Route Protection] Custom authorization failed');
+        authLogger.debug('[Route Protection] Custom authorization failed');
       }
       
       const redirectTo = routeConfig.redirectTo || unauthorizedRedirect;
@@ -285,7 +286,7 @@ async function checkRouteProtection<T extends Database = Database>(
 
   // All checks passed
   if (debug) {
-    console.log('[Route Protection] Access granted');
+    authLogger.debug('[Route Protection] Access granted');
   }
   
   return response;

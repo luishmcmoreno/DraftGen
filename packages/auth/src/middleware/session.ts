@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createMiddlewareClient } from '../clients/middleware';
 import type { Database } from '../types';
+import { authLogger } from '../utils/logger';
 
 /**
  * Session middleware configuration
@@ -73,7 +74,7 @@ export function createSessionMiddleware<T extends Database = Database>(
     const response = NextResponse.next();
 
     if (debug) {
-      console.log('[Session Middleware] Processing request');
+      authLogger.debug('[Session Middleware] Processing request');
     }
 
     // Create Supabase client
@@ -87,14 +88,14 @@ export function createSessionMiddleware<T extends Database = Database>(
 
     if (error) {
       if (debug) {
-        console.error('[Session Middleware] Error getting session:', error);
+        authLogger.error('[Session Middleware] Error getting session:', error);
       }
       return response;
     }
 
     if (!session) {
       if (debug) {
-        console.log('[Session Middleware] No session found');
+        authLogger.debug('[Session Middleware] No session found');
       }
       return response;
     }
@@ -105,7 +106,7 @@ export function createSessionMiddleware<T extends Database = Database>(
 
     if (expiresAt && expiresAt <= now) {
       if (debug) {
-        console.log('[Session Middleware] Session expired');
+        authLogger.debug('[Session Middleware] Session expired');
       }
 
       // Session has expired
@@ -129,7 +130,7 @@ export function createSessionMiddleware<T extends Database = Database>(
       // Refresh if less than refreshInterval seconds until expiry
       if (timeUntilExpiry < refreshInterval) {
         if (debug) {
-          console.log('[Session Middleware] Refreshing session');
+          authLogger.debug('[Session Middleware] Refreshing session');
         }
 
         const {
@@ -139,14 +140,14 @@ export function createSessionMiddleware<T extends Database = Database>(
 
         if (refreshError) {
           if (debug) {
-            console.error('[Session Middleware] Error refreshing session:', refreshError);
+            authLogger.error('[Session Middleware] Error refreshing session:', refreshError);
           }
 
           // Set refresh error header
           response.headers.set('x-session-refresh-error', 'true');
         } else if (newSession) {
           if (debug) {
-            console.log('[Session Middleware] Session refreshed successfully');
+            authLogger.debug('[Session Middleware] Session refreshed successfully');
           }
 
           // Session refreshed successfully

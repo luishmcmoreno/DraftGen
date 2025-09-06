@@ -108,7 +108,7 @@ export function formatProfileForLogging(profile: AuthProfile | null): Record<str
   return {
     id: profile.id,
     user_id: profile.user_id,
-    username: profile.username,
+    full_name: profile.full_name,
     created_at: profile.created_at,
     updated_at: profile.updated_at,
   };
