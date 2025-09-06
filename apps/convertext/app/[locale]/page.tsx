@@ -42,7 +42,7 @@ export default function Home() {
   const { setPendingConversion, showLoginDialog, setShowLoginDialog, setPostAuthRedirect } =
     useConversionStore();
 
-  const handleDualSubmit = (task: string, textContent: string) => {
+  const handleDualSubmit = (task: string, textContent: string, files?: FileList | null, provider?: string) => {
     // Store conversion data in Zustand store
     setPendingConversion(task, textContent);
 
@@ -57,6 +57,16 @@ export default function Home() {
     // User is authenticated, redirect to create page
     router.push('/routines/create');
   };
+
+  const handleFileUpload = (files: FileList) => {
+    logger.info(`Files uploaded: ${Array.from(files).map(f => f.name).join(', ')}`);
+  };
+
+  const apiProviders = [
+    { value: 'openai', label: 'OpenAI' },
+    { value: 'gemini', label: 'Gemini' },
+    { value: 'mock', label: 'Mock' },
+  ];
 
   const handleGetStarted = () => {
     if (user) {
@@ -238,6 +248,10 @@ export default function Home() {
         textPlaceholder={t('hero.textareaPlaceholder')}
         onDualSubmit={handleDualSubmit}
         onGetStarted={handleGetStarted}
+        apiProviders={apiProviders}
+        defaultProvider="gemini"
+        allowFileUpload={true}
+        onFileUpload={handleFileUpload}
       />
 
       {/* Examples Section - Outside gradient background */}
