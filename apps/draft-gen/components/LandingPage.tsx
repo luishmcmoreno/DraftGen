@@ -61,12 +61,12 @@ export default function LandingPage({ isAuthenticated, profile, locale }: Landin
   }, []);
 
   const handlePromptSubmit = (message: string) => {
-    // Save prompt to sessionStorage
+    // Always save prompt to sessionStorage
     sessionStorage.setItem('pendingPrompt', message);
 
     if (isAuthenticated) {
-      // If authenticated, go directly to generator with prompt
-      router.push(`/${locale}/generator?prompt=${encodeURIComponent(message)}`);
+      // If authenticated, go directly to generator (prompt is in sessionStorage)
+      router.push(`/${locale}/generator`);
     } else {
       // If not authenticated, redirect to login with redirect parameter
       window.location.href = `/api/auth/login?redirect=generator`;
