@@ -22,8 +22,16 @@ This document defines the plan, architecture, database schema, tasks, and accept
 - **Auth/DB/Storage:** Supabase
 - **i18n:** `next-intl` (or `next-i18next`) — choose one and stick to it
 - **AI:** Server-side API route calling your LLM provider
-- **PDF (MVP):** Client-side html2pdf.js (html2canvas + jsPDF)
 - **Validation:** Zod for DSL schema
+
+---
+
+## 🚀 Development Commands
+
+- `npm run dev` - Start development server on port 3001
+- `npm run build` - Build for production
+- `npm run start` - Start production server on port 3001 on port 3001
+- `npm run lint` - Run ESLint
 
 ---
 
@@ -39,38 +47,57 @@ This document defines the plan, architecture, database schema, tasks, and accept
 
 ---
 
-## 📂 Project Structure (proposed)
+## 📂 Project Structure
 
 ```
 /app
-  /login
-    page.tsx
-  /templates
-    page.tsx
-  /generator
-    page.tsx
+  /[locale]
+    (app)
+      /
+        page.tsx
+      /dashboard
+        page.tsx
+      /settings
+        page.tsx
+    (auth)
+      /login
+        page.tsx
   /api
     /ai
-      generate-template/route.ts
+      /generate-template
+        route.ts
 /messages
   en.json
   pt.json
 /components
-  Topbar.tsx
-  TemplateCard.tsx
   ChatPanel.tsx
+  DeleteTemplateModal.tsx
+  GeneratorContent.tsx
+  GeneratorPageClient.tsx
+  LandingPage.tsx
+  PageIndicator.tsx
+  PrintPreviewModal.tsx
+  SaveTemplateModal.tsx
+  ThemeProvider.tsx
+  ThemeScript.tsx
+  ThemeToggle.tsx
+  Topbar.tsx
   VariableFormModal.tsx
   Viewer.tsx
 /lib
-  supabaseClient.ts
-  i18n.ts
+  ai
+  supabase
   dslValidator.ts
+  i18n.ts
+  utils.ts
 /utils
+  dsl-to-plate.ts
   extractVariables.ts
-  substituteVariables.ts
+  extractVariablesTyped.ts
   formatDate.ts
 /styles
   globals.css
+  print.css
 ```
 
 ---

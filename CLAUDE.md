@@ -9,7 +9,7 @@ DraftGen/
 ├── apps/
 │   ├── draft-gen/           # Document generation MVP app (Next.js App Router)
 │   ├── convertext/          # Text conversion tool (Next.js Pages Router)
-│   └── admin/              # Admin dashboard
+│   └── gallery/             # UI components showcase
 ├── packages/
 │   ├── typescript-config/   # Shared TypeScript configurations
 │   └── ui/                 # Shared UI components
@@ -29,56 +29,19 @@ DraftGen/
 
 ### 🔄 Convertext (`apps/convertext/`)
 **Text Conversion Tool**: AI-powered text manipulation system
-- **Framework**: Next.js 14 (Pages Router), TypeScript, React 18
-- **Features**: Workflow-based conversions, multiple LLM providers, tool system
+- **Framework**: Next.js 15 (Pages Router), TypeScript, React 19
+- **Features**: Workflow-based conversions, Supabase integration
 - **Key Dependencies**: diff library, Tailwind CSS
 - **Documentation**: `apps/convertext/CLAUDE.md` (architecture and API guide)
 
-### 👤 Admin (`apps/admin/`)
-**Admin Dashboard**: Management interface
-- **Status**: Basic structure in place
+### 🎨 Gallery (`apps/gallery/`)
+**UI Components Showcase**: A visual gallery of the UI components in the `@draft-gen/ui` package.
+- **Framework**: Next.js 15, React 19
+- **Documentation**: `apps/gallery/CLAUDE.md`
 
 ## 🛠️ Development Commands
 
-### Root Level (All Apps)
-```bash
-# Install all dependencies
-npm install
-
-# Run all apps in development
-npm run dev
-
-# Build all apps
-npm run build
-
-# Lint all apps
-npm run lint
-
-# Format all code
-npm run format
-
-# Type check all apps
-npm run type-check
-```
-
-### Individual App Commands
-```bash
-# Run specific app
-npx turbo dev --filter=draft-gen
-npx turbo dev --filter=convertext
-npx turbo dev --filter=admin
-
-# Build specific app
-npx turbo build --filter=draft-gen
-
-# Run multiple apps
-npx turbo dev --filter=draft-gen --filter=convertext
-```
-
-### Port Assignments
-- **draft-gen**: Usually runs on `http://localhost:3000` or `http://localhost:3001`
-- **convertext**: Usually runs on `http://localhost:3000` or `http://localhost:3001`
-- Turbo automatically handles port conflicts by assigning available ports
+For a complete list of development commands, see the [.project_scripts.md](/.project_scripts.md) file.
 
 ## 🎯 Key Features by App
 
@@ -93,22 +56,18 @@ npx turbo dev --filter=draft-gen --filter=convertext
 ### Convertext  
 - **Text Processing**: AI-powered text manipulation
 - **Workflow System**: Multi-step conversion routines
-- **Multiple LLM Support**: OpenAI, Gemini, Mock providers
-- **Tool System**: Deterministic text transformation tools
-- **Backend API**: FastAPI server with agent system
+- **Database**: Supabase with RLS policies
 
 ## 🔧 Technology Stack
 
 ### Frontend (Common)
-- **Next.js**: Different versions (14 for convertext, 15 for draft-gen)
+- **Next.js**: 15
 - **TypeScript**: Shared configs via `@draft-gen/typescript-config`
 - **Tailwind CSS**: Consistent styling
-- **React**: Different versions (18 vs 19) - both supported
+- **React**: 19.0.0
 
 ### Backend Services
-- **Draft-Gen**: Supabase (database, auth, storage)
-- **Convertext**: FastAPI backend with agent system
-- **AI Providers**: Gemini AI, OpenAI (depending on app)
+- **Supabase**: Database, auth, and storage for all applications.
 
 ### Shared Packages
 - **@draft-gen/typescript-config**: Shared TypeScript configurations
@@ -121,6 +80,7 @@ npx turbo dev --filter=draft-gen --filter=convertext
 Each app has its own detailed CLAUDE.md file:
 - **draft-gen**: Comprehensive MVP implementation guide with database schema, components, and acceptance criteria
 - **convertext**: Architecture overview, API documentation, and environment variables
+- **gallery**: UI component showcase and usage guidelines
 
 ### Making Changes
 1. **Single App Changes**: Navigate to the specific app and work within its context
@@ -128,16 +88,11 @@ Each app has its own detailed CLAUDE.md file:
 3. **Shared Code**: Modify packages for components/configs used across apps
 
 ### Environment Variables
-Each app manages its own environment variables:
-- **draft-gen**: Supabase keys, AI keys
-- **convertext**: LLM provider keys, model settings
+Each app manages its own environment variables.
 
 ## 🚀 Deployment Strategy
 
-Each app can be deployed independently:
-- **draft-gen**: Optimized for Vercel deployment with Supabase backend
-- **convertext**: Frontend + separate FastAPI backend deployment
-- **Shared assets**: Can be deployed to CDN if needed
+Each app can be deployed independently.
 
 ## 📋 Common Workflows
 
@@ -163,7 +118,7 @@ Each app can be deployed independently:
 ## 📝 TypeScript Guidelines
 
 ### Strong Typing Requirements
-- **NEVER use `any` type**: Always define proper types for all variables, parameters, and return values
+- **NEVER use `any` type**: Always define proper types for all variables, parameters, and return values. NEVER use `any`. ALWAYS prefer strong types.
 - **NEVER use `unknown` without type guards**: If you must use `unknown`, immediately narrow it with proper type guards
 - **Always define explicit types** for:
   - Function parameters and return types
