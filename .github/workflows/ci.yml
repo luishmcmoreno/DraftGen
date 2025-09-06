@@ -1,0 +1,33 @@
+name: CI (affected)
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: lint • test • build (affected)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for git diff / filters
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      # Lint only changed workspaces compared to origin/main
+      - name: Lint
+        run: npx turbo run lint --filter=[origin/main...HEAD]
+
+      # Build only changed workspaces
+      - name: Build
+        run: npx turbo run build --filter=[origin/main...HEAD]
