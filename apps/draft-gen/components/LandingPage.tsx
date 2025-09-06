@@ -69,7 +69,7 @@ export default function LandingPage({ isAuthenticated, profile, locale }: Landin
       router.push(`/${locale}/generator?prompt=${encodeURIComponent(message)}`);
     } else {
       // If not authenticated, redirect to login with redirect parameter
-      router.push(`/api/auth/login?redirect=generator`);
+      window.location.href = `/api/auth/login?redirect=generator`;
     }
   };
 
@@ -212,7 +212,7 @@ export default function LandingPage({ isAuthenticated, profile, locale }: Landin
         customActions={
           !isAuthenticated ? (
             <GoogleSignInButton
-              onClick={() => router.push('/api/auth/login')}
+              onClick={() => window.location.href = '/api/auth/login'}
               variant="neutral"
               size="small"
               text={tCommon('loginGoogle')}
