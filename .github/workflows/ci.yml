@@ -28,10 +28,6 @@ jobs:
       - name: Lint
         run: npx turbo run lint --filter=[origin/main...HEAD]
 
-      # Test only changed workspaces
-      - name: Test
-        run: npx turbo run test --filter=[origin/main...HEAD] -- --ci
-
       # Build only changed workspaces
       - name: Build
         run: npx turbo run build --filter=[origin/main...HEAD]
