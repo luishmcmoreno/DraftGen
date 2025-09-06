@@ -1,5 +1,7 @@
 # Draft-Gen
 
+![CI](https://github.com/luishmcmoreno/DraftGen/actions/workflows/ci.yml/badge.svg)
+
 This is a Turborepo monorepo for a project called "Draft-Gen". It consists of three Next.js applications and four shared packages.
 
 ## Project Overview
