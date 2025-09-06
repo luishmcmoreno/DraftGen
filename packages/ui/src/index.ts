@@ -9,6 +9,8 @@ export * from './select'
 export * from './scroll-area'
 export * from './separator'
 export * from './badge'
+export * from './user-menu'
+export * from './theme-toggle'
 
 // Complex components
 export * from './chat-interface'

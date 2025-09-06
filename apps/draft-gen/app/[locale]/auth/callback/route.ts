@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { upsertProfile } from '@/lib/supabase/auth';
+import { upsertProfile } from '@draft-gen/auth/server';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -27,11 +27,16 @@ export async function GET(request: NextRequest, context: { params: Promise<{ loc
     if (session?.user) {
       // Upsert profile with Google data
       const googleMetadata = session.user.user_metadata;
-      await upsertProfile(session.user.id, {
+      
+      // Ensure the session is established in the client
+      await supabase.auth.getUser();
+      
+      // Now we can use the auth package's upsertProfile
+      await upsertProfile({
         display_name: googleMetadata?.full_name || googleMetadata?.name || null,
         avatar_url: googleMetadata?.avatar_url || googleMetadata?.picture || null,
-        role: 'GENERATOR', // Default role for new users
-      });
+        metadata: { role: 'GENERATOR' } // Store role in metadata for now
+      }, supabase);
     }
 
     // Check if there's a redirect stored in the cookie

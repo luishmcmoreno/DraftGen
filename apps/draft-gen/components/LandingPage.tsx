@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from '@/lib/i18n';
-import { useTheme } from './ThemeProvider';
 import {
   HeroSection,
   HeroSectionRef,
@@ -13,6 +12,8 @@ import {
   Button,
   Card,
   GoogleSignInButton,
+  UserMenu,
+  type UserProfile,
 } from '@draft-gen/ui';
 import {
   FileText,
@@ -31,16 +32,22 @@ import {
   FileSignature,
   Building,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const ThemeToggle = dynamic(() => import('./ThemeToggle'), {
+  ssr: false,
+  loading: () => null,
+});
 
 interface LandingPageProps {
   isAuthenticated: boolean;
+  profile?: UserProfile | null;
   locale: string;
 }
 
-export default function LandingPage({ isAuthenticated, locale }: LandingPageProps) {
+export default function LandingPage({ isAuthenticated, profile, locale }: LandingPageProps) {
   const t = useTranslations('landing');
   const tCommon = useTranslations('common');
-  const { resolvedTheme } = useTheme();
   const router = useRouter();
   const [, setPrompt] = useState('');
   const heroRef = useRef<HeroSectionRef>(null);
@@ -72,6 +79,11 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
     } else {
       router.push(`/${locale}/login`);
     }
+  };
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = `/${locale}`;
   };
 
   const features = [
@@ -198,12 +210,22 @@ export default function LandingPage({ isAuthenticated, locale }: LandingPageProp
         appName={t('appName')}
         links={navLinks}
         customActions={
-          <GoogleSignInButton
-            onClick={() => router.push('/api/auth/login')}
-            variant={resolvedTheme === 'dark' ? 'neutral' : 'light'}
-            size="small"
-            text={tCommon('loginGoogle')}
-          />
+          !isAuthenticated ? (
+            <GoogleSignInButton
+              onClick={() => router.push('/api/auth/login')}
+              variant="neutral"
+              size="small"
+              text={tCommon('loginGoogle')}
+            />
+          ) : (
+            <UserMenu
+              profile={profile}
+              onLogout={handleLogout}
+              logoutLabel={tCommon('logout')}
+            >
+              <ThemeToggle />
+            </UserMenu>
+          )
         }
       />
 

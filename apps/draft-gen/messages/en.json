@@ -5,6 +5,7 @@
     "getStarted": "Get Started",
     "viewTemplates": "View Templates",
     "loginGoogle": "Sign in with Google",
+    "logout": "Logout",
     "nav": {
       "generator": "Generator",
       "templates": "Templates",

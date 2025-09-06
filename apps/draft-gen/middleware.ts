@@ -1,7 +1,7 @@
 import createMiddleware from 'next-intl/middleware';
 import { type NextRequest, NextResponse } from 'next/server';
 import { locales, defaultLocale } from './i18n';
-import { updateSession } from '@/lib/supabase/middleware';
+import { updateSession, createServerMiddlewareClient } from '@/lib/supabase/middleware';
 
 const intlMiddleware = createMiddleware({
   locales,
@@ -33,12 +33,9 @@ export async function middleware(request: NextRequest) {
   // Update Supabase session
   const supabaseResponse = await updateSession(request);
 
-  // Get user for authentication checks
+  // Get user for authentication checks from the supabase response
   const response = NextResponse.next();
-  const supabase = (await import('@/lib/supabase/middleware')).createServerMiddlewareClient(
-    request,
-    response
-  );
+  const supabase = createServerMiddlewareClient(request, response);
   const {
     data: { user },
   } = await supabase.auth.getUser();

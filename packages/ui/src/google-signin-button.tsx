@@ -55,7 +55,7 @@ export const GoogleSignInButton = React.forwardRef<
   }
 
   const variantClasses = {
-    light: 'bg-background text-foreground border border-border hover:bg-muted hover:shadow-md dark:bg-white dark:text-gray-700 dark:border-gray-300 dark:hover:bg-gray-50',
+    light: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:shadow-md',
     dark: 'bg-[#4285F4] text-white hover:bg-[#357ae8] hover:shadow-md',
     neutral: 'bg-muted text-muted-foreground hover:bg-muted/80 hover:shadow-md border border-border',
   }
@@ -78,7 +78,7 @@ export const GoogleSignInButton = React.forwardRef<
     >
       <span className={cn(
         'flex items-center justify-center',
-        variant === 'light' ? 'bg-white dark:bg-white rounded-sm p-0.5' : '',
+        variant === 'light' ? 'bg-white rounded-sm p-0.5' : '',
       )}>
         <GoogleLogo />
       </span>
